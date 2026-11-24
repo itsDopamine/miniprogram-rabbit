@@ -1,2 +1,29 @@
-<!-- pages/member/member.wxml —— S5 正式开发 -->
-<view class="placeholder">我的 · 待开发</view>
+<navigation-bar title="我的" back="{{false}}" background="#FFFFFF" />
+
+<view class="profile">
+  <block wx:if="{{logged}}">
+    <image class="profile__avatar" src="{{profile.avatar}}" mode="aspectFill" />
+    <view class="profile__info">
+      <text class="profile__name">{{profile.nickname || profile.account}}</text>
+      <text class="profile__sub">{{profile.account}}</text>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="profile__avatar profile__avatar--empty" />
+    <view class="profile__info" bindtap="onLogin">
+      <text class="profile__name">点击登录</text>
+      <text class="profile__sub">登录后可同步购物车与订单</text>
+    </view>
+  </block>
+</view>
+
+<view class="cells">
+  <view class="cell" bindtap="onAddress">
+    <text class="cell__text">收货地址</text>
+    <text class="cell__arrow">›</text>
+  </view>
+  <view class="cell cell--danger" wx:if="{{logged}}" bindtap="onLogout">
+    <text class="cell__text">退出登录</text>
+  </view>
+</view>

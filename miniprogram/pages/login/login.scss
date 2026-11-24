@@ -1,0 +1,54 @@
+/** pages/login/login.scss */
+@import '../../global.scss';
+
+.form {
+  padding: $gap-xl $gap-lg;
+}
+
+.form__title {
+  display: block;
+  color: $text-primary;
+  font-size: $font-xl;
+  font-weight: 500;
+}
+
+.form__tip {
+  display: block;
+  margin-top: $gap-sm;
+  color: $text-secondary;
+  font-size: $font-sm;
+}
+
+.field {
+  margin-top: $gap-lg;
+  padding: 0 $gap-base;
+  height: 96rpx;
+  border: 1px solid $border-color;
+  border-radius: $radius-base;
+  background-color: $bg-card;
+}
+
+.field__input {
+  height: 96rpx;
+  color: $text-primary;
+  font-size: $font-base;
+}
+
+.field__ph {
+  color: $text-placeholder;
+}
+
+.submit {
+  margin-top: $gap-xl;
+  height: 88rpx;
+  border-radius: $radius-round;
+  background-color: $brand-color;
+  color: #fff;
+  font-size: $font-md;
+  line-height: 88rpx;
+  text-align: center;
+
+  &--disabled {
+    opacity: 0.6;
+  }
+}

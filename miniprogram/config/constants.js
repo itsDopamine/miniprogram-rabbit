@@ -2,6 +2,15 @@
 // 库存动辄几千是样例数据，直接拿库存当上限会让「加购 8854 件、合计五千万」变成可能
 export const MAX_CART_COUNT = 99
 
+// tabBar 页面只能 switchTab 打开，navigateTo/redirectTo 会报错。
+// 与 app.json 的 tabBar.list 保持一致，改 tabBar 时要同步
+export const TAB_PAGES = [
+  '/pages/index/index',
+  '/pages/category/category',
+  '/pages/cart/cart',
+  '/pages/member/member'
+]
+
 // 订单状态值来源级别 B：沿用 React 版，待 S7 实测确认
 export const ORDER_STATE = Object.freeze({
   ALL: 0,

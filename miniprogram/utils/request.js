@@ -8,6 +8,8 @@ import { getToken, clearToken } from './auth'
 /** 业务成功码。实测接口返回字符串 '1'，React 版按 0 判断是错的 */
 const SUCCESS_CODE = '1'
 
+const LOGIN_PAGE = '/pages/login/login'
+
 let loadingCount = 0
 let redirecting = false
 
@@ -29,12 +31,35 @@ function toast(msg) {
   wx.showToast({ title: msg || '请求失败', icon: 'none' })
 }
 
-// 并发 401 只处理一次；登录页在 S5 接，这里先 toast 占位
+// 拼出当前页的完整路径，登录成功后按它回跳
+function currentUrl() {
+  const pages = getCurrentPages()
+  const page = pages[pages.length - 1]
+  if (!page) return ''
+
+  const options = page.options || {}
+  const query = Object.keys(options)
+    .map((key) => `${key}=${options[key]}`)
+    .join('&')
+
+  return '/' + page.route + (query ? '?' + query : '')
+}
+
+// 并发 401 只处理一次：多个请求同时失败时连续跳转会叠出好几层登录页
 function handleUnauthorized() {
+  clearToken()
+
+  // 就在登录页上就不再跳，否则它自己的请求一失败就会被顶掉
+  const page = getCurrentPages().pop()
+  if (page && '/' + page.route === LOGIN_PAGE) return
+
   if (redirecting) return
   redirecting = true
-  clearToken()
   toast('请先登录')
+
+  const from = currentUrl()
+  wx.navigateTo({ url: LOGIN_PAGE + (from ? '?redirect=' + encodeURIComponent(from) : '') })
+
   setTimeout(() => {
     redirecting = false
   }, 2000)

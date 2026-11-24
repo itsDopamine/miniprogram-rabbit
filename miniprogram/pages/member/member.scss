@@ -1,11 +1,69 @@
 /** pages/member/member.scss */
 @import '../../global.scss';
 
-.placeholder {
+page {
+  background-color: $bg-page;
+}
+
+.profile {
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 60vh;
+  padding: $gap-xl $gap-lg;
+  background-color: $bg-card;
+}
+
+.profile__avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: $radius-round;
+  background-color: $brand-color-light;
+
+  &--empty {
+    background-color: $brand-color-light;
+  }
+}
+
+.profile__info {
+  flex: 1;
+  margin-left: $gap-base;
+}
+
+.profile__name {
+  display: block;
+  color: $text-primary;
+  font-size: $font-lg;
+}
+
+.profile__sub {
+  display: block;
+  margin-top: $gap-xs;
   color: $text-secondary;
+  font-size: $font-sm;
+}
+
+.cells {
+  margin-top: $gap-base;
+  background-color: $bg-card;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100rpx;
+  padding: 0 $gap-lg;
+  color: $text-primary;
   font-size: $font-base;
+
+  @include hairline(bottom);
+
+  &--danger {
+    justify-content: center;
+    color: $brand-color;
+  }
+}
+
+.cell__arrow {
+  color: $text-placeholder;
+  font-size: $font-md;
 }

@@ -1,0 +1,32 @@
+<navigation-bar title="登录" background="#FFFFFF" />
+
+<view class="form">
+  <text class="form__title">账号登录</text>
+  <text class="form__tip">测试账号 13123456789 / 密码 123456</text>
+
+  <view class="field">
+    <input
+      class="field__input"
+      type="text"
+      placeholder="手机号 / 用户名"
+      placeholder-class="field__ph"
+      data-field="account"
+      bindinput="onInput"
+    />
+  </view>
+
+  <view class="field">
+    <input
+      class="field__input"
+      password
+      placeholder="密码"
+      placeholder-class="field__ph"
+      data-field="password"
+      bindinput="onInput"
+    />
+  </view>
+
+  <view class="submit {{loading ? 'submit--disabled' : ''}}" bindtap="onSubmit">
+    {{loading ? '登录中…' : '登 录'}}
+  </view>
+</view>
