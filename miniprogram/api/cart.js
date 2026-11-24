@@ -22,13 +22,61 @@ export function addToCart({ skuId, count }) {
  * Apifox 文档未收录此接口，实测存在（未登录返回 401 而非 404），
  * 请求体是数组，与 React 版 POST /member/cart/merge 的用法一致
  * @param {Array<{skuId: string, count: number, selected: boolean}>} list
- * @returns {Promise<Object>}
  */
 export function mergeCart(list) {
   return request({
     url: '/member/cart/merge',
     method: 'POST',
     data: list,
+    auth: true,
+    loading: true
+  })
+}
+
+/**
+ * 购物车列表（必须登录）
+ * @returns {Promise<Array>}
+ */
+export function fetchCartList() {
+  return request({ url: '/member/cart', auth: true })
+}
+
+/**
+ * 修改购物车单品：只传要改的字段
+ * @param {string} skuId
+ * @param {{selected?: boolean, count?: number}} data
+ */
+export function updateCartItem(skuId, data) {
+  return request({
+    url: `/member/cart/${skuId}`,
+    method: 'PUT',
+    data,
+    auth: true
+  })
+}
+
+/**
+ * 全选 / 取消全选
+ * @param {boolean} selected
+ */
+export function setAllCartSelected(selected) {
+  return request({
+    url: '/member/cart/selected',
+    method: 'PUT',
+    data: { selected },
+    auth: true
+  })
+}
+
+/**
+ * 删除购物车单品，body 是 skuId 数组
+ * @param {string[]} ids
+ */
+export function deleteCartItems(ids) {
+  return request({
+    url: '/member/cart',
+    method: 'DELETE',
+    data: { ids },
     auth: true,
     loading: true
   })
