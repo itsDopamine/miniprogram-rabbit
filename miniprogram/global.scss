@@ -1,0 +1,78 @@
+/**
+ * global.scss —— 全局 SCSS 公共文件
+ *
+ * 它由 project.config.json 的 sassSetting.scssCommonUseFilePath 指定，
+ * 开发者工具会把本文件「自动注入」到每一个 .scss 文件的顶部，
+ * 所以这里只放【变量】和【mixin / function】，绝对不要写选择器，
+ * 否则每编译一个 scss 都会重复输出一遍这些样式，包体积会翻倍。
+ *
+ * 使用方式（任意 .scss 里直接用，无需 import）：
+ *   .title { color: $brand-color; font-size: $font-lg; }
+ */
+
+/* ---------- 品牌色 ---------- */
+$brand-color: #cf4444; // 主色（价格、按钮、选中态）
+$brand-color-light: #f5e6e6;
+
+/* ---------- 文字 ---------- */
+$text-primary: #1a1a1a;
+$text-regular: #4a4a4a;
+$text-secondary: #999;
+$text-placeholder: #bbb;
+
+/* ---------- 背景与边框 ---------- */
+$bg-page: #f7f7f8;
+$bg-card: #ffffff;
+$border-color: #ededed;
+
+/* ---------- 字号（单位 rpx） ---------- */
+$font-xs: 20rpx;
+$font-sm: 24rpx;
+$font-base: 28rpx;
+$font-md: 32rpx;
+$font-lg: 36rpx;
+$font-xl: 44rpx;
+
+/* ---------- 间距 ---------- */
+$gap-xs: 8rpx;
+$gap-sm: 16rpx;
+$gap-base: 24rpx;
+$gap-lg: 32rpx;
+$gap-xl: 48rpx;
+
+/* ---------- 圆角 ---------- */
+$radius-sm: 8rpx;
+$radius-base: 16rpx;
+$radius-round: 999rpx;
+
+/* ---------- 常用 mixin ---------- */
+// 单行省略号
+@mixin ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+// 多行省略号（$line 为行数）
+@mixin ellipsis-multi($line: 2) {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: $line;
+}
+
+// 一像素边框（移动端 0.5px 更细，避免 1px 视觉过粗）
+@mixin hairline($position: bottom, $color: $border-color) {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    #{$position}: 0;
+    height: 1px;
+    background-color: $color;
+    transform: scaleY(0.5);
+  }
+}

@@ -4,7 +4,6 @@
   "compileType": "miniprogram",
   "setting": {
     "useCompilerPlugins": [
-      "typescript",
       "sass"
     ],
     "babelSetting": {
@@ -20,7 +19,7 @@
     "packNpmRelationList": [],
     "ignoreUploadUnusedFiles": true,
     "compileHotReLoad": false,
-    "skylineRenderEnable": true,
+    "skylineRenderEnable": false,
     "es6": false,
     "uglifyFileName": false,
     "uploadWithSourceMap": true,
