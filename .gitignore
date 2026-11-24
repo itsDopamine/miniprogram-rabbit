@@ -1,0 +1,14 @@
+# 依赖
+node_modules/
+miniprogram_npm/
+
+# 微信开发者工具的个人配置（含本机设置，不入库）
+project.private.config.json
+
+# 临时资料（接口样例等，联调后清理）
+idoc/tmp/
+
+# 系统与日志
+.DS_Store
+Thumbs.db
+*.log
