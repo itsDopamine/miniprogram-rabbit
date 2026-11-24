@@ -202,8 +202,11 @@
     }
   }
 
-  &__num {
-    min-width: 72rpx;
+  // input 自带宽度与内边距，不重置会把步进器撑开
+  &__input {
+    width: 80rpx;
+    height: 56rpx;
+    padding: 0;
     color: $text-primary;
     font-size: $font-base;
     text-align: center;

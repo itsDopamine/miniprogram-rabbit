@@ -229,10 +229,14 @@ const next = Math.min(Math.max(count, 1), stock) // 不小于 1，不超过库�
 **本地条目结构**（与 React 版 payload 一致）
 
 ```js
-{ id, name, picture, price, count, skuId, attrsText, selected }
+{ id, name, picture, price, count, skuId, attrsText, selected, stock }
 ```
 
 `id` 是 SPU id，`skuId` 才是加购要用的。`attrsText` 形如 `颜色：黑色 尺寸：30cm`。
+
+**`stock` 必须存**：本地购物车没有接口可查库存，不存就只能靠兜底值，用户能在购物车里把数量改到远超真实库存，登录合并时对不上。这个字段由 `sku-panel` 的 confirm 事件带出来（`sku.inventory`）。
+
+**累加也要夹**：`appendLocalCart` 里 `exist.count += add` 之后必须 `Math.min(..., stock)`。面板只夹了「这一次的数量」，管不住「反复加购的累加」——每加一次就是库存的整数倍，2026-11-24 实测点 4 次得到 4 倍库存。数量没涨时 `addGoodsToCart` 返回 `'capped'`，详情页据此提示「数量已达库存上限」，不然用户会以为点击没生效。
 
 **代码位置**
 

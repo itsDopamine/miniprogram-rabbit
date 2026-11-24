@@ -179,8 +179,11 @@ page {
     }
   }
 
-  &__num {
-    min-width: 64rpx;
+  // input 默认有自带宽度和内边距，不重置会把步进器撑开
+  &__input {
+    width: 72rpx;
+    height: 52rpx;
+    padding: 0;
     color: $text-primary;
     font-size: $font-sm;
     text-align: center;
@@ -195,11 +198,12 @@ page {
 }
 
 /* ---------- 结算栏 ---------- */
+// tabBar 页面不补安全区：底部 tabBar 已经占掉了，再加会多出一条空白
 .bar {
   flex: none;
   display: flex;
   align-items: center;
-  padding: $gap-sm $gap-base calc(#{$gap-sm} + env(safe-area-inset-bottom));
+  padding: $gap-sm $gap-base;
   background-color: $bg-card;
   box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.04);
 }

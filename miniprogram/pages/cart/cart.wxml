@@ -46,7 +46,15 @@
             >
               -
             </view>
-            <text class="stepper__num">{{item.count}}</text>
+            <input
+              class="stepper__input"
+              type="number"
+              value="{{item.count}}"
+              data-sku-id="{{item.skuId}}"
+              bindinput="onCountInput"
+              bindblur="onCountBlur"
+              bindconfirm="onCountBlur"
+            />
             <view
               class="stepper__btn {{item.count >= item.stock ? 'stepper__btn--off' : ''}}"
               data-sku-id="{{item.skuId}}"

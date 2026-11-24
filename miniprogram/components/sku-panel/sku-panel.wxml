@@ -48,7 +48,14 @@
     <text class="sku__count-label">购买数量</text>
     <view class="stepper">
       <view class="stepper__btn {{count <= 1 ? 'stepper__btn--off' : ''}}" bindtap="onMinus">-</view>
-      <text class="stepper__num">{{count}}</text>
+      <input
+        class="stepper__input"
+        type="number"
+        value="{{count}}"
+        bindinput="onCountInput"
+        bindblur="onCountBlur"
+        bindconfirm="onCountBlur"
+      />
       <view class="stepper__btn {{count >= maxCount ? 'stepper__btn--off' : ''}}" bindtap="onPlus">+</view>
     </view>
   </view>

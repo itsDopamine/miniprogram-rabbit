@@ -36,3 +36,18 @@ export function formatTime(date) {
 export function toHttps(url) {
   return (url || '').replace(/^http:\/\//, 'https://')
 }
+
+/**
+ * 数量夹取：把用户输入夹到 [1, max]
+ * 上限按库存算，库存小于 1 时按 1 处理——否则 Math.min(Math.max(n, 1), 0) 会夹出 0 件
+ * @param {string|number} value 原始输入，可能是 '' 或 'abc'
+ * @param {number} max 上限（库存）
+ * @returns {number|null} 非法输入返回 null，由调用方决定退回原值还是给默认值
+ */
+export function clampCount(value, max) {
+  const n = parseInt(value, 10)
+  if (Number.isNaN(n)) return null
+
+  const limit = Math.max(Number(max) || 0, 1)
+  return Math.min(Math.max(n, 1), limit)
+}

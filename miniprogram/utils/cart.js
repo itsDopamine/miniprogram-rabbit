@@ -35,6 +35,7 @@ function writeLocalCart(list) {
 
 /**
  * 本地加购：同 sku 累加数量，新条目默认选中
+ * 累加结果按库存夹住——不限的话反复加购会得到「库存 × N」这种根本买不到的数量
  * @param {Object} item
  * @returns {Array} 写入后的完整列表
  */
@@ -42,10 +43,14 @@ export function appendLocalCart(item) {
   const list = readLocalCart()
   const exist = list.find((i) => i.skuId === item.skuId)
 
+  const stock = Math.max(Number(item.stock) || Number(exist && exist.stock) || 99, 1)
+  const add = Math.max(Number(item.count) || 1, 1)
+
   if (exist) {
-    exist.count += item.count || 1
+    exist.count = Math.min(Number(exist.count) + add, stock)
+    exist.stock = stock
   } else {
-    list.push({ ...item, selected: true })
+    list.push({ ...item, count: Math.min(add, stock), stock, selected: true })
   }
 
   writeLocalCart(list)
@@ -60,13 +65,21 @@ export function clearLocalCart() {
 
 /**
  * 加购入口：有 token 走服务端，没有就落本地
- * @param {{id, name, picture, price, count, skuId, attrsText}} item
- * @returns {Promise<'server'|'local'>} 数据最终落在哪
+ * stock 要一起存：本地购物车没有接口可查库存，不存就只剩兜底值，
+ * 用户能在购物车里把数量改到远超真实库存
+ * @param {{id, name, picture, price, count, skuId, attrsText, stock}} item
+ * @returns {Promise<'server'|'local'|'capped'>} local 表示落本地，capped 表示本地数量已到库存上限
  */
 export async function addGoodsToCart(item) {
   if (!getToken()) {
-    appendLocalCart(item)
-    return 'local'
+    const before = readLocalCart().find((i) => i.skuId === item.skuId)
+    const beforeCount = before ? Number(before.count) : 0
+
+    const list = appendLocalCart(item)
+    const after = list.find((i) => i.skuId === item.skuId)
+
+    // 数量没涨说明已经顶到库存上限，告诉调用方，否则用户以为点了没反应
+    return after && Number(after.count) === beforeCount ? 'capped' : 'local'
   }
 
   await addToCart({ skuId: item.skuId, count: item.count })
@@ -101,15 +114,21 @@ function normalize(item) {
   const price = Number(item.price) || 0
   const nowPrice = Number(item.nowPrice != null ? item.nowPrice : price) || 0
 
+  // 本地条目在加购时会带上真实库存；老数据没有才兜底 99
+  const stock = Number(item.stock) || 99
+  // 归一化时就把数量夹一次：本地可能残留超库存的历史值，
+  // 让它进不了界面，后面所有 +/- 与提交都基于合法值
+  const count = Math.min(Math.max(Number(item.count) || 1, 1), Math.max(stock, 1))
+
   return {
     ...item,
     price,
     nowPrice,
     priceText: nowPrice.toFixed(2),
-    count: Number(item.count) || 1,
+    count,
     selected: item.selected !== false,
     isEffective: item.isEffective !== false,
-    stock: Number(item.stock) || 99
+    stock
   }
 }
 

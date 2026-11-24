@@ -1,4 +1,4 @@
-import { toHttps } from '../../utils/common'
+import { clampCount, toHttps } from '../../utils/common'
 import {
   buildDisabled,
   buildPathMap,
@@ -113,13 +113,41 @@ Component({
     },
 
     onMinus() {
-      if (this.data.count <= 1) return
-      this.setData({ count: this.data.count - 1 })
+      // Number()：置空重填的那一帧 count 是 ''，直接减会得到 -1
+      const count = Number(this.data.count) || 1
+      if (count <= 1) return
+      this.setData({ count: count - 1 })
+    },
+
+    // 输入过程中不进 data：每敲一个字都 setData 会把光标顶到末尾
+    onCountInput(e) {
+      this.inputCount = e.detail.value
+    },
+
+    onCountBlur() {
+      // 回车会先触发 confirm 再触发 blur，两次都进会把 count 刷成空
+      if (this.blurLock) return
+      this.blurLock = true
+      setTimeout(() => {
+        this.blurLock = false
+      }, 0)
+
+      // 非法输入（空串、字母）返回 null，退回原值；其余夹到 [1, maxCount]
+      const parsed = clampCount(this.inputCount, this.data.maxCount)
+      this.inputCount = undefined
+
+      const count = parsed === null ? Number(this.data.count) || 1 : parsed
+
+      // input 不是严格受控：先置空再回填，强制它跟随 data
+      this.setData({ count: '' }, () => {
+        this.setData({ count })
+      })
     },
 
     onPlus() {
-      const { count, maxCount } = this.data
-      if (count >= maxCount) return
+      // Number()：count 在置空那一帧是 ''，'' + 1 会变成字符串 '1'，再点就成 '11'
+      const count = Number(this.data.count) || 1
+      if (count >= this.data.maxCount) return
       this.setData({ count: count + 1 })
     },
 
@@ -137,13 +165,17 @@ Component({
         return
       }
 
-      // 未登录要落本地暂存，所以把展示需要的字段一起抛给页面
+      // 提交前再夹一次：输入框里可能有没失焦的值，库存也可能刚被刷新过
+      const count = clampCount(this.data.count, sku.inventory) || 1
+
+      // 未登录要落本地暂存，stock 也得带上，否则本地购物车查不到真实库存
       this.triggerEvent('confirm', {
         skuId: sku.id,
-        count: this.data.count,
+        count,
         price: sku.price,
         picture: toHttps(sku.picture) || '',
-        attrsText: this.data.selectedText
+        attrsText: this.data.selectedText,
+        stock: sku.inventory
       })
     }
   }

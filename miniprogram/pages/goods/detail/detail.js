@@ -85,7 +85,7 @@ Page({
   },
 
   async onSkuConfirm(e) {
-    const { skuId, count, price, picture, attrsText } = e.detail
+    const { skuId, count, price, picture, attrsText, stock } = e.detail
 
     // 请求层已有 loading 遮罩，这里再挡一次极短时间内的连点
     if (this.adding) return
@@ -99,14 +99,20 @@ Page({
         price,
         count,
         skuId,
-        attrsText
+        attrsText,
+        // 本地购物车要靠它限制数量上限
+        stock
       })
 
       this.setData({ skuVisible: false })
-      wx.showToast({
-        title: from === 'local' ? '已加入购物车，登录后同步' : '已加入购物车',
-        icon: from === 'local' ? 'none' : 'success'
-      })
+
+      if (from === 'capped') {
+        wx.showToast({ title: '数量已达库存上限', icon: 'none' })
+      } else if (from === 'local') {
+        wx.showToast({ title: '已加入购物车，登录后同步', icon: 'none' })
+      } else {
+        wx.showToast({ title: '已加入购物车', icon: 'success' })
+      }
     } catch (err) {
       // 已登录时 401 与业务错误由 request.js 统一 toast，面板保持打开让用户重试
       console.log('[cart-add]', err)
