@@ -1,6 +1,6 @@
 # 阶段 S3 · 分类与搜索
 
-> 状态：**未开始**
+> 状态：**Step 1–2 代码完成（分类页渲染 + 左右联动），待实机验收；Step 3–4（搜索）待 `/search/all` 服务端恢复**
 > 工时：2 天 · 前置：S2 完成（首页能跑通，`goods-card` 组件可用）
 > 关联：[`03-roadmap.md`](./03-roadmap.md) §2/§4、[`api-reference.md`](./api-reference.md)、[`01-migration-map.md`](./01-migration-map.md)
 
@@ -87,30 +87,26 @@ result: {
 
 ## 3. 前置知识
 
-### 3.1 `scroll-into-view`：让滚动条「点名」跳转
+### 3.1 两种「程序控制滚动」：`scroll-into-view` 与 `scroll-top`
 
-`scroll-view` 有两个控制滚动的属性，方向相反：
+`scroll-view` 里方向相反的两组接口：
 
-| 属性 | 方向 | 用法 |
-| --- | --- | --- |
-| `scroll-top` / `scroll-into-view` | **你 → 滚动条**（命令式） | 设了值，滚动条就跳过去 |
-| `bindscroll` | **滚动条 → 你**（事件） | 用户滚了，把 `scrollTop` 报给你 |
+| 接口 | 方向 | 值 | 适合 |
+| --- | --- | --- | --- |
+| `scroll-into-view` | **你 → 滚动条**（命令式） | 子节点 **id 字符串** | 跳到某个锚点 |
+| `scroll-top` | **你 → 滚动条**（命令式） | **像素数值** | 跳到已知偏移量 |
+| `bindscroll` | **滚动条 → 你**（事件） | `e.detail.scrollTop` | 反推当前位置 |
 
-`scroll-into-view` 的值是**子节点的 `id`**（字符串），不是选择器、不是 class：
+本项目**最终用 `scroll-top`**，原因不是个人偏好，是踩出来的：
 
-```xml
-<scroll-view scroll-y scroll-into-view="{{intoView}}">
-  <view id="cat-1005000">...</view>
-  <view id="cat-1005002">...</view>
-</scroll-view>
-```
+1. 偏移量在 `measureBlocks` 里已经量好（`this.blockOffsets`），直接给数值最直接
+2. `scroll-into-view` 想支持「重复点击同一目标」必须先清空再赋值，而**清空会把滚动位置拉回 0**。高频点击不同分类时，每次都是「弹回顶部 → 再平滑滚下去」，视觉上就是右侧上下摇晃。S2 的「回到顶部」也用清空这招，但它的目标本来就是顶部，所以没暴露
 
-点击左侧时 `setData({ intoView: 'cat-' + id })`，右侧就跳到那一块。
+**三个通用坑：**
 
-**两个坑：**
-
-1. **值不变不会重新滚动**。点两次同一个分类，第二次什么都不会发生（框架认为状态没变）。要先清空再设值——S2 的「回到顶部」已经踩过这个坑，同一个解法。
-2. **`id` 必须以字母开头**。`id="1005000"` 在部分基础库上无效，所以统一加前缀 `cat-`。
+1. **命令属性值不变就不会重新下发**。`scroll-top` 与 `scroll-into-view` 都一样，框架认为状态没变就不做事。用数值方案时靠「与上次相同则减 1px」解决，肉眼无差别。
+2. **不要用 `bindscroll` 回写 `scroll-top`**。那等于拿用户的滚动位置去覆盖用户的手势，手越快抖动越大（S2 的「回到顶部」第一版就是这个失败）。
+3. **`scroll-into-view` 的 `id` 不能以数字开头**，`id="1005000"` 在部分基础库上无效，要加字母前缀。
 
 ### 3.2 反向同步：右侧滚到哪儿，左侧就高亮哪个
 
@@ -202,10 +198,11 @@ onInput(e) {
 
 ### Step 2：左右联动（半天）
 
-- 左侧点击 → `setData({ intoView: 'cat-' + id })`
-- 右侧 `bindscroll` → 算出当前区块下标 → 更新左侧高亮
-- 二次点击同一分类要能再次跳转（先清空 `intoView` 再设值）
-- `onReady` 里量区块 offsets 缓存到 `this`，**不进 `data`**
+- 左侧点击 → `setData({ scrollTop: this.blockOffsets[index] })`（不要用 `scroll-into-view`，见 §3.1）
+- 右侧 `bindscroll` → 算出当前区块下标 → 更新左侧高亮；下标没变就不 `setData`
+- 程序滚动期间用 `syncLocked` 锁住滚动反推，否则高亮会从点击项一路闪过去
+- 量区块 offsets 放在 `setData` 回调 + `wx.nextTick` 里（不是 `onReady`，那时数据可能还没回来），缓存到 `this`，**不进 `data`**
+- 内容不够高时最后一个区块滚不到顶部，用 `scrollTop + 视口高 >= 内容高` 兜底选中末项
 
 **验收**：点左侧每个分类，右侧都跳到对应区块顶部，左侧高亮正确；手动滚右侧，左侧高亮跟着切换且不掉帧。
 
@@ -296,4 +293,8 @@ onInput(e) {
 
 | 日期 | 内容 |
 | --- | --- |
+| 2026-11-24 | Step 1 完成：`api/category.js` + 两栏静态渲染。首次上机暴露三个布局坑：① flex 子项 `min-width: auto` 被内容撑宽，右侧 3 列溢出屏幕（整条 flex 链补 `min-width: 0`）；② `space-between` 把剩余宽度均分到元素间，最后一行不足 3 个时中间出现空洞（改固定 `flex: 0 0 31%` + `margin-right: 3.4%` + `:nth-child(3n)` 清零）；③ 导航栏与内容间数 px 缝隙，缝里透出商品图——自定义组件宿主节点默认行内元素有基线空隙，且 sticky 标题参与层叠（页面 wxss 给 `navigation-bar` 加 `display:block; flex:none; position:relative; z-index:10`）。详见 `notes/flex-layout.md`。 |
+| 2026-11-24 | Step 2 完成：`scroll-into-view` 点击定位 + `bindscroll` 反推高亮。三个设计点：① 区块偏移在 `setData` 回调 + `wx.nextTick` 后一次性量，缓存在 `this.blockOffsets`（不进 `data`，不参与渲染）；② 滚动事件每帧触发，`activeIndex` 没变不 `setData`；③ 程序滚动期间用 `syncLocked` + 滚动事件延期解锁，避免高亮被中途区块抢走；④ 内容不够高时最后一个区块滚不到顶，用 `scrollTop + 视口高 >= 内容高` 兜底选中末项。 |
+| 2026-11-24 | 实机反馈：高频点击不同分类时右侧**上下摇晃**。定位到 `scroll-into-view` 为支持重复点击而「先清空再赋值」，而清空会把滚动位置拉回 0 → 每次点击都是「弹回顶部再滚下去」。改为 `scroll-top` 直接下发已量好的偏移（值相同则减 1px 保证下发）。该坑与 `bindscroll` 回写抖动、末块高亮不到等一并记入 `notes/scroll-view.md`。 |
+| 2026-11-24 | 连点同一分类仍有 1px 抖动。根因是为绕过「受控属性值不变不下发」而写的「与上次相同则减 1px」：连点会在 `target` 与 `target−1` 之间无限横跳（末块因都夹取到同一上限，同样触发）。改为：① 用**实际滚动位置**（`bindscroll` 里记在 `this`，不进 `data`）判断是否已到位，到位则只切高亮；② 滚动改用命令式 `ScrollViewContext.scrollTo`（`query.select('.xxx').node()` 取得），不再依赖 `data` 值变化。同时去掉 `scroll-with-animation`。 |
 | 2026-11-24 | 阶段文档建立。同日在 `idoc/api-reference.md` 固化 44 个接口的真实 method/path（此前 roadmap 中 `/search`、`/category`、`/refresh`、`/pay/mock` 等路径均为 React 版推测，实测或查证后已全部修正）。实测发现 `/search/all` 服务端 ES 故障（500 all shards failed），搜索功能需等后端恢复才能联调；`/category/top` 与 `/search/tips` 可用（tips 返回空数组）。 |

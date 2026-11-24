@@ -16,13 +16,17 @@
       <view
         wx:for="{{categories}}"
         wx:key="id"
+        data-index="{{index}}"
         class="category__nav {{index === activeIndex ? 'category__nav--active' : ''}}"
+        bindtap="onTapNav"
       >
         {{item.name}}
       </view>
     </scroll-view>
 
-    <scroll-view class="category__right" scroll-y>
+    <!-- 用 scroll-top 定位：数值每次都不同，不会出现「先清空再赋值」的弹跳 -->
+    <!-- 不加 scroll-with-animation：平滑滚动在长距离时会被后续指令反复重启，连点表现为上下抽动 -->
+    <scroll-view class="category__right" scroll-y scroll-top="{{scrollTop}}" bindscroll="onRightScroll">
       <!-- 内层循环必须改名，否则 item 会覆盖外层的 -->
       <view wx:for="{{categories}}" wx:key="id" wx:for-item="cat" class="block">
         <view class="block__title">{{cat.name}}</view>
