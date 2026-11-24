@@ -1,2 +1,48 @@
-<!-- pages/category/category.wxml —— S3 正式开发 -->
-<view class="placeholder">分类页 · 待开发</view>
+<navigation-bar title="分类" back="{{false}}" />
+
+<view class="page">
+  <view class="state" wx:if="{{loading}}">
+    <text class="state__text">加载中…</text>
+  </view>
+
+  <view class="state" wx:elif="{{error}}">
+    <text class="state__text">{{error}}</text>
+    <view class="state__btn" bindtap="onRetry">重新加载</view>
+  </view>
+
+  <view class="category" wx:else>
+    <!-- 左侧只放一级分类名，独立滚动 -->
+    <scroll-view class="category__left" scroll-y>
+      <view
+        wx:for="{{categories}}"
+        wx:key="id"
+        class="category__nav {{index === activeIndex ? 'category__nav--active' : ''}}"
+      >
+        {{item.name}}
+      </view>
+    </scroll-view>
+
+    <scroll-view class="category__right" scroll-y>
+      <!-- 内层循环必须改名，否则 item 会覆盖外层的 -->
+      <view wx:for="{{categories}}" wx:key="id" wx:for-item="cat" class="block">
+        <view class="block__title">{{cat.name}}</view>
+
+        <view wx:for="{{cat.children}}" wx:key="id" wx:for-item="child">
+          <view class="block__sub-title">{{child.name}}</view>
+
+          <view class="block__goods" wx:if="{{child.goods.length}}">
+            <goods-card
+              wx:for="{{child.goods}}"
+              wx:key="id"
+              wx:for-item="goods"
+              class="block__goods-item"
+              goods="{{goods}}"
+              bind:tap-card="onTapGoods"
+            />
+          </view>
+          <view class="block__empty" wx:else>暂无商品</view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>
