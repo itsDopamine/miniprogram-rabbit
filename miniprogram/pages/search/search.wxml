@@ -1,0 +1,121 @@
+<!-- 标题条：状态栏留白 + 返回 + 居中标题，右侧按胶囊位置避让 -->
+<view class="nav" style="padding-top: {{statusBarHeight}}px">
+  <view class="nav__bar" style="height: {{navHeight}}px">
+    <view class="nav__back" hover-class="nav__back--active" bindtap="onCancel">
+      <view class="nav__back-icon"></view>
+    </view>
+    <view class="nav__title" style="left: {{rightWidth}}px; right: {{rightWidth}}px;">搜索</view>
+  </view>
+</view>
+
+<view class="search">
+  <view class="search__head">
+    <view class="search__box">
+      <input
+        class="search__input"
+        value="{{keyword}}"
+        placeholder="搜索商品"
+        placeholder-class="search__placeholder"
+        confirm-type="search"
+        focus
+        bindinput="onInput"
+        bindconfirm="onConfirm"
+      />
+      <view wx:if="{{keyword}}" class="search__clear" bindtap="onClear">
+        <view class="search__clear-icon"></view>
+      </view>
+    </view>
+  </view>
+
+  <scroll-view class="body" scroll-y bindscrolltolower="onLoadMore">
+    <!-- 结果 -->
+    <block wx:if="{{searched}}">
+      <view class="sort">
+        <view
+          class="sort__item {{sortIndex === index ? 'sort__item--active' : ''}}"
+          wx:for="{{sorts}}"
+          wx:key="*this"
+          data-index="{{index}}"
+          bindtap="onTapSort"
+        >
+          <text>{{item}}</text>
+          <view wx:if="{{index === 2}}" class="sort__arrow">
+            <view class="sort__arrow-up {{sortMethod === 'asc' ? 'sort__arrow--on' : ''}}"></view>
+            <view class="sort__arrow-down {{sortMethod === 'desc' ? 'sort__arrow--on' : ''}}"></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="state" wx:if="{{loading && !list.length}}">
+        <text class="state__text">搜索中…</text>
+      </view>
+
+      <view class="state" wx:elif="{{error && !list.length}}">
+        <text class="state__text">{{error}}</text>
+        <view class="state__btn" bindtap="onRetry">重新加载</view>
+      </view>
+
+      <view class="state" wx:elif="{{!list.length}}">
+        <text class="state__text">没有找到相关商品</text>
+      </view>
+
+      <block wx:else>
+        <view class="goods">
+          <goods-card
+            wx:for="{{list}}"
+            wx:key="id"
+            class="goods__item"
+            goods="{{item}}"
+            bind:tap-card="onTapGoods"
+          />
+        </view>
+        <view class="more">
+          {{loading ? '加载中…' : hasMore ? '上拉加载更多' : '没有更多了'}}
+        </view>
+      </block>
+    </block>
+
+    <!-- 有输入：提示语；接口在 dev 环境返回空数组时兜底成「搜索关键词」 -->
+    <view class="tips" wx:elif="{{keyword}}">
+      <view
+        class="tips__item"
+        wx:for="{{tips}}"
+        wx:key="associatedWord"
+        data-word="{{item.associatedWord}}"
+        bindtap="onTapTip"
+      >
+        {{item.associatedWord}}
+      </view>
+      <view
+        wx:if="{{!tips.length}}"
+        class="tips__item tips__item--plain"
+        data-word="{{keyword}}"
+        bindtap="onTapTip"
+      >
+        搜索「{{keyword}}」
+      </view>
+    </view>
+
+    <!-- 无输入：本地历史 -->
+    <view class="history" wx:else>
+      <view class="history__head" wx:if="{{history.length}}">
+        <text class="history__title">历史搜索</text>
+        <text class="history__clear" bindtap="onClearHistory">清空</text>
+      </view>
+
+      <view class="history__list">
+        <view
+          class="history__item"
+          wx:for="{{history}}"
+          wx:key="*this"
+          data-word="{{item}}"
+          bindtap="onTapHistory"
+        >
+          {{item}}
+        </view>
+      </view>
+
+      <view class="history__empty" wx:if="{{!history.length}}">还没有搜索记录</view>
+    </view>
+  </scroll-view>
+</view>

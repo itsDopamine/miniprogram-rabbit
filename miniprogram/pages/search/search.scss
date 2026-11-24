@@ -1,0 +1,289 @@
+/** pages/search/search.scss */
+@import '../../global.scss';
+
+page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: $bg-card;
+}
+
+// 标题条：状态栏留白由 padding-top 撑，导航条高度按胶囊算，标题绝对居中避免被返回键挤偏
+.nav {
+  flex: none;
+  background-color: $bg-card;
+
+  &__bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 $gap-base;
+  }
+
+  &__back {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56rpx;
+    height: 100%;
+  }
+
+  &__back--active {
+    opacity: 0.5;
+  }
+
+  &__back-icon {
+    width: 20rpx;
+    height: 20rpx;
+    border-left: 4rpx solid $text-primary;
+    border-bottom: 4rpx solid $text-primary;
+    transform: rotate(45deg);
+  }
+
+  &__title {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-primary;
+    font-size: 34rpx;
+    font-weight: 600;
+  }
+}
+
+.search {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+
+  &__head {
+    flex: none;
+    display: flex;
+    align-items: center;
+    padding: $gap-sm $gap-base;
+  }
+
+  &__box {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    height: 68rpx;
+    padding: 0 $gap-base;
+    border-radius: $radius-round;
+    background-color: $bg-page;
+  }
+
+  &__input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    color: $text-primary;
+    font-size: $font-base;
+  }
+
+  &__placeholder {
+    color: $text-placeholder;
+  }
+
+  &__clear {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36rpx;
+    height: 36rpx;
+    margin-left: $gap-sm;
+    border-radius: 50%;
+    background-color: $text-placeholder;
+  }
+
+  // 两条白色细线拼成叉号，省掉一个图标字体依赖
+  &__clear-icon {
+    position: relative;
+    width: 18rpx;
+    height: 2rpx;
+    background-color: #fff;
+    transform: rotate(45deg);
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #fff;
+      transform: rotate(90deg);
+    }
+  }
+
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+}
+
+.sort {
+  display: flex;
+  padding: $gap-sm 0;
+  background-color: $bg-card;
+  @include hairline(bottom);
+  // 排序条固定在结果区顶部（hairline 里的 relative 会被这条覆盖）
+  position: sticky;
+  top: 0;
+  z-index: 1;
+
+  &__item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-regular;
+    font-size: $font-base;
+
+    &--active {
+      color: $brand-color;
+      font-weight: 600;
+    }
+  }
+
+  // 上下两个小三角，用边框画，避免引入图标
+  &__arrow {
+    display: flex;
+    flex-direction: column;
+    margin-left: 6rpx;
+  }
+
+  &__arrow-up,
+  &__arrow-down {
+    width: 0;
+    height: 0;
+    border-left: 8rpx solid transparent;
+    border-right: 8rpx solid transparent;
+  }
+
+  &__arrow-up {
+    margin-bottom: 2rpx;
+    border-bottom: 8rpx solid $text-placeholder;
+  }
+
+  &__arrow-down {
+    border-top: 8rpx solid $text-placeholder;
+  }
+
+  .sort__arrow--on.sort__arrow-up {
+    border-bottom-color: $brand-color;
+  }
+
+  .sort__arrow--on.sort__arrow-down {
+    border-top-color: $brand-color;
+  }
+}
+
+.goods {
+  display: flex;
+  flex-wrap: wrap;
+  padding: $gap-sm $gap-base 0;
+
+  &__item {
+    flex: 0 0 48%;
+    margin: 0 4% $gap-sm 0;
+    min-width: 0;
+
+    &:nth-child(2n) {
+      margin-right: 0;
+    }
+  }
+}
+
+.more {
+  padding: $gap-lg 0 $gap-xl;
+  color: $text-placeholder;
+  font-size: $font-sm;
+  text-align: center;
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx $gap-xl;
+
+  &__text {
+    color: $text-secondary;
+    font-size: $font-base;
+  }
+
+  &__btn {
+    margin-top: $gap-base;
+    padding: $gap-sm $gap-lg;
+    border: 1rpx solid $brand-color;
+    border-radius: $radius-round;
+    color: $brand-color;
+    font-size: $font-base;
+  }
+}
+
+.tips {
+  &__item {
+    padding: $gap-base;
+    color: $text-regular;
+    font-size: $font-base;
+    @include hairline(bottom);
+
+    &--plain {
+      color: $brand-color;
+    }
+  }
+}
+
+.history {
+  padding: $gap-base;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $gap-sm;
+  }
+
+  &__title {
+    color: $text-primary;
+    font-size: $font-base;
+    font-weight: 600;
+  }
+
+  &__clear {
+    color: $text-secondary;
+    font-size: $font-sm;
+  }
+
+  &__list {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  &__item {
+    margin: 0 $gap-sm $gap-sm 0;
+    padding: $gap-xs $gap-base;
+    border-radius: $radius-round;
+    background-color: $bg-page;
+    color: $text-regular;
+    font-size: $font-sm;
+  }
+
+  &__empty {
+    padding: $gap-xl 0;
+    color: $text-placeholder;
+    font-size: $font-sm;
+    text-align: center;
+  }
+}

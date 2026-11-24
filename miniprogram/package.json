@@ -10,6 +10,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "lodash.debounce": "^4.0.8",
     "tdesign-miniprogram": "^1.18.0",
     "tslib": "^2.9.1"
   },

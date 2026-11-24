@@ -61,7 +61,7 @@ function handleUnauthorized() {
 
 /**
  * @param {RequestOptions} options
- * @returns {Promise<any>} 业务 result，失败时 reject RequestError
+ * @returns {Promise<any> & {abort: () => void}} 业务 result；失败 reject RequestError；abort() 可中途取消
  */
 export function request(options) {
   const {
@@ -74,10 +74,12 @@ export function request(options) {
     header = {}
   } = options
 
-  return new Promise((resolve, reject) => {
+  let requestTask = null
+
+  const promise = new Promise((resolve, reject) => {
     if (loading) showLoading()
 
-    wx.request({
+    requestTask = wx.request({
       url: BASE_URL + url,
       method,
       data,
@@ -111,8 +113,13 @@ export function request(options) {
       },
 
       fail(err) {
-        if (!silent) toast('网络异常，请稍后重试')
-        reject({ code: -1, msg: err.errMsg || '网络异常' })
+        // 主动 abort 也走 fail，errMsg 含 "abort"；这不是网络异常，不能弹提示
+        const aborted = (err.errMsg || '').indexOf('abort') >= 0
+        if (!aborted && !silent) toast('网络异常，请稍后重试')
+        reject({
+          code: aborted ? 'abort' : -1,
+          msg: aborted ? '请求已取消' : err.errMsg || '网络异常'
+        })
       },
 
       complete() {
@@ -120,4 +127,11 @@ export function request(options) {
       }
     })
   })
+
+  // 只取消这一次请求，不影响其它并发请求
+  promise.abort = () => {
+    if (requestTask) requestTask.abort()
+  }
+
+  return promise
 }

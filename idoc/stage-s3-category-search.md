@@ -1,6 +1,6 @@
 # 阶段 S3 · 分类与搜索
 
-> 状态：**Step 1–2 代码完成（分类页渲染 + 左右联动），待实机验收；Step 3–4（搜索）待 `/search/all` 服务端恢复**
+> 状态：**Step 1–4 代码完成（分类页 + 搜索页）；搜索结果的接口 `/search/all` 服务端 500，需等恢复后联调**
 > 工时：2 天 · 前置：S2 完成（首页能跑通，`goods-card` 组件可用）
 > 关联：[`03-roadmap.md`](./03-roadmap.md) §2/§4、[`api-reference.md`](./api-reference.md)、[`01-migration-map.md`](./01-migration-map.md)
 
@@ -140,19 +140,68 @@ onRightScroll(e) {
 
 最好使用成熟库！！！
 
+> 已采纳：用 `lodash.debounce`（`npm i lodash.debounce`），不手写 `setTimeout` 版本。
+
 输入框每敲一个字就请求一次是灾难：10 个字 = 10 次请求，且响应乱序返回时会把旧结果盖上新结果。
 
 ```js
+import debounce from 'lodash.debounce'
+
+onLoad() {
+  // bind 不能省：debounce 内部以普通函数调用，this 不会是页面实例
+  this.fetchTips = debounce(this.requestTips.bind(this), 300)
+},
+
+onUnload() {
+  this.fetchTips.cancel() // 不取消会在页面销毁后继续 setData
+},
+
 onInput(e) {
-  const keyword = e.detail.value.trim()
-  clearTimeout(this.timer)
-  if (!keyword) return this.setData({ tips: [] })
-  this.timer = setTimeout(() => this.fetchTips(keyword), 300)
+  const keyword = e.detail.value
+  this.setData({ keyword })
+  if (!keyword.trim()) {
+    this.fetchTips.cancel()
+    this.setData({ tips: [] })
+    return
+  }
+  this.fetchTips()
 }
 ```
 
-- `clearTimeout` 清掉上一次的待执行任务，只有「停止输入 300ms」才会真正发请求
-- 定时器必须在 `onUnload` 里 `clearTimeout`，否则页面销毁后回调还在跑（会报 `setData on destroyed page`）
+手写版本要自己处理三件事，任何一件漏掉都会出问题：**取消待执行任务**（清空输入时）、**`this` 绑定**、**页面销毁后清理**。`lodash.debounce` 自带 `.cancel()` / `.flush()`，这三件事都覆盖了。
+
+**还有一件库不会替你做**：防抖只减少「请求发起次数」，不解决「响应乱序」。两个措施要一起上：
+
+```js
+async requestTips() {
+  const keyword = this.data.keyword.trim()
+  if (!keyword) return
+
+  // ① 取消上一次在途请求：省流量、减轻服务端压力
+  if (this.tipsRequest) this.tipsRequest.abort()
+
+  const req = getSearchTips(keyword)
+  this.tipsRequest = req
+
+  try {
+    const tips = await req
+    // ② 引用比对兜底：abort 是尽力而为，响应可能已排进回调队列
+    if (this.tipsRequest !== req) return
+    this.setData({ tips })
+  } catch (e) {
+    if (e.code === 'abort' || this.tipsRequest !== req) return
+    this.setData({ tips: [] })
+  }
+}
+```
+
+**为什么两个都要**：`abort()` 只是「请求还没回来就叫停」，它在 JS 线程调用，而响应可能已经在网络栈返回、回调已排进队列，此时 `success` 照样执行。所以 `abort` 管资源，引用比对管正确性。
+
+**`abort` 走的是 `fail` 回调**，`err.errMsg` 含 `abort`。`utils/request.js` 里已经识别并归类为 `code: 'abort'`，且**不弹「网络异常」toast**——否则每次取消都会闪一个错误提示。
+
+**为什么用引用比对而不是比对关键词**：同一关键词连发两次时，关键词一样但请求不同，比对关键词会误判成「还是最新那次」。比对请求对象本身才能准确区分。
+
+**小程序侧的前置条件**：npm 包里装的依赖要执行一次「工具 → 构建 npm」，否则 `import 'lodash.debounce'` 会报找不到模块。
 
 ### 3.5 「切排序回第 1 页」为什么必须做
 
@@ -167,7 +216,7 @@ onInput(e) {
 
 ## 4. Step 0：准备
 
-1. 新建 `miniprogram/api/category.js`，写 `getCategoryTop()` 与 `getSearchAll(body)`。
+1. 新建 `miniprogram/api/category.js`，写 `getCategoryTop()`；搜索接口放 `api/search.js`（`getSearchTips`、`searchGoods`）。
 2. `pages/category/category.*` 现在是 S0 的空壳，本阶段把它改造成两栏分类页。
 3. 新建 `pages/search/search.*`（搜索页不是 tabBar 页，是普通页面，用 `navigateTo` 进入）。
 4. 搜索页要在 `app.json` 的 `pages` 里注册，否则 `navigateTo` 直接失败。
@@ -179,7 +228,6 @@ onInput(e) {
 ### Step 1：接口层 + 两栏静态布局（半天）
 
 - `getCategoryTop()` → 9 个一级分类，转 https 后存 `data.categories`
-- `getSearchAll({ page, pageSize, keyword, categoryId, sortField, sortMethod })` → POST
 - 布局：`display: flex` 左右两栏
   - 左栏 `scroll-view`，宽 `180rpx`，`wx:for` 渲染一级分类名
   - 右栏 `scroll-view`，`flex: 1`，`wx:for` 渲染**所有**一级分类下的二级分类区块
@@ -208,19 +256,22 @@ onInput(e) {
 
 ### Step 3：搜索页：输入防抖 + 提示语 + 历史（半天）
 
-- 分类页顶部一个「假搜索框」，点击 `navigateTo` 到搜索页（不要在分类页里直接输入）
-- 搜索页输入框 `bindinput` → 300ms 防抖 → `getSearchTips(keyword)`
-- 提示语为空时显示「本地历史搜索」（用 `wx.setStorageSync` 存最近 10 个词，去重、新的在前）
-- `onUnload` 清理定时器
+- 新建 `pages/search/search`，**记得在 `app.json` 的 `pages` 里注册**，否则 `navigateTo` 直接失败
+- 分类页顶部一个「假搜索框」（只做入口），点击 `navigateTo` 到搜索页，不在分类页里直接输入
+- 搜索页输入框 `bindinput` → `lodash.debounce` 300ms → `getSearchTips(keyword)`（需先 `npm i lodash.debounce` 并执行「构建 npm」）
+- 提示语为空时显示「本地历史搜索」（`wx.setStorageSync` 存最近 10 个词，去重、新的在前）
+- `onUnload` 里 `debounce.cancel()`
 
 **验收**：连续输入 10 个字符，Network 面板只出现 1 次 `search/tips` 请求；点历史词能直接搜索。
 
 ### Step 4：搜索结果 + 排序 + 分页（半天）
 
-- 提交搜索 → `getSearchAll({ page: 1, pageSize: 10, keyword, sortField, sortMethod })`
-- 排序 tab：`publishTime` / `orderNum` / `price`（价格点击切换 asc/desc）
-- 切排序 = 回第 1 页 + 清空列表
-- 触底加载下一页，用 `page < pages` 判断有没有更多
+- 提交搜索 → `searchGoods({ page: 1, pageSize: 10, keyword, sortField, sortMethod })`（`api/search.js`）
+- 排序 tab：`publishTime` / `orderNum` / `price`（价格再点一次切 asc/desc，箭头跟着变）
+- 切排序 = 回第 1 页 + 清空列表 + 清 error
+- 触底加载下一页，用 `result.pageData.page < result.pageData.pages` 判断有没有更多（**不自己算**）
+- 列表请求同样 abort 上一次（快速切排序会连发），并用引用比对丢弃过期响应
+- `listLoading` 做并发保护，`data.loading` 只负责 UI
 - 三态：loading / empty（没有搜到）/ error（含重试）
 
 **验收**：切排序后列表从第 1 页重新开始且不串页；触底只加载新页；无结果显示空态文案。
@@ -297,4 +348,7 @@ onInput(e) {
 | 2026-11-24 | Step 2 完成：`scroll-into-view` 点击定位 + `bindscroll` 反推高亮。三个设计点：① 区块偏移在 `setData` 回调 + `wx.nextTick` 后一次性量，缓存在 `this.blockOffsets`（不进 `data`，不参与渲染）；② 滚动事件每帧触发，`activeIndex` 没变不 `setData`；③ 程序滚动期间用 `syncLocked` + 滚动事件延期解锁，避免高亮被中途区块抢走；④ 内容不够高时最后一个区块滚不到顶，用 `scrollTop + 视口高 >= 内容高` 兜底选中末项。 |
 | 2026-11-24 | 实机反馈：高频点击不同分类时右侧**上下摇晃**。定位到 `scroll-into-view` 为支持重复点击而「先清空再赋值」，而清空会把滚动位置拉回 0 → 每次点击都是「弹回顶部再滚下去」。改为 `scroll-top` 直接下发已量好的偏移（值相同则减 1px 保证下发）。该坑与 `bindscroll` 回写抖动、末块高亮不到等一并记入 `notes/scroll-view.md`。 |
 | 2026-11-24 | 连点同一分类仍有 1px 抖动。根因是为绕过「受控属性值不变不下发」而写的「与上次相同则减 1px」：连点会在 `target` 与 `target−1` 之间无限横跳（末块因都夹取到同一上限，同样触发）。改为：① 用**实际滚动位置**（`bindscroll` 里记在 `this`，不进 `data`）判断是否已到位，到位则只切高亮；② 滚动改用命令式 `ScrollViewContext.scrollTo`（`query.select('.xxx').node()` 取得），不再依赖 `data` 值变化。同时去掉 `scroll-with-animation`。 |
+| 2026-11-24 | 用户提出「应该 abort 上一次请求再重发」。据此给 `utils/request.js` 补了 `abort()`（挂在返回的 Promise 上，取消走 `fail` 且归类为 `code: 'abort'`，不弹 toast），搜索提示语改为「先 abort 旧请求 + 用请求对象引用比对兜底」。两者分工：abort 省资源，引用比对保证界面最终态正确（abort 是尽力而为，响应可能已排进回调队列）。`02-architecture.md` 的请求层契约同步更新，并修正该表里「业务 `code === 0`」的旧描述（实测为字符串 `"1"`）。 |
+| 2026-11-24 | Step 3 完成：搜索页（输入 + 防抖提示语 + 本地历史）+ 分类页搜索入口。按用户批注改用 `lodash.debounce` 而非手写 `setTimeout`（需构建 npm）。额外处理了「防抖只降低请求次数、不保证响应顺序」的问题：拿到 hints 后比对当前关键词，不一致就丢弃。因 `/search/all` 服务端 500，`doSearch` 暂以 toast 占位，结果页留到 Step 4。 |
+| 2026-11-24 | Step 4 完成：搜索结果列表（两列复用 `goods-card`）、排序条（sticky 吸顶）、分页、三态。要点：切排序/筛选必须回第 1 页并清空列表；`hasMore` 用接口返回的 `page < pages` 判断；列表请求同样 abort 上一次 + 引用比对；`listLoading` 实例标志做并发保护。受服务端 500 影响，当前点搜索会落到 error 态（有重试按钮），可借此验证三态中的 error 分支。 |
 | 2026-11-24 | 阶段文档建立。同日在 `idoc/api-reference.md` 固化 44 个接口的真实 method/path（此前 roadmap 中 `/search`、`/category`、`/refresh`、`/pay/mock` 等路径均为 React 版推测，实测或查证后已全部修正）。实测发现 `/search/all` 服务端 ES 故障（500 all shards failed），搜索功能需等后端恢复才能联调；`/category/top` 与 `/search/tips` 可用（tips 返回空数组）。 |

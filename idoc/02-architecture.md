@@ -92,10 +92,9 @@ config/env.js            配置层：域名、常量
 ## 3. 请求层契约（`utils/request.js`）
 
 ```js
-// 目标签名（S1 实现）
-request({ url, method = 'GET', data = {}, auth = false, loading = false })
-  → Promise<result>        // 成功时直接 resolve 业务数据 result
-  → reject({ code, msg })  // 失败时抛业务错误
+// 现签名（S1 实现，S3 增补 abort）
+request({ url, method = 'GET', data, auth = false, loading = false, silent = false, header = {} })
+  → Promise<result> & { abort() }   // 成功 resolve 业务数据；失败 reject({ code, msg })；abort() 可取消
 ```
 
 约定：
@@ -105,9 +104,10 @@ request({ url, method = 'GET', data = {}, auth = false, loading = false })
 | 基础地址 | `config/env.js` 的 `BASE_URL`，拼接后发起 |
 | 公共头 | `source-client: miniapp`（必带） |
 | 鉴权头 | `auth: true` 时注入 `Authorization: <token>`（**不带 Bearer 前缀**，以 Apifox 为准） |
-| 成功判定 | 业务 `code === 0`；否则 `reject` 并统一 toast |
+| 成功判定 | 业务 `code === "1"`（**字符串**，2026-11-24 实测）；否则 `reject` 并统一 toast |
 | 401 | 清 token → 提示一次 → `wx.navigateTo` 到登录页并带 `redirect` 参数；**并发 401 只跳一次** |
-| 超时 | 默认 10s，订单列表单独放宽 |
+| 取消 | 返回的 Promise 上挂 `abort()`；取消走 `fail` 回调（`errMsg` 含 `abort`），归类为 `code: 'abort'` 且**不弹 toast** |
+| 静默 | `silent: true` 时失败不弹 toast（提示语、轮询类接口用） |
 | 响应 | 只把 `res.data.result` 交给调用方，页面不接触 `code/msg` |
 
 ---

@@ -134,6 +134,10 @@ Page({
     if (index !== this.data.activeIndex) this.setData({ activeIndex: index })
   },
 
+  onTapSearch() {
+    wx.navigateTo({ url: '/pages/search/search' })
+  },
+
   onRetry() {
     this.fetchCategories()
   },

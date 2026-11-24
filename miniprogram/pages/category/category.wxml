@@ -1,5 +1,13 @@
 <navigation-bar title="分类" back="{{false}}" />
 
+<!-- 只做入口，真正输入在搜索页 -->
+<view class="search-entry" bindtap="onTapSearch">
+  <view class="search-entry__box">
+    <view class="search-entry__icon"></view>
+    <text class="search-entry__text">搜索商品</text>
+  </view>
+</view>
+
 <view class="page">
   <view class="state" wx:if="{{loading}}">
     <text class="state__text">加载中…</text>
