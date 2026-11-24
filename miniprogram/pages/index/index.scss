@@ -2,9 +2,15 @@
 // 显式引入全局变量：路径相对本文件，pages/xxx/xxx.scss 都是两级
 @import '../../global.scss';
 
+// 导航栏与滚动区上下分栏：下拉刷新只动下面的滚动区，标题不动
+page {
+  display: flex;
+  flex-direction: column;
+}
+
 .page {
-  min-height: 100vh;
-  padding-bottom: $gap-xl;
+  flex: 1;
+  height: 0; // flex 子项必须有确定高度，scroll-view 才能真正滚动
   background-color: $bg-page;
 }
 
@@ -70,7 +76,7 @@
   }
 }
 
-// 列数由这里控制：25% = 4 列，48% = 2 列
+// 列数由这里控制：24% = 4 列，48% = 2 列
 .goods {
   display: flex;
   justify-content: space-between;
@@ -113,4 +119,149 @@
     color: $text-secondary;
     font-size: $font-sm;
   }
+}
+
+.floor {
+  margin-top: $gap-base;
+  padding: $gap-base;
+  background-color: $bg-card;
+
+  // 标题靠左撑满、楼层图贴右，右侧不留空白
+  &__head {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  &__meta {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  &__name {
+    color: $text-primary;
+    font-size: $font-md;
+    font-weight: 600;
+  }
+
+  &__sale {
+    margin-top: $gap-xs;
+    color: $text-secondary;
+    font-size: $font-sm;
+    @include ellipsis;
+  }
+
+  &__pic {
+    flex: none;
+    width: 120rpx;
+    height: 120rpx;
+    margin-left: $gap-base;
+    border-radius: $radius-sm;
+    background-color: $bg-page;
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: $gap-sm;
+  }
+
+  &__tag {
+    margin: 0 $gap-xs $gap-xs 0;
+    padding: 4rpx $gap-sm;
+    border-radius: $radius-round;
+    background-color: $bg-page;
+    color: $text-regular;
+    font-size: $font-xs;
+  }
+
+  &__goods {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: $gap-sm;
+  }
+
+  &__goods-item {
+    width: 24%;
+    margin-bottom: $gap-sm;
+  }
+}
+
+// 骨架屏用边框色当占位块，避免再引一个颜色变量
+.skeleton {
+  padding: $gap-base;
+
+  &__banner {
+    height: 340rpx;
+    border-radius: $radius-base;
+    background-color: $border-color;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: $gap-lg;
+  }
+
+  &__cell {
+    width: 80rpx;
+    height: 80rpx;
+    border-radius: 50%;
+    background-color: $border-color;
+  }
+
+  &__goods {
+    display: flex;
+    justify-content: space-between;
+    margin-top: $gap-lg;
+  }
+
+  &__card {
+    width: 24%;
+    height: 220rpx;
+    border-radius: $radius-base;
+    background-color: $border-color;
+  }
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 200rpx $gap-xl;
+
+  &__text {
+    color: $text-secondary;
+    font-size: $font-base;
+  }
+
+  &__btn {
+    margin-top: $gap-base;
+    padding: $gap-sm $gap-lg;
+    border: 1rpx solid $brand-color;
+    border-radius: $radius-round;
+    color: $brand-color;
+    font-size: $font-base;
+  }
+}
+
+// 内容一次全渲染，这里只是列表结束的提示，不带加载逻辑
+.more {
+  padding: $gap-lg 0 $gap-xl;
+  color: $text-placeholder;
+  font-size: $font-sm;
+  text-align: center;
+}
+
+.more::before,
+.more::after {
+  content: '';
+  display: inline-block;
+  width: 40rpx;
+  height: 1rpx;
+  margin: 0 $gap-sm;
+  vertical-align: middle;
+  background-color: $border-color;
 }

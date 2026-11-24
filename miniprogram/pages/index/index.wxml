@@ -1,57 +1,118 @@
 <navigation-bar title="小兔鲜儿" back="{{false}}" color="black" background="#FFF"></navigation-bar>
 
-<view class="page">
-  <swiper
-    class="banner"
-    indicator-dots
-    circular
-    autoplay
-    interval="3000"
-    indicator-color="rgba(255, 255, 255, 0.4)"
-    indicator-active-color="#ffffff"
-  >
-    <swiper-item wx:for="{{banners}}" wx:key="id">
-      <image class="banner__img" src="{{item.imgUrl}}" mode="aspectFill" />
-    </swiper-item>
-  </swiper>
-
-  <!-- 分类宫格：一行 5 个 -->
-  <view class="categories">
-    <view class="categories__item" wx:for="{{categories}}" wx:key="id">
-      <image class="categories__icon" src="{{item.icon}}" mode="aspectFit" />
-      <text class="categories__name">{{item.name}}</text>
+<!-- 导航栏留在滚动容器外，下拉刷新才不会连标题一起拖走 -->
+<scroll-view
+  class="page"
+  scroll-y
+  refresher-enabled
+  refresher-triggered="{{refreshing}}"
+  bindrefresherrefresh="onRefresh"
+>
+  <!-- 首屏骨架：只在还没有任何数据时显示，下拉刷新不会闪 -->
+  <view class="skeleton" wx:if="{{loading && !banners.length}}">
+    <view class="skeleton__banner"></view>
+    <view class="skeleton__row">
+      <view class="skeleton__cell" wx:for="{{[1, 2, 3, 4, 5]}}" wx:key="*this"></view>
+    </view>
+    <view class="skeleton__goods">
+      <view class="skeleton__card" wx:for="{{[1, 2, 3, 4]}}" wx:key="*this"></view>
     </view>
   </view>
 
-  <!-- 新鲜好物 -->
-  <view class="section">
-    <view class="section__header">
-      <text class="section__title">新鲜好物</text>
-      <text class="section__desc">新鲜出炉 品质靠谱</text>
-    </view>
-    <view class="goods">
-      <goods-card
-        wx:for="{{newGoods}}"
-        wx:key="id"
-        class="goods__item"
-        goods="{{item}}"
-        bind:tap-card="onTapGoods"
-      />
-    </view>
+  <!-- 错误态：已有数据时只 toast，不把页面换掉 -->
+  <view class="state" wx:elif="{{error && !banners.length}}">
+    <text class="state__text">{{error}}</text>
+    <view class="state__btn" bindtap="onRetry">重新加载</view>
   </view>
 
-  <!-- 热门推荐：两列入口卡片 -->
-  <view class="section">
-    <view class="section__header">
-      <text class="section__title">热门推荐</text>
-      <text class="section__desc">大家都在买</text>
-    </view>
-    <view class="panels">
-      <view class="panels__item" wx:for="{{hotPanels}}" wx:key="id">
-        <image class="panels__pic" src="{{item.pictures[0]}}" mode="aspectFit" />
-        <text class="panels__title">{{item.title}}</text>
-        <text class="panels__alt">{{item.alt}}</text>
+  <block wx:else>
+    <swiper
+      class="banner"
+      indicator-dots
+      circular
+      autoplay
+      interval="3000"
+      indicator-color="rgba(255, 255, 255, 0.4)"
+      indicator-active-color="#ffffff"
+    >
+      <swiper-item wx:for="{{banners}}" wx:key="id">
+        <image class="banner__img" src="{{item.imgUrl}}" mode="aspectFill" />
+      </swiper-item>
+    </swiper>
+
+    <!-- 分类宫格：一行 5 个 -->
+    <view class="categories">
+      <view class="categories__item" wx:for="{{categories}}" wx:key="id">
+        <image class="categories__icon" src="{{item.icon}}" mode="aspectFit" />
+        <text class="categories__name">{{item.name}}</text>
       </view>
     </view>
-  </view>
-</view>
+
+    <!-- 新鲜好物 -->
+    <view class="section">
+      <view class="section__header">
+        <text class="section__title">新鲜好物</text>
+        <text class="section__desc">新鲜出炉 品质靠谱</text>
+      </view>
+      <view class="goods">
+        <goods-card
+          wx:for="{{newGoods}}"
+          wx:key="id"
+          class="goods__item"
+          goods="{{item}}"
+          bind:tap-card="onTapGoods"
+        />
+      </view>
+    </view>
+
+    <!-- 热门推荐：两列入口卡片 -->
+    <view class="section">
+      <view class="section__header">
+        <text class="section__title">热门推荐</text>
+        <text class="section__desc">大家都在买</text>
+      </view>
+      <view class="panels">
+        <view class="panels__item" wx:for="{{hotPanels}}" wx:key="id">
+          <image class="panels__pic" src="{{item.pictures[0]}}" mode="aspectFit" />
+          <text class="panels__title">{{item.title}}</text>
+          <text class="panels__alt">{{item.alt}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 分类楼层：首屏 2 层，触底再加 2 层 -->
+    <view class="floor" wx:for="{{floors}}" wx:key="id">
+      <!-- 标题在左、楼层图在右，填满整行不留空 -->
+      <view class="floor__head">
+        <view class="floor__meta">
+          <text class="floor__name">{{item.name}}</text>
+          <text class="floor__sale">{{item.saleInfo}}</text>
+        </view>
+        <image class="floor__pic" src="{{item.picture}}" mode="aspectFill" />
+      </view>
+
+      <view class="floor__tags">
+        <text class="floor__tag" wx:for="{{item.children}}" wx:for-item="tag" wx:key="id">{{tag.name}}</text>
+      </view>
+
+      <view class="floor__goods">
+        <goods-card
+          wx:for="{{item.goods}}"
+          wx:for-item="goods"
+          wx:key="id"
+          class="floor__goods-item"
+          goods="{{goods}}"
+          bind:tap-card="onTapGoods"
+        />
+      </view>
+    </view>
+
+    <!-- 空态 -->
+    <view class="state" wx:if="{{!floors.length}}">
+      <text class="state__text">暂无推荐内容</text>
+    </view>
+
+    <!-- 列表结束提示：内容一次全渲染，所以这里是静态的，没有加载逻辑 -->
+    <view class="more" wx:if="{{floors.length}}">没有更多了</view>
+  </block>
+</scroll-view>

@@ -1,6 +1,6 @@
 # 阶段 S2 · 首页（零基础详细操作版）
 
-> 状态：**未开始**
+> 状态：**代码已完成（Step 1–5），待实机验收**
 > 工时：2 天 · 前置：S1 完成（`request` 能拿到真实数据）
 > 关联：[`03-roadmap.md`](./03-roadmap.md) §2、[`01-migration-map.md`](./01-migration-map.md) §2
 
@@ -107,6 +107,37 @@ const toHttps = (url) => url.replace(/^http:\/\//, 'https://')
 
 本项目**先用原生 `swiper`**，因为你要知道轮播是怎么工作的。
 
+### 2.7 正方形封面：`padding-top: 100%` 到底按什么算
+
+商品图要永远正方形。`height: 100%` 不行——父级高度是 `auto` 时百分比高度会失效为 0，盒子塌掉。可行写法：
+
+```scss
+.cover {
+  position: relative;
+  width: 100%;
+  padding-top: 100%; // 100% × 父容器「宽度」→ 高度 = 宽度
+}
+
+.pic {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+```
+
+**规则（CSS 2.1 盒模型）：`padding-*` 与 `margin-*` 的百分比，一律参照包含块的宽度。** `padding-top` / `padding-bottom` 同样按宽算，不看高度。
+
+之所以这样规定，是因为「父元素高度由子内容撑开、子元素高度又依赖父高度」会形成循环，参照宽度是唯一不循环的解法。
+
+- 4 列时父宽约 170rpx → 盒子 170×170
+- 父级改成 2 列、宽约 345rpx → 盒子 345×345，**组件一行都不用改**
+
+绝对定位的图片能铺满，是因为绝对定位元素的包含块是**祖先的 padding box**，`padding-top` 撑出来的空间正落在里面。
+
+> 现代替代写法 `aspect-ratio: 1 / 1` 语义更直白，但老 WebView 会直接忽略、高度塌成 0。本项目 WebView 兼容优先，先用 padding 方案。
+
 ---
 
 ## 3. Step 0：准备（5 分钟）
@@ -183,12 +214,13 @@ Component({
 
 ### Step 5：分页 + 下拉刷新 + 三态（半天）
 
-- 分类楼层用 `getCategoryFloors()`，**只在首屏渲染前 2 层**，其余「查看更多」
-- 触底加载：`onReachBottom` 里判断 `loadingMore` / `hasMore`
-- 下拉刷新：`app.json` 对应页面的 `enablePullDownRefresh: true`，`onPullDownRefresh` 里重拉并 `wx.stopPullDownRefresh()`
-- 三态：`loading`（骨架或 `t-skeleton`）、`empty`（`t-empty`）、`error`（重试按钮）
+- 分类楼层用 `getCategoryFloors()`：**接口没有分页参数**，一次返回 4 层，直接全量渲染。不要自己切片造假分页——内容不足一屏时 `scrolltolower` 会立刻触发，等于没分页，还会误导阅读代码的人
+- 但**底部要有「没有更多了」的静态提示**：用户需要知道列表到头了。提示归提示，别给它挂加载逻辑，两者是两件事
+- 下拉刷新：页面改成 `flex` 上下分栏 + `scroll-view` 的 `refresher-enabled`。页面级 `enablePullDownRefresh` 会把整个容器（含自定义导航栏）一起下移，标题跟着动
+- 真正的触底分页留到**确实有 `page` / `pageSize` 参数**的接口再做（分类列表、搜索结果），判断 `loadingMore` / `hasMore`
+- 三态：`loading`（骨架）、`empty`（无数据文案）、`error`（重试按钮）
 
-**验收**：滑到底自动加载、到底显示「没有更多」、下拉能刷新且能收起。
+**验收**：4 层楼层完整渲染、下拉刷新能收起且标题不动、三态齐全。
 
 ---
 
@@ -198,7 +230,7 @@ Component({
 - [ ] 轮播图正常显示（真机也是 https）
 - [ ] 分类宫格 10 项、楼层数据正确
 - [ ] `goods-card` 组件被复用且点击能拿到 id
-- [ ] 触底加载不重复请求，到底显示「没有更多」
+- [ ] 楼层一次性渲染完整（接口无分页参数，不做假分页）
 - [ ] 下拉刷新可收起
 - [ ] 三态齐全，断网不白屏
 - [ ] 切到别的 tab 再回首页，Network 面板**没有**新请求
@@ -211,6 +243,7 @@ Component({
 | --- | --- | --- |
 | 内容被状态栏盖住 | 没加 `padding-top: statusBarHeight` | 用 JS 算出的高度做 padding |
 | 标题偏左/偏右 | 用了 flex 居中但左右宽度不等 | 标题用 `position: absolute; left: 0; right: 0` |
+| 商品图不是正方形 / 高度为 0 | 想用 `height: 100%` 撑正方形，但父级高度是 auto | 用 `padding-top: 100%` 撑高度，图片绝对定位铺满 |
 | 图片不显示，真机才失败 | `imgUrl` 是 `http://` | 渲染前转 https |
 | 图片巨大/变形 | `<image>` 没给宽高 | 容器固定宽高 + `mode="aspectFill"` |
 | 轮播高度塌陷 | `swiper` 没设高度 | `swiper` 必须显式高度 |
