@@ -1,9 +1,9 @@
 import { getBannerList } from '../../api/home'
+import { toHttps } from '../../utils/common'
 
-// 首页（S0 占位，S2 正式开发）
 Page({
   data: {
-    bannerCount: 0
+    banners: []
   },
 
   onLoad() {
@@ -13,13 +13,11 @@ Page({
   async fetchBanners() {
     try {
       const list = await getBannerList()
-      this.setData({ bannerCount: list.length })
+      // 接口返回 http 直链，转成新数组，避免直接改接口返回对象
+      const banners = list.map((item) => ({ ...item, imgUrl: toHttps(item.imgUrl) }))
+      this.setData({ banners })
     } catch (e) {
       console.log('[banner]', e)
     }
-  },
-
-  onSmokeTest() {
-    wx.showToast({ title: 'TDesign 可用', icon: 'success' })
   }
 })

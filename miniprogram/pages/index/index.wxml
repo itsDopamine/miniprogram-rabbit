@@ -1,16 +1,13 @@
-<!-- pages/index/index.wxml —— 首页占位，S2 正式开发 -->
 <navigation-bar title="小兔鲜儿" back="{{false}}" color="black" background="#FFF"></navigation-bar>
 
 <view class="page">
-  <view class="placeholder">
-    <text class="placeholder__title">小兔鲜儿</text>
-    <text class="placeholder__desc">工程骨架已就绪</text>
-    <text class="placeholder__desc">S2 开始搭建首页</text>
-    <text class="placeholder__desc">banner 接口返回：{{bannerCount}} 条</text>
-  </view>
+  <swiper class="banner" indicator-dots circular autoplay interval="3000" indicator-color="rgba(255, 255, 255, 0.4)" indicator-active-color="#ffffff">
+    <swiper-item wx:for="{{banners}}" wx:key="id">
+      <image class="banner__img" src="{{item.imgUrl}}" mode="aspectFill" />
+    </swiper-item>
+  </swiper>
 
-  <!-- S0-2 冒烟测试：能渲染出 TDesign 按钮 = npm 构建成功 -->
-  <view class="smoke">
-    <t-button theme="primary" size="large" block bind:tap="onSmokeTest">TDesign 就绪</t-button>
+  <view class="sections">
+    <text class="sections__hint">分类宫格、楼层、猜你喜欢待 Step 3 接入</text>
   </view>
 </view>

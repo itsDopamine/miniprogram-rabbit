@@ -4,30 +4,27 @@
 
 .page {
   min-height: 100vh;
-  background-color: #f7f7f8;
+  background-color: $bg-page;
 }
 
-.placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 240rpx 48rpx 0;
+// swiper 是容器组件，高度不会被子元素撑开，必须显式给
+.banner {
+  height: 340rpx;
+  background-color: $bg-card;
 
-  &__title {
-    margin-bottom: 24rpx;
-    color: $brand-color;
-    font-size: 44rpx;
-    font-weight: 600;
+  &__img {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
+}
 
-  &__desc {
+.sections {
+  padding: 120rpx $gap-xl 0;
+  text-align: center;
+
+  &__hint {
     color: $text-secondary;
-    font-size: 26rpx;
-    line-height: 1.8;
+    font-size: $font-sm;
   }
-}
-
-.smoke {
-  padding: 64rpx 48rpx 0;
 }
