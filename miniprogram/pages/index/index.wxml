@@ -91,7 +91,7 @@
         </view>
       </view>
 
-      <!-- 分类楼层：首屏 2 层，触底再加 2 层 -->
+      <!-- 分类楼层：接口无分页参数，一次返回 4 层全量渲染 -->
       <view class="floor" wx:for="{{floors}}" wx:key="id">
         <!-- 标题在左、楼层图在右，填满整行不留空 -->
         <view class="floor__head">

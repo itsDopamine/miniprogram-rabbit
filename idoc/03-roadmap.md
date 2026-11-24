@@ -65,63 +65,64 @@ S0 配置迁移与骨架
 
 ---
 
-## 4. 接口 × 页面 × 阶段 映射（44 个）
+## 4. 接口 × 页面 × 阶段 映射（44 个 Apifox 文档化 + 1 个实测未收录）
 
 ### 4.1 请求约定
 
 - 基础地址：`https://pcapi-xiaotuxian-front-devtest.itheima.net`，只在 `config/env.js` 出现一次。
 - 必带 `source-client: miniapp`；登录类接口带 `Authorization: <token>`。
-- 响应 `{ code, msg, result }`，`code === 0` 为成功。
-- 下表「参考路径」来自 React 版，**仅用于对照**，实现前必须以 Apifox 为准。
+- 响应 `{ code, msg, result }`，`code === "1"`（字符串）为成功，实测见 `stage-s1-request.md`。
+- 下表路径来自 **Apifox 接口定义导出**（`api-reference.md`，2026-11-24 抓取 44 个接口的 method/path/字段），不再使用 React 版推测路径。
 
 ### 4.2 映射表
 
-| # | 分组 | 接口 | 方法 | 参考路径（待确认） | 落地页面 | 阶段 |
+| # | 分组 | 接口 | 方法 | 路径 | 落地页面 | 阶段 |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 首页 | 广告区域-小程序 | GET | `/home/banner?distributionSite=1` ✅实测 | 首页 / 分类页 | S2 |
-| 2 | 首页 | 前台分类-小程序 | GET | `/home/category/mutli` ✅实测 | 首页宫格 | S2 |
-| 3 | 首页 | 热门推荐-小程序 | GET | `/home/hot/mutli` ✅实测 | 首页楼层入口 | S2 |
-| 4 | 首页 | 新鲜好物-小程序 | GET | `/home/new` ✅实测 | 首页楼层 | S2 |
-| 5 | 首页 | 猜你喜欢-小程序 | GET | `/home/goods` ✅实测（分类楼层 + goods 数组） | 首页楼层 | S2 |
-| 6 | 热门推荐 | 特惠推荐-小程序 | GET | `/home/preference` | 首页/分类楼层 | S2/S3 |
-| 7 | 热门推荐 | 爆款推荐-小程序 | GET | `/home/hot?type=...` | 同上 | S2/S3 |
-| 8 | 热门推荐 | 一站买全-小程序 | GET | 待确认 | 同上 | S3 |
-| 9 | 热门推荐 | 新鲜好物-小程序 | GET | `/home/new` | 同上 | S2 |
-| 10 | 搜索 | 商品搜索（带筛选） | POST | `/search` | 搜索页 | S3 |
-| 11 | 搜索 | 搜索提示语 | GET | `/search/tips` | 搜索联想 | S3 |
-| 12 | 商品分类 | 分类列表-小程序 | GET | `/category` | 分类页 | S3 |
-| 13 | 商品详情 | 商品详情 | GET | `/goods?id=` | 详情页 | S4 |
-| 14 | 商品详情 | 同类推荐（将废弃） | GET | `/goods/relevant` | 详情页底部 | S4 可选 |
-| 15 | 会员登录 | 小程序登录 | POST | 待确认（code 换 token） | 登录 | S5 |
-| 16 | 会员登录 | 小程序登录-内测版 | POST | 待确认 | 登录（调试） | S5 |
-| 17 | 会员登录 | 传统登录-用户名+密码 | POST | `/login` | 登录（备用） | S5 |
-| 18 | 会员登录 | 刷新 token | PUT | `/refresh` | 请求层 | S5 |
-| 19 | 个人信息 | 获取个人信息 | GET | `/member/profile` | 我的 | S5 |
-| 20 | 个人信息 | 修改个人信息 | PUT | `/member/profile` | 资料编辑 | S5 |
-| 21 | 个人信息 | 修改用户头像 | POST | `/member/profile/avatar` | 资料编辑 | S5 |
-| 22 | 地址管理 | 添加收货地址 | POST | `/member/address` | 地址编辑 | S5 |
-| 23 | 地址管理 | 删除收货地址 | DELETE | `/member/address/:id` | 地址列表 | S5 |
-| 24 | 地址管理 | 修改收货地址 | PUT | `/member/address/:id` | 地址编辑/设默认 | S5 |
-| 25 | 地址管理 | 获取地址详情 | GET | `/member/address/:id` | 地址编辑 | S5 |
-| 26 | 地址管理 | 获取地址列表 | GET | `/member/address` | 地址列表/结算 | S5 |
-| 27 | 订单管理 | 获取预付订单 | GET | `/member/order/pre` | 结算页 | S7 |
-| 28 | 订单管理 | 获取立即购买订单 | GET | `/member/order/pre/now` | 详情页「立即购买」 | S7 |
-| 29 | 订单管理 | 获取再次购买订单 | GET | `/member/order/repurchase/:id` | 订单详情 | S7 |
-| 30 | 订单管理 | 提交订单 | POST | `/member/order` | 结算页 | S7 |
-| 31 | 订单管理 | 获取订单详情 | GET | `/member/order/:id` | 订单详情/支付页 | S7 |
-| 32 | 订单管理 | 模拟发货-内测版 | GET | `/member/order/consignment/:id` | 订单详情（调试） | S7 |
-| 33 | 订单管理 | 确认收货 | PUT | `/member/order/receipt/:id` | 订单列表/详情 | S7 |
-| 34 | 订单管理 | 获取订单物流 | GET | `/member/order/logistics/:id` | 物流页 | S7 可选 |
-| 35 | 订单管理 | 删除订单 | DELETE | `/member/order` | 订单列表 | S7 |
-| 36 | 订单管理 | 取消订单 | PUT | `/member/order/:id/cancel` | 订单详情 | S7 |
-| 37 | 订单管理 | 获取订单列表 | GET | `/member/order` | 订单列表 | S7 |
-| 38 | 购物车 | 加入购物车 | POST | `/member/cart` | 详情页 | S4/S6 |
-| 39 | 购物车 | 获取购物车列表 | GET | `/member/cart` | 购物车/结算 | S6 |
-| 40 | 购物车 | 删除/清空单品 | DELETE | `/member/cart` | 购物车 | S6 |
-| 41 | 购物车 | 修改购物车单品 | PUT | `/member/cart/:skuId` | 购物车 | S6 |
-| 42 | 购物车 | 全选/取消全选 | PUT | `/member/cart/selected` | 购物车 | S6 |
-| 43 | 支付 | 获取微信支付参数 | GET | `/member/order/:id`(payment) | 支付页 | S7 |
-| 44 | 支付 | 模拟支付-内测版 | GET | `/member/order/pay/mock` | 支付页（调试） | S7 |
+| 1 | 首页 | 广告区域-小程序 | GET | `/home/banner?distributionSite=1` | 首页 / 分类页 | S2 |
+| 2 | 首页 | 前台分类-小程序 | GET | `/home/category/mutli` | 首页宫格、分类页左侧 | S2/S3 |
+| 3 | 首页 | 热门推荐-小程序 | GET | `/home/hot/mutli` | 首页楼层入口 | S2 |
+| 4 | 首页 | 新鲜好物-小程序 | GET | `/home/new` | 首页楼层 | S2 |
+| 5 | 首页 | 猜你喜欢-小程序 | GET | `/home/goods/guessLike?page=&pageSize=` | 首页猜你喜欢 | S2 |
+| 6 | 首页 | 分类楼层（Apifox 未收录，实测可用） | GET | `/home/goods` | 首页楼层 | S2 |
+| 7 | 热门推荐 | 特惠推荐-小程序 | GET | `/hot/preference` | 分类/搜索筛选 | S3 |
+| 8 | 热门推荐 | 爆款推荐-小程序 | GET | `/hot/inVogue` | 同上 | S3 |
+| 9 | 热门推荐 | 一站买全-小程序 | GET | `/hot/oneStop` | 同上 | S3 |
+| 10 | 热门推荐 | 新鲜好物-小程序 | GET | `/hot/new` | 同上 | S3 |
+| 11 | 搜索 | 商品搜索-带筛选条件 | POST | `/search/all` | 搜索页 | S3 |
+| 12 | 搜索 | 提示语 | GET | `/search/tips?keyword=` | 搜索联想 | S3 |
+| 13 | 商品分类 | 分类列表-小程序 | GET | `/category/top` | 分类页 | S3 |
+| 14 | 商品详情 | 商品详情 | GET | `/goods?id=` | 详情页 | S4 |
+| 15 | 商品详情 | 同类推荐（将废弃） | GET | `/goods/relevant` | 详情页底部 | S4 可选 |
+| 16 | 会员登录 | 小程序登录 | POST | `/login/wxMin` | 登录 | S5 |
+| 17 | 会员登录 | 小程序登录-内测版 | POST | `/login/wxMin/simple` | 登录（调试） | S5 |
+| 18 | 会员登录 | 传统登录-用户名+密码 | POST | `/login` | 登录（备用） | S5 |
+| 19 | 会员登录 | 刷新 token | PUT | `/login/refresh` | 请求层 | S5 |
+| 20 | 个人信息 | 获取个人信息 | GET | `/member/profile` | 我的 | S5 |
+| 21 | 个人信息 | 修改个人信息 | PUT | `/member/profile` | 资料编辑 | S5 |
+| 22 | 个人信息 | 修改用户头像 | POST | `/member/profile/avatar` | 资料编辑 | S5 |
+| 23 | 地址管理 | 添加收货地址 | POST | `/member/address` | 地址编辑 | S5 |
+| 24 | 地址管理 | 删除收货地址 | DELETE | `/member/address/{id}` | 地址列表 | S5 |
+| 25 | 地址管理 | 修改收货地址 | PUT | `/member/address/{id}` | 地址编辑/设默认 | S5 |
+| 26 | 地址管理 | 获取收货地址详情 | GET | `/member/address/{id}` | 地址编辑 | S5 |
+| 27 | 地址管理 | 获取收货地址列表 | GET | `/member/address` | 地址列表/结算 | S5 |
+| 28 | 订单管理 | 获取预付订单 | GET | `/member/order/pre` | 结算页 | S7 |
+| 29 | 订单管理 | 获取立即购买订单 | GET | `/member/order/pre/now` | 详情页「立即购买」 | S7 |
+| 30 | 订单管理 | 获取再次购买订单 | GET | `/member/order/repurchase/{id}` | 订单详情 | S7 |
+| 31 | 订单管理 | 提交订单 | POST | `/member/order` | 结算页 | S7 |
+| 32 | 订单管理 | 获取订单详情 | GET | `/member/order/{id}` | 订单详情/支付页 | S7 |
+| 33 | 订单管理 | 模拟发货-内测版 | GET | `/member/order/consignment/{id}` | 订单详情（调试） | S7 |
+| 34 | 订单管理 | 确认收货 | PUT | `/member/order/{id}/receipt` | 订单列表/详情 | S7 |
+| 35 | 订单管理 | 获取订单物流 | GET | `/member/order/{id}/logistics` | 物流页 | S7 可选 |
+| 36 | 订单管理 | 删除订单 | DELETE | `/member/order` | 订单列表 | S7 |
+| 37 | 订单管理 | 取消订单 | PUT | `/member/order/{id}/cancel` | 订单详情 | S7 |
+| 38 | 订单管理 | 获取订单列表 | GET | `/member/order` | 订单列表 | S7 |
+| 39 | 购物车 | 加入购物车 | POST | `/member/cart` | 详情页 | S4/S6 |
+| 40 | 购物车 | 获取购物车列表 | GET | `/member/cart` | 购物车/结算 | S6 |
+| 41 | 购物车 | 删除/清空单品 | DELETE | `/member/cart` | 购物车 | S6 |
+| 42 | 购物车 | 修改购物车单品 | PUT | `/member/cart/{skuId}` | 购物车 | S6 |
+| 43 | 购物车 | 全选/取消全选 | PUT | `/member/cart/selected` | 购物车 | S6 |
+| 44 | 支付 | 获取微信支付参数 | GET | `/pay/wxPay/miniPay?orderId=` | 支付页 | S7 |
+| 45 | 支付 | 模拟支付-内测版 | GET | `/pay/mock?orderId=` | 支付页（调试） | S7 |
 
 ---
 

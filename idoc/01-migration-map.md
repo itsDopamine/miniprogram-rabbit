@@ -69,7 +69,7 @@
 | --- | --- | --- | --- |
 | `src/apis/home.js` | `api/home.js` | 首页模块、热门推荐 | banner / new / hot / goods |
 | `src/apis/layout.js` | `api/home.js` | 首页模块 | `/home/category/head`，全应用只需一次 |
-| `src/apis/category.js` | `api/category.js` | 商品分类 | 分类列表（小程序版可能无 filter 接口） |
+| `src/apis/category.js` | `api/category.js` | 商品分类 | 只有 `GET /category/top`，一次返回两级分类 + 商品树，无 filter 接口（Apifox 已确认） |
 | `src/apis/detail.js` | `api/goods.js` | 商品详情 | 详情、同类推荐 |
 | —（React 版无） | `api/search.js` | 搜索模块 | 小程序版新增，含提示语 |
 | `src/apis/user.js` | `api/user.js` | 会员登录、个人信息 | 登录方式改为 `wx.login` |
