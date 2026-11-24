@@ -5,8 +5,6 @@ const BASE_URL_PROD = 'https://pcapi-xiaotuxian-front.itheima.net'
 
 export const SOURCE_CLIENT = 'miniapp'
 
-const {
-  envVersion
-} = wx.getAccountInfoSync().miniProgram
+const { envVersion } = wx.getAccountInfoSync().miniProgram
 
 export const BASE_URL = envVersion === 'release' ? BASE_URL_PROD : BASE_URL_DEV

@@ -60,7 +60,12 @@ config/env.js                   配置层  域名、公共头
 | 业务层 | HTTP 200 但 `code !== 0`（如库存不足） | 响应体里的 `code/msg` | 通常统一 toast，特殊场景页面自己接 |
 | 鉴权层 | HTTP 401 | 清 token + 跳登录 | 不要，统一处理 |
 
-> 响应体结构 `{ code, msg, result }`、`code === 0` 为成功：来源级别 **B**（React 版 `src/utils/http.js` 的实现约定），进入本阶段时用真实接口**实测确认一次**（C 级），确认后把结论写回本节。
+> **实测结论（C 级，2026-11-24，工具 2.02.2609250 / 基础库 2.32.3）**：
+>
+> - 响应体结构为 `{ code, msg, result }`，错误信息字段是 **`msg`**（不是 `message`）；
+> - **成功码是字符串 `"1"`，不是数字 `0`**；成功时 `msg` 为「操作成功」。
+>
+> 也就是说 React 版 `http.js` 按 `code === 0` 判断的做法与本接口**不一致**（B 级来源的又一次证伪）。判定统一写成 `String(body.code) === '1'`，同时容忍数字/字符串两种写法。
 
 ### 2.4 接口事实（官方接口文档，级别 A）
 
@@ -108,7 +113,7 @@ export const ORDER_STATE = Object.freeze({
 
 同时导出 `ORDER_STATE_TEXT`（状态 → 中文），订单列表 S7 要用。
 
-### Step 3：`utils/request.js` 核心（60 分钟，核心步骤）
+### Step 3：`utils/request.js` 核心 ✅ 已完成
 
 **Promise 化的最小内核**（这是整个封装的种子，5 行）：
 
@@ -150,7 +155,7 @@ export function request(options) {}
 
 **验收点**：随便调一个接口，`console.log` 能打印出 `result`；故意把 url 写错，能进 `catch` 并且只弹一次提示。
 
-### Step 4：token 与 401（40 分钟）
+### Step 4：token 与 401 ✅ 已完成（登录页跳转留 S5）
 
 `utils/auth.js`：`getToken()` / `setToken(t)` / `clearToken()`，底层用 `wx.setStorageSync`（同步 API，小数据量最省事）。
 
@@ -210,6 +215,8 @@ let redirecting = false
 | 页面里 `catch` 到 `undefined` | `reject` 时没传对象 | 统一 `reject({ code, msg })` |
 | 并发请求 loading 提前消失 | `showLoading` 与 `hideLoading` 不成对 | 用计数器：`++` 时 show，`--` 到 0 才 hide |
 | 连续跳了多次登录页 | 401 没去重 | 加 `redirecting` 标志 + 重置时机 |
+| `ReferenceError: resolve is not defined` | 把 `success/fail` 处理函数定义在 `new Promise` 执行器**外面**，那里拿不到 `resolve/reject` | 处理函数写进执行器内部，或把 `resolve/reject` 当参数传进去 |
+| `Error: MiniProgramError {"code":"1","msg":"操作成功"}` | ① 成功码判断错（真实成功码是 `"1"`，不是 `0`），成功响应被当成失败 `reject`；② 调用方没有 `.catch`，未处理的 rejection 冒到全局 | 改判定为 `String(body.code) === '1'`；页面调用处补 `try/catch` 或 `.catch()` |
 
 ---
 
@@ -249,3 +256,4 @@ let redirecting = false
 | 日期 | 内容 |
 | --- | --- |
 | 2026-11-24 | Step 1-2 完成：`config/env.js`（BASE_URL 按 `envVersion` 切 dev/prod、导出 `SOURCE_CLIENT`）、`config/constants.js`（`ORDER_STATE` + `ORDER_STATE_TEXT`，`Object.freeze`）。<br>**发现一处真实差异**：React 版 `src/utils/http.js` 的生产域名是 `https://apipc-xiaotuxian-front.itheima.net`，而接口文档是 `https://pcapi-xiaotuxian-front.itheima.net`（`apipc` 与 `pcapi` 顺序相反）。按 A 级压 B 级的原则，以文档为准。 |
+| 2026-11-24 | Step 3-4 完成：`utils/auth.js`（token 三件套）、`utils/request.js`（网络 → 401 → HTTP → 业务四层判断、`loading` 计数器、`silent` 静默模式、401 `redirecting` 去重）。<br>**初版踩到的坑**：`success/fail` 处理函数写在 `new Promise` 执行器外部，`resolve/reject` 不在作用域 → `ReferenceError`；鉴权头误写为 `token`（应为 `Authorization`）；缺 `statusCode` 判断导致 401 响应体为空时解构抛错。 |
