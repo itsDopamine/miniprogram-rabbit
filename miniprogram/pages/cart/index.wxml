@@ -1,0 +1,9 @@
+<!--pages/cart/index.wxml-->
+<view class="page">
+  <view class="card">
+    <view class="placeholder-title">购物车</view>
+    <view class="placeholder-desc">计划在 {{stage}} 实现：游客本地车、登录服务端车、登录合并、勾选/全选、数量防抖、失效商品、tabBar 角标。</view>
+    <view class="placeholder-desc">依赖前置：S3 的详情页加购入口。</view>
+    <button class="placeholder-btn" bindtap="goHome">回首页（switchTab）</button>
+  </view>
+</view>

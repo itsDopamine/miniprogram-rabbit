@@ -1,15 +1,8 @@
 {
-  "name": "miniprogram-ts-sass-quickstart",
+  "name": "miniprogram-rabbit",
   "version": "1.0.0",
-  "description": "",
-  "scripts": {
-  },
-  "keywords": [],
-  "author": "",
-  "license": "",
-  "dependencies": {
-  },
-  "devDependencies": {
-    "miniprogram-api-typings": "^2.8.3-1"
-  }
+  "private": true,
+  "description": "小兔鲜商城微信小程序（原生 JavaScript + WebView 渲染）",
+  "scripts": {},
+  "devDependencies": {}
 }

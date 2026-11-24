@@ -1,0 +1,18 @@
+<!--pages/member/index.wxml-->
+<view class="page">
+  <view class="card">
+    <view class="placeholder-title">我的</view>
+    <view class="placeholder-desc">当前状态：{{loggedIn ? '已登录' : '未登录（游客）'}}</view>
+    <view class="placeholder-desc">计划在 {{stage}} 实现：个人资料、订单入口、地址管理、退出登录。</view>
+
+    <button wx:if="{{!loggedIn}}" class="placeholder-btn" bindtap="goLogin">
+      去登录页（带 redirect）
+    </button>
+
+    <button class="placeholder-btn placeholder-btn--ghost" bindtap="test401">
+      S0 自检：访问受保护接口（预期 401 并跳登录）
+    </button>
+
+    <button class="placeholder-btn placeholder-btn--ghost" bindtap="goHome">回首页（switchTab）</button>
+  </view>
+</view>
