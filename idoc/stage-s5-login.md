@@ -1,6 +1,6 @@
 # 阶段 S5 · 登录与个人中心
 
-> 状态：**Step 1–3 代码完成**（登录闭环 + 401 回跳 + 我的页头部）；Step 5 资料编辑、Step 6 地址、Step 7 合并验证未做
+> 状态：**Step 1–6 代码完成**（登录闭环 / 401 回跳 / 我的 / 资料编辑 / 地址 CRUD）；头像上传受服务端 OSS 限制无法验证成功路径；Step 7 合并待真机验
 > 工时：2.5 天 · 前置：S1 请求层、S4 加购（`utils/cart.js` 已有 `mergeLocalCart` 待接线）
 > 关联：[`api-reference.md`](./api-reference.md) 会员登录 / 个人信息 / 地址管理、[`stage-s6-cart.md`](./stage-s6-cart.md)（合并补丁）
 
@@ -59,11 +59,20 @@
 ### 2.3 个人信息
 
 `GET /member/profile` 返回 `id` / `avatar` / `nickname` / `account` / `gender` / `birthday` / `fullLocation` / `profession`。
-`PUT /member/profile` 可改 `nickname` / `gender` / `birthday`(`YYYY-MM-DD`) / 省市区 `*Code` / `profession`，**响应里带新 `token`——要覆盖本地旧 token，否则可能出现「资料改了但 token 还是旧的」。**
+`PUT /member/profile` 可改 `nickname` / `gender` / `birthday`(`YYYY-MM-DD`) / 省市区 `*Code` / `profession`。
+
+**实测修正（2026-11-24）**：Apifox 写「响应带 `token`」，**实际响应没有 token 字段**（实测返回键为 `account,avatar,birthday,fullLocation,gender,id,nickname,profession`）。所以改资料不会换 token。代码里仍留一句 `if (result.token) setToken(...)` 兜底，但**不能依赖它**。
 
 ### 2.4 头像上传
 
-`POST /member/profile/avatar`，Apifox 只写了「小程序用 `wx.uploadFile`」，**没给表单字段名**。字段名（`file` 还是别的）属**待实测**，联调时先用 `file` 试探，以 Network 面板的实际响应为准，确认后回填本文档。
+`POST /member/profile/avatar`，Apifox 只写了「小程序用 `wx.uploadFile`」，没给表单字段名。
+
+**实测结论（2026-11-24）**
+
+1. 表单字段名是 **`file`**。传 `avatar` 时服务端直接回 `Required request part 'file' is not present`，传 `file` 才进入上传流程——错误信息本身就是证据。
+2. 字段名对了之后，**上传仍然失败**：服务端回 `code: "10001"`，`data` 是阿里云 OSS 的 `InvalidAccessKeyId`（`The OSS Access Key Id you provided is disabled`）。这是**服务端 OSS 配置失效**，不是前端调用方式的问题，客户端无法绕过。
+
+**处理方式**：功能照实现（`name: 'file'`），失败时把服务端 `msg` toast 出来。真机联调时若仍报 10001，记为该接口暂不可用，资料页其余字段不受影响。头像选择后先用临时路径本地预览，失败也要让用户看到自己选的是哪张。
 
 ### 2.5 地址
 
@@ -72,6 +81,19 @@
 **`isDefault` 是整数 `1/0`，不是布尔**（Apifox 在两处特意强调「此处按照接口实现」）。而购物车的 `selected` 是布尔。这意味着「默认地址唯一」不能靠传参实现，需要前端在设为默认时把其它地址一并改成 0，或者以服务端行为为准（待实测：设置新默认后旧默认是否自动置 0）。
 
 **实测补充（2026-11-24）**：`GET /member/address` 实际还返回 `postalCode`、`addressTags`（均为 `null`）两个 Apifox 未登记的字段，可忽略不必渲染；列表排序以接口返回顺序为准，并非默认地址优先，前端要自己把 `isDefault === 1` 的提到最前。
+
+**省市区 code 必须是 6 位（关键，2026-11-24 实测）**
+
+React 版 `src/constants/areas.js` 的注释说「省 2 位、市 4 位、区 6 位，恰好与后端一致，6 位码是旧写法」——**这个结论是错的**。实测方法：分别用两种码创建地址，再用 `GET /member/address/{id}` 看服务端回填的 `fullLocation`：
+
+| 提交的码 | 服务端返回的 `fullLocation` | 结论 |
+| --- | --- | --- |
+| `110000` / `110100` / `110101` | `北京市 北京市 东城区` | 三级都解析出来了 ✓ |
+| `11` / `1101` / `110101` | `东城区` | 省、市两级丢失 ✗ |
+
+所以：**提交必须补零到 6 位**。而 `china-division` 的 `pca-code.json` 恰好是 2/4/6 位截断码，不能直接用——已生成 `miniprogram/data/areas.js`（省/市 code 补零到 6 位，31 省 3056 区县，约 110KB），页面通过 `utils/area.js` 取用。
+
+推论：账号里已有的历史地址可能仍是 2/4 位截断码（`fullLocation` 只剩区名）。编辑这类地址时**不要重算 code**，否则会把原地址覆盖成默认下标对应的北京东城——编辑页用 `areaPicked` 标记是否重新选过地区，没选过就不提交 `*Code`。
 
 ---
 
@@ -189,16 +211,25 @@ Storage 里只放 token（key 已在 `utils/auth.js` 统一为 `rabbit_token`）
 - 已做：头像 / 昵称 / 账号头部（`toHttps` 处理头像）、未登录态「点击登录」、退出登录二次确认
 - `onShow` 里判 `getToken()` 再取数：tabBar 页面常驻，登录态可能在别的页面变过，`onLoad` 只跑一次不够
 - 退出登录只 `clearToken` + 回未登录态，**不主动清购物车缓存**——本地车是游客数据，退出后还应该看得到
-- 未做：我的订单入口（等 S7）、地址管理（Step 6，当前是 toast 占位）
+- 后补（2026-11-24）：点头像/昵称区进 `/pages/profile/profile`，收货地址入口进 `/pages/address/list/list`，两处都对未登录态做了「先登录」判断
+- 未做：我的订单入口（等 S7）
 
 ### Step 5：资料编辑
 
 - 头像：`chooseAvatar` → `wx.uploadFile` → 拿到 URL 后 `PUT /member/profile`
 - 昵称：`input type="nickname"`
 - 性别 / 生日 / 职业按接口字段提交
-- **`PUT /member/profile` 响应里的 `token` 要写回 Storage**
+- `PUT /member/profile` 响应若带 `token` 要写回 Storage（**实测没有，见 §2.3**）
 
 **验收**：真机改头像与昵称，返回列表刷新后仍是新值；重新进小程序不丢。
+
+**实现记录（2026-11-24，头像受服务端限制）**
+
+- 输入框用 `bindinput` + `bindblur` 双绑，但**只写 `this.nickname` / `this.profession` 草稿，不进 `data`**；保存时优先取草稿，没改过就退回接口原值。`input type="nickname"` 的快捷填写发生在失焦前，只绑 `bindinput` 会漏掉，所以两个事件都要写
+- `value` 只做初值：`data` 里的值不在输入过程中被改写，就不会触发「光标跳到末尾」
+- 头像先用临时路径本地预览再上传，上传失败时用户仍能看到自己选的是哪张，而不是头像区一片空白
+- 性别用 `picker` + 下标映射（`男/女/未知`），接口给空或异常值时落到「未知」，不要把 `indexOf` 的 `-1` 直接当 `picker` 的 `value`
+- **新增**：`wx.showLoading` 与 `wx.showToast` 会互相顶掉，成功/失败分支里都要先 `wx.hideLoading()` 再 toast，否则 loading 会一直转
 
 ### Step 6：地址管理
 
@@ -206,6 +237,16 @@ Storage 里只放 token（key 已在 `utils/auth.js` 统一为 `rabbit_token`）
 - 表单校验：手机号 11 位、必填项非空、省市区必须选到区县
 
 **验收**：增删改查全通；设为默认后列表里只有一个默认（若服务端不自动置 0，前端补一次 `PUT`）。
+
+**实现记录（2026-11-24）**
+
+- 数据：`data/areas.js`（生成文件，code 补零到 6 位）+ `utils/area.js`（下标 ↔ code ↔ 文案，纯函数）。生成脚本跑完即删，文件头写明来源与「勿手改」
+- `picker mode="multiSelector"` 没有级联能力，要自己在 `bindcolumnchange` 里重算后两列：**省变了市和区都要归零，市变了区要归零**，否则下标越界或错位
+- 编辑老地址时用 `areaPicked` 标记「本次有没有重新选过地区」：没选过就不提交 `*Code`，避免用默认下标把 2/4 位截断码的老地址覆盖成「北京市 东城区」
+- 「默认地址唯一」：`utils/address.js` 的 `ensureSingleDefault(keepId)` 在设默认后重拉列表，把其它 `isDefault === 1` 的逐个改成 0。**服务端到底会不会自动置 0 没有验证过，前端兜底比赌服务端行为可靠**；代价是设默认时多 1 次列表请求
+- `isDefault` 全程按 `1/0` 处理，只有展示层用 `item.isDefault === 1` 判断，不转布尔（转来转去最容易在某处写成 `true`）
+- 列表页 `onShow` 拉数据：从编辑页 `navigateBack` 回来必须刷新，`onLoad` 只跑一次
+- 省市区用例 9 条（下标→code、code→下标回填、截断码对不上、换省后市列变化、占位名过滤）用 Node 直接 import 真实源码验证，全 PASS
 
 ### Step 7：登录合并（补 S6）
 
@@ -236,6 +277,12 @@ await fetchCartList()    // 以服务端为准
 | 默认地址有两个 | `isDefault` 传了 `true`，或没把旧默认改 0 | 传 `1/0`，并确认服务端行为 |
 | 登录后购物车本地条目没清 | 合并失败也清了 Storage | 成功才清（已实现） |
 | tabBar 页用 `wx.navigateTo` 跳登录后回不来 | tab 页不能作为 `navigateTo` 目标 | 回跳用 `switchTab` |
+| 新增地址后 `fullLocation` 只有区名 | 提交了 2/4 位截断码 | 省/市 code 补零到 6 位 |
+| 选了省，区列还是上一个省的区 | `multiSelector` 不会自动级联 | `bindcolumnchange` 里把下级列归零并重算 range |
+| 编辑老地址后地区被改成「北京市 东城区」 | 没重选地区却提交了默认下标 | `areaPicked` 标记，没选过就不提交 `*Code` |
+| 头像一直转圈不结束 | `showToast` 顶掉了 `showLoading` | 成功/失败分支都先 `hideLoading` 再 toast |
+| 头像怎么传都失败（`code 10001`） | 服务端 OSS AccessKey 已失效 | 记为接口不可用，客户端无解 |
+| 改了昵称保存后还是旧值 | 提交的是 `data` 里的旧值 | 输入只写 `this` 草稿，保存时优先取草稿 |
 
 ---
 
@@ -281,3 +328,4 @@ code 是一次性凭证，只能换一次登录态，且有效期 5 分钟。存
 | 2026-11-24 | 任务书建立。三条登录接口的前置条件不同（`/login/wxMin` 需企业主体），本项目 appid 主体类型未确认，故登录入口选型列为待拍板项，先按用户名密码打通闭环。另查明 React 版只有 `POST /login`，小程序登录与头像上传无 web 版可对齐，只能以 Apifox + 微信官方文档为依据。 |
 | 2026-11-24 | Step 1–3 落地：`api/auth.js` + `api/member.js` + `pages/login` + 401 跳登录（带 `redirect` 回跳）+ 「我的」页头部与退出登录。实测 `POST /login` 与 `GET /member/profile` 均通，`avatar` 是 http 需 `toHttps`。三个决策：**账号密码不进 `data`**（避免重渲染与光标问题）、**回跳优先 `navigateBack`**（原页 `onShow` 会带新 token 重新取数）、**401 里先判「是否已在登录页」再去重**（否则登录页会被自己的 401 顶掉）。 |
 | 2026-11-24 | 一处顺手发现：`global.scss` 的 `hairline` mixin 只支持单边（`bottom` / `top` 等），传 `all` 会生成 `all: 0` 这种无效声明，边框不出现。输入框改用普通 `border: 1px solid $border-color`。 |
+| 2026-11-24 | Step 5–6 落地：资料编辑（`pages/profile`）+ 地址 CRUD（`pages/address/list`、`pages/address/edit`）+ 省市区数据与换算（`data/areas.js`、`utils/area.js`、`utils/address.js`）。三处实测推翻了文档/注释：**头像字段名是 `file`**（错误信息里写着 `Required request part 'file' is not present`）、**头像上传服务端 OSS AccessKey 已失效**（`code 10001`，客户端无解）、**`PUT /member/profile` 响应没有 token**（Apifox 写错）。另外 React 版注释里「省 2 位市 4 位」的说法经实测是错的：提交截断码后 `fullLocation` 只剩区名，必须补零到 6 位。 |

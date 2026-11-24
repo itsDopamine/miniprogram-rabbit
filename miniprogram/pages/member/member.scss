@@ -41,6 +41,11 @@ page {
   font-size: $font-sm;
 }
 
+.profile__arrow {
+  color: $text-placeholder;
+  font-size: $font-md;
+}
+
 .cells {
   margin-top: $gap-base;
   background-color: $bg-card;

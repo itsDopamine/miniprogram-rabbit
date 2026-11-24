@@ -6,7 +6,10 @@
     "pages/member/member",
     "pages/search/search",
     "pages/goods/detail/detail",
-    "pages/login/login"
+    "pages/login/login",
+    "pages/profile/profile",
+    "pages/address/list/list",
+    "pages/address/edit/edit"
   ],
   "window": {
     "navigationBarTextStyle": "black",

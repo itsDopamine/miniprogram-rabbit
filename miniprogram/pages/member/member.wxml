@@ -3,10 +3,11 @@
 <view class="profile">
   <block wx:if="{{logged}}">
     <image class="profile__avatar" src="{{profile.avatar}}" mode="aspectFill" />
-    <view class="profile__info">
+    <view class="profile__info" bindtap="onEditProfile">
       <text class="profile__name">{{profile.nickname || profile.account}}</text>
       <text class="profile__sub">{{profile.account}}</text>
     </view>
+    <text class="profile__arrow">›</text>
   </block>
 
   <block wx:else>

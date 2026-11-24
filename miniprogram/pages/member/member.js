@@ -35,6 +35,14 @@ Page({
     wx.navigateTo({ url: `/pages/login/login?redirect=${redirect}` })
   },
 
+  onEditProfile() {
+    if (!this.data.logged) {
+      this.onLogin()
+      return
+    }
+    wx.navigateTo({ url: '/pages/profile/profile' })
+  },
+
   onLogout() {
     wx.showModal({
       title: '提示',
@@ -50,6 +58,10 @@ Page({
   },
 
   onAddress() {
-    wx.showToast({ title: '地址管理待接入', icon: 'none' })
+    if (!this.data.logged) {
+      this.onLogin()
+      return
+    }
+    wx.navigateTo({ url: '/pages/address/list/list' })
   }
 })

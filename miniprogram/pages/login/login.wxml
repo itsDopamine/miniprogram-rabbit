@@ -27,6 +27,6 @@
   </view>
 
   <view class="submit {{loading ? 'submit--disabled' : ''}}" bindtap="onSubmit">
-    {{loading ? '登录中…' : '登 录'}}
+    {{loading ? '登录中…' : '登录'}}
   </view>
 </view>
