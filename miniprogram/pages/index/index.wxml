@@ -4,136 +4,151 @@
 <scroll-view
   class="page"
   scroll-y
+  scroll-into-view="{{intoView}}"
+  scroll-with-animation
   refresher-enabled
   refresher-triggered="{{refreshing}}"
   bindrefresherrefresh="onRefresh"
   bindscrolltolower="loadMoreGuess"
   lower-threshold="80"
 >
-  <!-- 首屏骨架：只在还没有任何数据时显示，下拉刷新不会闪 -->
-  <view class="skeleton" wx:if="{{loading && !banners.length}}">
-    <view class="skeleton__banner"></view>
-    <view class="skeleton__row">
-      <view class="skeleton__cell" wx:for="{{[1, 2, 3, 4, 5]}}" wx:key="*this"></view>
-    </view>
-    <view class="skeleton__goods">
-      <view class="skeleton__card" wx:for="{{[1, 2, 3, 4]}}" wx:key="*this"></view>
-    </view>
-  </view>
+  <!-- 跳转锚点：scroll-into-view 只认 scroll-view 内的元素 id，0 高度不占位 -->
+  <view class="page__top" id="page-top"></view>
 
-  <!-- 错误态：已有数据时只 toast，不把页面换掉 -->
-  <view class="state" wx:elif="{{error && !banners.length}}">
-    <text class="state__text">{{error}}</text>
-    <view class="state__btn" bindtap="onRetry">重新加载</view>
-  </view>
+  <view class="page__body">
+    <!-- 显隐哨兵：它的高度就是"滚过多少才出按钮"的阈值 -->
+    <view class="page__sentinel" id="back-top-sentinel"></view>
 
-  <block wx:else>
-    <swiper
-      class="banner"
-      indicator-dots
-      circular
-      autoplay
-      interval="3000"
-      indicator-color="rgba(255, 255, 255, 0.4)"
-      indicator-active-color="#ffffff"
-    >
-      <swiper-item wx:for="{{banners}}" wx:key="id">
-        <image class="banner__img" src="{{item.imgUrl}}" mode="aspectFill" />
-      </swiper-item>
-    </swiper>
-
-    <!-- 分类宫格：一行 5 个 -->
-    <view class="categories">
-      <view class="categories__item" wx:for="{{categories}}" wx:key="id">
-        <image class="categories__icon" src="{{item.icon}}" mode="aspectFit" />
-        <text class="categories__name">{{item.name}}</text>
+    <!-- 首屏骨架：只在还没有任何数据时显示，下拉刷新不会闪 -->
+    <view class="skeleton" wx:if="{{loading && !banners.length}}">
+      <view class="skeleton__banner"></view>
+      <view class="skeleton__row">
+        <view class="skeleton__cell" wx:for="{{[1, 2, 3, 4, 5]}}" wx:key="*this"></view>
+      </view>
+      <view class="skeleton__goods">
+        <view class="skeleton__card" wx:for="{{[1, 2, 3, 4]}}" wx:key="*this"></view>
       </view>
     </view>
 
-    <!-- 新鲜好物 -->
-    <view class="section">
-      <view class="section__header">
-        <text class="section__title">新鲜好物</text>
-        <text class="section__desc">新鲜出炉 品质靠谱</text>
-      </view>
-      <view class="goods">
-        <goods-card
-          wx:for="{{newGoods}}"
-          wx:key="id"
-          class="goods__item"
-          goods="{{item}}"
-          bind:tap-card="onTapGoods"
-        />
-      </view>
+    <!-- 错误态：已有数据时只 toast，不把页面换掉 -->
+    <view class="state" wx:elif="{{error && !banners.length}}">
+      <text class="state__text">{{error}}</text>
+      <view class="state__btn" bindtap="onRetry">重新加载</view>
     </view>
 
-    <!-- 热门推荐：两列入口卡片 -->
-    <view class="section">
-      <view class="section__header">
-        <text class="section__title">热门推荐</text>
-        <text class="section__desc">大家都在买</text>
-      </view>
-      <view class="panels">
-        <view class="panels__item" wx:for="{{hotPanels}}" wx:key="id">
-          <image class="panels__pic" src="{{item.pictures[0]}}" mode="aspectFit" />
-          <text class="panels__title">{{item.title}}</text>
-          <text class="panels__alt">{{item.alt}}</text>
+    <block wx:else>
+      <swiper
+        class="banner"
+        indicator-dots
+        circular
+        autoplay
+        interval="3000"
+        indicator-color="rgba(255, 255, 255, 0.4)"
+        indicator-active-color="#ffffff"
+      >
+        <swiper-item wx:for="{{banners}}" wx:key="id">
+          <image class="banner__img" src="{{item.imgUrl}}" mode="aspectFill" />
+        </swiper-item>
+      </swiper>
+
+      <!-- 分类宫格：一行 5 个 -->
+      <view class="categories">
+        <view class="categories__item" wx:for="{{categories}}" wx:key="id">
+          <image class="categories__icon" src="{{item.icon}}" mode="aspectFit" />
+          <text class="categories__name">{{item.name}}</text>
         </view>
       </view>
-    </view>
 
-    <!-- 分类楼层：首屏 2 层，触底再加 2 层 -->
-    <view class="floor" wx:for="{{floors}}" wx:key="id">
-      <!-- 标题在左、楼层图在右，填满整行不留空 -->
-      <view class="floor__head">
-        <view class="floor__meta">
-          <text class="floor__name">{{item.name}}</text>
-          <text class="floor__sale">{{item.saleInfo}}</text>
+      <!-- 新鲜好物 -->
+      <view class="section">
+        <view class="section__header">
+          <text class="section__title">新鲜好物</text>
+          <text class="section__desc">新鲜出炉 品质靠谱</text>
         </view>
-        <image class="floor__pic" src="{{item.picture}}" mode="aspectFill" />
+        <view class="goods">
+          <goods-card
+            wx:for="{{newGoods}}"
+            wx:key="id"
+            class="goods__item"
+            goods="{{item}}"
+            bind:tap-card="onTapGoods"
+          />
+        </view>
       </view>
 
-      <view class="floor__tags">
-        <text class="floor__tag" wx:for="{{item.children}}" wx:for-item="tag" wx:key="id">{{tag.name}}</text>
+      <!-- 热门推荐：两列入口卡片 -->
+      <view class="section">
+        <view class="section__header">
+          <text class="section__title">热门推荐</text>
+          <text class="section__desc">大家都在买</text>
+        </view>
+        <view class="panels">
+          <view class="panels__item" wx:for="{{hotPanels}}" wx:key="id">
+            <image class="panels__pic" src="{{item.pictures[0]}}" mode="aspectFit" />
+            <text class="panels__title">{{item.title}}</text>
+            <text class="panels__alt">{{item.alt}}</text>
+          </view>
+        </view>
       </view>
 
-      <view class="floor__goods">
-        <goods-card
-          wx:for="{{item.goods}}"
-          wx:for-item="goods"
-          wx:key="id"
-          class="floor__goods-item"
-          goods="{{goods}}"
-          bind:tap-card="onTapGoods"
-        />
-      </view>
-    </view>
+      <!-- 分类楼层：首屏 2 层，触底再加 2 层 -->
+      <view class="floor" wx:for="{{floors}}" wx:key="id">
+        <!-- 标题在左、楼层图在右，填满整行不留空 -->
+        <view class="floor__head">
+          <view class="floor__meta">
+            <text class="floor__name">{{item.name}}</text>
+            <text class="floor__sale">{{item.saleInfo}}</text>
+          </view>
+          <image class="floor__pic" src="{{item.picture}}" mode="aspectFill" />
+        </view>
 
-    <!-- 猜你喜欢：接口是真分页（page/pageSize），两列复用 goods-card -->
-    <view class="section">
-      <view class="section__header">
-        <text class="section__title">猜你喜欢</text>
-        <text class="section__desc">根据你的喜好推荐</text>
-      </view>
-      <view class="guess">
-        <goods-card
-          wx:for="{{guessLikes}}"
-          wx:key="id"
-          class="guess__item"
-          goods="{{item}}"
-          bind:tap-card="onTapGoods"
-        />
-      </view>
-    </view>
+        <view class="floor__tags">
+          <text class="floor__tag" wx:for="{{item.children}}" wx:for-item="tag" wx:key="id">{{tag.name}}</text>
+        </view>
 
-    <!-- 空态 -->
-    <view class="state" wx:if="{{!floors.length}}">
-      <text class="state__text">暂无推荐内容</text>
-    </view>
+        <view class="floor__goods">
+          <goods-card
+            wx:for="{{item.goods}}"
+            wx:for-item="goods"
+            wx:key="id"
+            class="floor__goods-item"
+            goods="{{goods}}"
+            bind:tap-card="onTapGoods"
+          />
+        </view>
+      </view>
 
-    <!-- 提示反映猜你喜欢的真实加载状态 -->
-    <view class="more" wx:if="{{guessLikes.length}}">
-      {{guessLoading ? '加载中…' : guessHasMore ? '上拉加载更多' : '没有更多了'}}
-    </view>
-  </block>
+      <!-- 猜你喜欢：接口是真分页（page/pageSize），两列复用 goods-card -->
+      <view class="section">
+        <view class="section__header">
+          <text class="section__title">猜你喜欢</text>
+          <text class="section__desc">根据你的喜好推荐</text>
+        </view>
+        <view class="guess">
+          <goods-card
+            wx:for="{{guessLikes}}"
+            wx:key="id"
+            class="guess__item"
+            goods="{{item}}"
+            bind:tap-card="onTapGoods"
+          />
+        </view>
+      </view>
+
+      <!-- 空态 -->
+      <view class="state" wx:if="{{!floors.length}}">
+        <text class="state__text">暂无推荐内容</text>
+      </view>
+
+      <!-- 提示反映猜你喜欢的真实加载状态 -->
+      <view class="more" wx:if="{{guessLikes.length}}">
+        {{guessLoading ? '加载中…' : guessHasMore ? '上拉加载更多' : '没有更多了'}}
+      </view>
+    </block>
+  </view>
 </scroll-view>
+
+<!-- 自绘箭头：TDesign 图标是远程字体，首帧会用系统字体兜底渲染成乱码字符 -->
+<view class="back-top" wx:if="{{showBackTop}}" bindtap="onBackTop">
+  <view class="back-top__arrow"></view>
+</view>

@@ -12,6 +12,25 @@ page {
   flex: 1;
   height: 0; // flex 子项必须有确定高度，scroll-view 才能真正滚动
   background-color: $bg-page;
+
+  // 绝对定位的哨兵需要随内容滚动的定位祖先，才能被交叉检测到移出视口
+  &__body {
+    position: relative;
+  }
+
+  // 跳转锚点：0 高度不占位，仅给 scroll-into-view 一个可命中的坐标
+  &__top {
+    height: 0;
+  }
+
+  // 高度即阈值：400rpx ≈ 滚过轮播才出按钮；1px 宽避免盖住 banner 的手势
+  &__sentinel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 400rpx;
+  }
 }
 
 // swiper 是容器组件，高度不会被子元素撑开，必须显式给
@@ -277,4 +296,29 @@ page {
   margin: 0 $gap-sm;
   vertical-align: middle;
   background-color: $border-color;
+}
+
+// 自绘箭头，不用图标字体：字体要等 CDN 下载，首帧会先渲染成乱码字形
+.back-top {
+  position: fixed;
+  right: $gap-lg;
+  bottom: calc(#{$gap-lg} + env(safe-area-inset-bottom));
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.45);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.12);
+
+  &__arrow {
+    width: 20rpx;
+    height: 20rpx;
+    margin-top: 6rpx; // 直角旋转后视觉重心偏上，下移一点才是居中
+    border-top: 4rpx solid #fff;
+    border-left: 4rpx solid #fff;
+    transform: rotate(45deg);
+  }
 }

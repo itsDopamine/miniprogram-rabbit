@@ -290,4 +290,4 @@ Component({
 
 | 日期 | 内容 |
 | --- | --- |
-| | |
+| 2026-11-24 | 追加「回到顶部」。第一版用 TDesign `t-back-top` + `bindscroll` 回写 `scroll-top`，实测快速下滚会跳动：`scroll-top` 是命令属性，被滚动监听回写后会在 setData 延迟内把用户位置硬拉回去（手越快落差越大）。同时 `t-back-top` 的图标是远程字体（`icon.wxss` 里 `@font-face` 指向 `tdesign.gtimg.com`），首帧用系统字体兜底渲染成乱码汉字。最终改为：显隐用 `IntersectionObserver` 观察 400rpx 的哨兵（零 scroll 事件），跳转用 `scroll-into-view` 指向 0 高度锚点（清空不产生滚动，先清空再设值以绕开"值不变不下发"），图标用 CSS 边框自绘。 |

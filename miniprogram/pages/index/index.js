@@ -10,6 +10,8 @@ import { toHttps } from '../../utils/common'
 
 Page({
   data: {
+    showBackTop: false,
+    intoView: '',
     banners: [],
     categories: [],
     newGoods: [],
@@ -33,6 +35,30 @@ Page({
     this.setData({ refreshing: true })
     await this.fetchHome()
     this.setData({ refreshing: false })
+  },
+
+  onReady() {
+    // 观察顶部锚点：它滚出视口就显示按钮。交叉检测在渲染层完成，不产生 scroll 事件
+    this.observer = wx.createIntersectionObserver(this, { thresholds: [0] })
+    this.observer.relativeToViewport().observe('#back-top-sentinel', (res) => {
+      const show = res.intersectionRatio === 0
+      if (show !== this.data.showBackTop) this.setData({ showBackTop: show })
+    })
+  },
+
+  onUnload() {
+    // 页面销毁后 observer 仍持有引用，会继续回调到这个页面上
+    if (this.observer) {
+      this.observer.disconnect()
+      this.observer = null
+    }
+  },
+
+  // scroll-into-view 传相同值不会重复滚动，先清空（清空不产生滚动指令）再设目标
+  onBackTop() {
+    this.setData({ intoView: '' }, () => {
+      this.setData({ intoView: 'page-top' })
+    })
   },
 
   // 猜你喜欢触底加载下一页：接口带 page/pageSize，是真分页
