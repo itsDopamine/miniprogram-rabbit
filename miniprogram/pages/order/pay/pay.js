@@ -1,5 +1,5 @@
 import { getOrderDetail } from '../../../api/order'
-import { mockPay } from '../../../api/pay'
+import { getWxPayParams, mockPay } from '../../../api/pay'
 
 Page({
   data: {
@@ -8,6 +8,8 @@ Page({
     // countdown 为 -1 表示付款已超时（实测待付款订单会出现），不是「还剩 1 秒」
     expired: true,
     paying: false,
+    // 取不到微信支付参数时切成模拟支付，由用户自己决定，不静默把订单改成已支付
+    mockMode: false,
     loading: true,
     error: ''
   },
@@ -84,23 +86,67 @@ Page({
     }
   },
 
+  /**
+   * 支付分两条路：
+   * 1. 先试真实微信支付：拿参数 → wx.requestPayment
+   * 2. 拿不到参数（openid 缺失 / appid 未授权）就切成模拟支付，由用户再点一次
+   * 不自动降级：mock 会把订单直接标成已支付，不能让它在用户不知情时发生
+   */
   async onPay() {
     if (this.data.paying || this.data.expired) return
 
     this.setData({ paying: true })
 
-    try {
-      // 真实支付要 appid 在白名单里，本项目只能模拟；调用后订单直接置为待发货
-      await mockPay(this.orderId)
-
-      wx.showToast({ title: '支付成功', icon: 'success' })
-      setTimeout(() => {
-        wx.redirectTo({ url: `/pages/order/detail/detail?id=${this.orderId}` })
-      }, 600)
-    } catch (err) {
-      console.log('[order-pay] 支付失败', err)
-      this.setData({ paying: false })
+    if (this.data.mockMode) {
+      this.doMockPay()
+      return
     }
+
+    try {
+      const params = await getWxPayParams(this.orderId)
+
+      wx.requestPayment({
+        ...params,
+        success: () => this.afterPaid(),
+        fail: (err) => {
+          this.setData({ paying: false })
+
+          // 用户主动取消不算失败
+          if ((err.errMsg || '').indexOf('cancel') >= 0) {
+            wx.showToast({ title: '已取消支付', icon: 'none' })
+            return
+          }
+
+          console.log('[order-pay] requestPayment 失败', err)
+          this.fallbackToMock('支付未完成，可改用模拟支付')
+        }
+      })
+    } catch (err) {
+      console.log('[order-pay] 取支付参数失败', err)
+      this.fallbackToMock('当前环境无法使用微信支付，可改用模拟支付')
+    }
+  },
+
+  doMockPay() {
+    mockPay(this.orderId)
+      .then(() => this.afterPaid())
+      .catch((err) => {
+        console.log('[order-pay] 模拟支付失败', err)
+        this.setData({ paying: false })
+      })
+  },
+
+  afterPaid() {
+    this.setData({ paying: false })
+    wx.showToast({ title: '支付成功', icon: 'success' })
+    setTimeout(() => {
+      wx.redirectTo({ url: `/pages/order/detail/detail?id=${this.orderId}` })
+    }, 600)
+  },
+
+  fallbackToMock(msg) {
+    this.setData({ paying: false, mockMode: true })
+    wx.showToast({ title: msg, icon: 'none' })
   },
 
   onRetry() {

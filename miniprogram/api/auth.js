@@ -15,3 +15,34 @@ export function loginByPassword({ account, password }) {
     loading: true
   })
 }
+
+/**
+ * 微信手机号一键登录
+ * encryptedData / iv 来自 <button open-type="getPhoneNumber"> 的回调
+ * 前置条件：企业主体小程序 + 开发者列表，且基础库仍返回 encryptedData
+ * （新版基础库只回 code，需后端用 code 换手机号，本接口不适配那种形态）
+ * @param {{code: string, encryptedData: string, iv: string}} params
+ */
+export function loginByWxMin({ code, encryptedData, iv }) {
+  return request({
+    url: '/login/wxMin',
+    method: 'POST',
+    data: { code, encryptedData, iv },
+    loading: true
+  })
+}
+
+/**
+ * 微信手机号登录（内测模拟版）
+ * 只传手机号、服务端不校验真实性，Apifox 注明「开发学习使用」
+ * 实测可用：返回 token + id + account + mobile
+ * @param {string} phoneNumber
+ */
+export function loginByPhoneSimple(phoneNumber) {
+  return request({
+    url: '/login/wxMin/simple',
+    method: 'POST',
+    data: { phoneNumber },
+    loading: true
+  })
+}

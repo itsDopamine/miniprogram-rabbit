@@ -1,32 +1,78 @@
-<navigation-bar title="登录" background="#FFFFFF" />
+<navigation-bar title="" background="#FFFFFF" />
 
-<view class="form">
-  <text class="form__title">账号登录</text>
-  <text class="form__tip">测试账号 13123456789 / 密码 123456</text>
+<view class="page">
+  <!-- 右上角一团品牌色光斑，给纯白页面一点层次，不抢内容 -->
+  <view class="glow" />
 
-  <view class="field">
+  <view class="header">
+    <view class="header__rule" />
+    <text class="header__title">欢迎回来</text>
+    <text class="header__sub">登录后同步购物车、订单与收藏</text>
+  </view>
+
+  <view class="form">
     <input
-      class="field__input"
+      class="field"
       type="text"
       placeholder="手机号 / 用户名"
       placeholder-class="field__ph"
       data-field="account"
       bindinput="onInput"
     />
-  </view>
 
-  <view class="field">
     <input
-      class="field__input"
+      class="field"
       password
       placeholder="密码"
       placeholder-class="field__ph"
       data-field="password"
       bindinput="onInput"
     />
+
+    <view
+      class="submit {{loading ? 'submit--disabled' : ''}}"
+      hover-class="submit--press"
+      hover-stay-time="80"
+      bindtap="onSubmit"
+    >
+      {{loading ? '登录中…' : '登录'}}
+    </view>
   </view>
 
-  <view class="submit {{loading ? 'submit--disabled' : ''}}" bindtap="onSubmit">
-    {{loading ? '登录中…' : '登录'}}
+  <view class="divider">
+    <view class="divider__line" />
+    <text class="divider__text">其他登录方式</text>
+    <view class="divider__line" />
   </view>
+
+  <view class="alt">
+    <!-- 图标走 TDesign（t-icon）；button 是绝对定位的透明点击层，不参与布局 -->
+    <view class="alt__item">
+      <view class="alt__circle alt__circle--wx" hover-class="alt__circle--press" hover-stay-time="80">
+        <t-icon name="logo-wechat-stroke" size="48rpx" color="#ffffff" />
+      </view>
+      <text class="alt__label">微信登录</text>
+
+      <button
+        class="alt__hit"
+        open-type="{{agreed ? 'getPhoneNumber' : ''}}"
+        bindtap="onWxBtnTap"
+        bindgetphonenumber="onGetPhoneNumber"
+      ></button>
+    </view>
+
+    <view class="alt__item" bindtap="onPhoneSimple">
+      <view class="alt__circle" hover-class="alt__circle--press" hover-stay-time="80">
+        <t-icon name="mobile" size="44rpx" color="#1a1a1a" />
+      </view>
+      <text class="alt__label">模拟快捷登录</text>
+    </view>
+  </view>
+
+  <view class="agreement" bindtap="onToggleAgree">
+    <view class="agreement__box {{agreed ? 'agreement__box--on' : ''}}" />
+    <text class="agreement__text">已阅读并同意《用户协议》与《隐私政策》</text>
+  </view>
+
+  <text class="tip">测试账号 13123456789 / 密码 123456</text>
 </view>

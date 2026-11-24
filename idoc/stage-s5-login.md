@@ -48,6 +48,12 @@
 - 带该 token 调 `GET /member/profile` 正常返回，字段与文档一致，`fullLocation` 可能是空串
 - 该账号已有一批历史地址（8 条），正好用来验证地址列表渲染与「默认唯一」
 
+**微信登录实测（2026-11-24）**
+
+- `POST /login/wxMin/simple` **可用**：传 `{ phoneNumber: "13800000000" }` 直接返回 `token` / `id` / `account`（服务端生成「用户13800000000」）/ `mobile`，无需任何微信侧条件 → 作为开发联调路径
+- `POST /login/wxMin` 缺 `encryptedData` 时返回 **400**。该方法要 `button open-type="getPhoneNumber"` 的回调数据，而新版基础库只回 `code`、不回 `encryptedData`，**需后端用 code 换手机号**才适配；本项目接口不适配，且主体资质未确认
+- 结论：登录页给两条微信路径——一键授权（能拿到 `encryptedData` 才走）与手机号模拟（始终可用），拿不到授权数据时用弹窗直接引导到模拟登录，不让用户反复点一个注定失败的按钮
+
 **与 React 版的差异**：`F:\Web\react-rabbit\src\apis\user.js` 里只有 `loginAPI = ({account, password}) => http.post('/login', ...)`，没有小程序登录、也没有头像上传。这两项**没有 web 版可对齐**，只能按 Apifox + 微信官方文档做，文档里要标来源。
 
 ### 2.2 token 生命周期
@@ -157,7 +163,7 @@ Storage 里只放 token（key 已在 `utils/auth.js` 统一为 `rabbit_token`）
 
 ### Step 1：接口层
 
-- `api/auth.js`：`loginByPassword`（其余两条登录路径按需再加，不进页面）
+- `api/auth.js`：`loginByPassword` / `loginByWxMin` / `loginByPhoneSimple`（三条路径都进登录页，2026-11-24 补齐微信登录）
 - `api/member.js`：`getProfile`（`updateProfile` / `uploadAvatar` / 地址五个方法随 Step 5、6 补）
 
 **验收**：用开发者工具 Console 手动调 `loginByPassword` 拿到 token，`wx.setStorageSync('rabbit_token', token)` 后 `getProfile` 能返回真实昵称。
