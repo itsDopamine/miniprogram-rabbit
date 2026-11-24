@@ -1,3 +1,4 @@
+import { MAX_CART_COUNT } from '../../config/constants'
 import { clampCount, toHttps } from '../../utils/common'
 import {
   buildDisabled,
@@ -25,7 +26,7 @@ Component({
     skuPicture: '',
     skuStock: 0,
     count: 1,
-    maxCount: 99
+    maxCount: MAX_CART_COUNT
   },
 
   observers: {
@@ -36,22 +37,32 @@ Component({
       this.skuList = list
       this.pathMap = buildPathMap(list)
 
+      this.initState(specs, price, picture)
+    }
+  },
+
+  methods: {
+    // 把面板恢复到「什么都没选」的状态
+    initState(specs, price, picture) {
       const selected = specs.map(() => '')
 
       this.setData({
         selected,
-        disabled: buildDisabled(this.pathMap, specs, selected),
+        disabled: buildDisabled(this.pathMap || {}, specs, selected),
         selectedText: '',
         skuPrice: price,
         skuPicture: picture,
         skuStock: 0,
         count: 1,
-        maxCount: 99
+        maxCount: MAX_CART_COUNT
       })
-    }
-  },
+    },
 
-  methods: {
+    // 加购成功后由页面调用：下次打开是干净的，不残留上次的规格与数量
+    reset() {
+      this.initState(this.data.specs, this.data.price, this.data.picture)
+    },
+
     // 挂给遮罩的 catchtouchmove：吃掉手势，页面就不会跟着滚
     noop() {},
 
@@ -95,19 +106,21 @@ Component({
           skuPrice: this.data.price,
           skuPicture: this.data.picture,
           skuStock: 0,
-          maxCount: 99
+          maxCount: MAX_CART_COUNT
         })
         return
       }
 
+      // 上限取库存与业务上限的较小值：库存几千是样例数据，不能直接当上限
+      const limit = Math.max(Math.min(sku.inventory, MAX_CART_COUNT), 1)
       // 切到库存更少的 sku 时，之前加的数量可能超卖，必须重新夹取
-      const count = Math.max(Math.min(this.data.count, sku.inventory), 1)
+      const count = Math.max(Math.min(Number(this.data.count) || 1, limit), 1)
 
       this.setData({
         skuPrice: sku.price,
         skuPicture: toHttps(sku.picture) || this.data.picture,
         skuStock: sku.inventory,
-        maxCount: sku.inventory,
+        maxCount: limit,
         count
       })
     },

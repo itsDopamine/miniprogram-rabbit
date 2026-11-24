@@ -106,6 +106,10 @@ Page({
 
       this.setData({ skuVisible: false })
 
+      // 加购成功才清空面板：下次打开不该还留着上次选的规格和数量
+      const panel = this.selectComponent('#skuPanel')
+      if (panel) panel.reset()
+
       if (from === 'capped') {
         wx.showToast({ title: '数量已达库存上限', icon: 'none' })
       } else if (from === 'local') {

@@ -117,7 +117,7 @@ Page({
 
     // Number()：'' + 1 会变成字符串 '1'，再点就成 '11'
     const count = Number(item.count) || 1
-    if (count >= item.stock) return
+    if (count >= item.limit) return
     this.changeCount(item.skuId, count + 1)
   },
 
@@ -191,8 +191,8 @@ Page({
     const item = this.findItem(skuId)
     if (!item) return
 
-    // 非法输入（空串、字母）返回 null 退回原值，其余夹到 [1, stock]
-    const parsed = clampCount(this.inputCount, item.stock)
+    // 非法输入（空串、字母）返回 null 退回原值，其余夹到 [1, limit]
+    const parsed = clampCount(this.inputCount, item.limit)
     this.inputCount = undefined
 
     const count = parsed === null ? Number(item.count) || 1 : parsed

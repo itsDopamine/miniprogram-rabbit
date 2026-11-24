@@ -15,6 +15,7 @@ import {
   setAllCartSelected,
   updateCartItem
 } from '../api/cart'
+import { MAX_CART_COUNT } from '../config/constants'
 import { getToken } from './auth'
 
 const CART_KEY = 'rabbit_cart'
@@ -44,13 +45,14 @@ export function appendLocalCart(item) {
   const exist = list.find((i) => i.skuId === item.skuId)
 
   const stock = Math.max(Number(item.stock) || Number(exist && exist.stock) || 99, 1)
+  const limit = Math.min(stock, MAX_CART_COUNT)
   const add = Math.max(Number(item.count) || 1, 1)
 
   if (exist) {
-    exist.count = Math.min(Number(exist.count) + add, stock)
+    exist.count = Math.min(Number(exist.count) + add, limit)
     exist.stock = stock
   } else {
-    list.push({ ...item, count: Math.min(add, stock), stock, selected: true })
+    list.push({ ...item, count: Math.min(add, limit), stock, selected: true })
   }
 
   writeLocalCart(list)
@@ -116,9 +118,11 @@ function normalize(item) {
 
   // 本地条目在加购时会带上真实库存；老数据没有才兜底 99
   const stock = Number(item.stock) || 99
-  // 归一化时就把数量夹一次：本地可能残留超库存的历史值，
+  // stock 用来展示「库存 N」，limit 才是数量上限：库存几千是样例数据，不能当上限
+  const limit = Math.max(Math.min(stock, MAX_CART_COUNT), 1)
+  // 归一化时就把数量夹一次：本地可能残留超上限的历史值，
   // 让它进不了界面，后面所有 +/- 与提交都基于合法值
-  const count = Math.min(Math.max(Number(item.count) || 1, 1), Math.max(stock, 1))
+  const count = Math.min(Math.max(Number(item.count) || 1, 1), limit)
 
   return {
     ...item,
@@ -128,7 +132,8 @@ function normalize(item) {
     count,
     selected: item.selected !== false,
     isEffective: item.isEffective !== false,
-    stock
+    stock,
+    limit
   }
 }
 

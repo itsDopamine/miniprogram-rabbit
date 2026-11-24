@@ -79,6 +79,7 @@
 
 <!-- 选中态、禁用态、数量都由组件自己管，页面只关心「开合」和「确定」 -->
 <sku-panel
+  id="skuPanel"
   visible="{{skuVisible}}"
   specs="{{specs}}"
   skus="{{skus}}"
