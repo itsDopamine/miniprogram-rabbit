@@ -11,18 +11,12 @@ Page({
     desc: '',
     properties: [],
     detailPictures: [],
-    loading: true,
-    error: '',
-
-    /* ---------- SKU 面板 ---------- */
-    skuVisible: false,
+    // 原样交给 sku-panel，页面自己不做规格计算
     specs: [],
-    // 下标与 specs 一一对应，'' 表示这一组还没选
-    selected: [],
-    selectedText: '',
-    // 面板头部的图与价，先给 SPU 的默认值，Step 3 选全规格后换成 sku 的
-    skuPicture: '',
-    skuPrice: ''
+    skus: [],
+    skuVisible: false,
+    loading: true,
+    error: ''
   },
 
   onLoad(options) {
@@ -43,24 +37,17 @@ Page({
     try {
       const goods = await getGoodsDetail(this.data.id)
       const details = goods.details || {}
-      const mainPictures = (goods.mainPictures || []).map(toHttps)
-      const specs = goods.specs || []
 
       this.setData({
-        mainPictures,
+        mainPictures: (goods.mainPictures || []).map(toHttps),
         name: goods.name,
         price: goods.price,
         oldPrice: goods.oldPrice,
         desc: goods.desc,
         properties: details.properties || [],
         detailPictures: (details.pictures || []).map(toHttps),
-
-        specs,
-        selected: specs.map(() => ''),
-        selectedText: '',
-        skuPicture: mainPictures[0] || '',
-        skuPrice: goods.price,
-
+        specs: goods.specs || [],
+        skus: goods.skus || [],
         loading: false
       })
     } catch (e) {
@@ -91,39 +78,14 @@ Page({
     this.setData({ skuVisible: true })
   },
 
-  onCloseSku() {
-    this.setData({ skuVisible: false })
+  // 面板自己不记开合状态，关不关由页面说了算
+  onSkuVisibleChange(e) {
+    this.setData({ skuVisible: e.detail.visible })
   },
 
-  // 挂给遮罩的 catchtouchmove：吃掉手势，页面就不会跟着滚
-  noop() {},
-
-  onTapSpec(e) {
-    const { specIndex, valueName } = e.currentTarget.dataset
-    const index = Number(specIndex)
-
-    // 先 slice：直接改 this.data.selected 属于原地修改，不触发渲染
-    const selected = this.data.selected.slice()
-    // 再点一次已选中的值就是取消，和主流电商一致
-    selected[index] = selected[index] === valueName ? '' : valueName
-
-    this.setData({ selected, selectedText: this.buildSelectedText(selected) })
-  },
-
-  // 用 specs 的顺序拼文案，所以 selected 必须是数组而不是对象
-  buildSelectedText(selected) {
-    return this.data.specs
-      .map((spec, i) => (selected[i] ? `${spec.name}：${selected[i]}` : ''))
-      .filter(Boolean)
-      .join(' ')
-  },
-
-  onConfirmSku() {
-    if (this.data.selected.some((v) => !v)) {
-      wx.showToast({ title: '请选择完整规格', icon: 'none' })
-      return
-    }
-
+  onSkuConfirm(e) {
+    // Step 4 在这里换成 POST /member/cart，e.detail 里有 skuId 与 count
+    console.log('[sku-confirm]', e.detail)
     wx.showToast({ title: '加购在 Step 4 接入', icon: 'none' })
   },
 
