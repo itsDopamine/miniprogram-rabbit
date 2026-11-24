@@ -20,6 +20,10 @@
 </view>
 
 <view class="cells">
+  <view class="cell" bindtap="onOrders">
+    <text class="cell__text">我的订单</text>
+    <text class="cell__arrow">›</text>
+  </view>
   <view class="cell" bindtap="onAddress">
     <text class="cell__text">收货地址</text>
     <text class="cell__arrow">›</text>

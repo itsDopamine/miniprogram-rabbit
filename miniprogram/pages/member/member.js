@@ -57,6 +57,14 @@ Page({
     })
   },
 
+  onOrders() {
+    if (!this.data.logged) {
+      this.onLogin()
+      return
+    }
+    wx.navigateTo({ url: '/pages/order/list/list' })
+  },
+
   onAddress() {
     if (!this.data.logged) {
       this.onLogin()

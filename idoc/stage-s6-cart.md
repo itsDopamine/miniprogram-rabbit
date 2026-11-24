@@ -188,6 +188,8 @@ onCheckout() {
 
 未登录时能加购、能看车、能改数量，但**结算必须登录**——这是业务规则，不是技术限制。
 
+**S7 已接线（2026-11-24）**：`onCheckout` 未登录时跳登录页并带 `redirect=/pages/cart/cart`，已登录时 `navigateTo` 结算页 `/pages/order/confirm/confirm`。原占位 toast 已移除。
+
 ---
 
 ## 5. 常见坑

@@ -235,11 +235,15 @@ Page({
       return
     }
 
-    // 结算依赖登录与订单页，分别在 S5 与 S7
-    wx.showToast({
-      title: getToken() ? '订单页在 S7 接入' : '登录后再结算',
-      icon: 'none'
-    })
+    // 结算必须登录：这是业务规则，不是技术限制
+    if (!getToken()) {
+      wx.navigateTo({
+        url: '/pages/login/login?redirect=' + encodeURIComponent('/pages/cart/cart')
+      })
+      return
+    }
+
+    wx.navigateTo({ url: '/pages/order/confirm/confirm' })
   },
 
   onGoHome() {
