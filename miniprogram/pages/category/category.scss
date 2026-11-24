@@ -70,6 +70,9 @@ navigation-bar {
     color: $text-primary;
     font-size: $font-md;
     font-weight: 600;
+    // 原生滚动与吸顶是两套渲染，不同步时标题会跟着滚一小段。单独提层后由合成器统一处理
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   &__sub-title {
