@@ -1,4 +1,5 @@
-<navigation-bar title="小兔鲜儿" back="{{false}}" color="black" background="#FFF"></navigation-bar>
+<!-- 背景色必须与 global.scss 的 $brand-color-soft 一致，否则顶部出现硬接缝 -->
+<navigation-bar title="小兔鲜儿" back="{{false}}" color="black" background="#FBF1F0"></navigation-bar>
 
 <!-- 导航栏留在滚动容器外，下拉刷新才不会连标题一起拖走 -->
 <scroll-view
@@ -37,22 +38,25 @@
     </view>
 
     <block wx:else>
-      <swiper
-        class="banner"
-        indicator-dots
-        circular
-        autoplay
-        interval="3000"
-        indicator-color="rgba(255, 255, 255, 0.4)"
-        indicator-active-color="#ffffff"
-      >
-        <!-- hrefUrl 实测是分类 id，为空时不响应点击 -->
-        <swiper-item wx:for="{{banners}}" wx:key="id" bindtap="onTapBanner" data-href="{{item.hrefUrl}}">
-          <image class="banner__img" src="{{item.imgUrl}}" mode="aspectFill" />
-        </swiper-item>
-      </swiper>
+      <!-- 头部氛围区：品牌淡底向下渐隐，banner 做成圆角卡片浮在上面 -->
+      <view class="hero">
+        <swiper
+          class="banner"
+          indicator-dots
+          circular
+          autoplay
+          interval="3000"
+          indicator-color="rgba(255, 255, 255, 0.4)"
+          indicator-active-color="#ffffff"
+        >
+          <!-- hrefUrl 实测是分类 id，为空时不响应点击 -->
+          <swiper-item wx:for="{{banners}}" wx:key="id" bindtap="onTapBanner" data-href="{{item.hrefUrl}}">
+            <image class="banner__img" src="{{item.imgUrl}}" mode="aspectFill" />
+          </swiper-item>
+        </swiper>
+      </view>
 
-      <!-- 分类宫格：一行 5 个 -->
+      <!-- 分类宫格：一行 5 个，负边距上浮压住 hero 底部 -->
       <view class="categories">
         <view
           class="categories__item"
@@ -60,32 +64,36 @@
           wx:key="id"
           data-id="{{item.id}}"
           bindtap="onTapCategory"
+          hover-class="categories__item--active"
+          hover-stay-time="60"
         >
           <image class="categories__icon" src="{{item.icon}}" mode="aspectFit" />
           <text class="categories__name">{{item.name}}</text>
         </view>
       </view>
 
-      <!-- 新鲜好物 -->
+      <!-- 新鲜好物：横滑，一屏露出两卡半，暗示还有内容 -->
       <view class="section">
         <view class="section__header">
+          <view class="section__rule"></view>
           <text class="section__title">新鲜好物</text>
           <text class="section__desc">新鲜出炉 品质靠谱</text>
         </view>
-        <view class="goods">
+        <scroll-view class="fresh" scroll-x enable-flex>
           <goods-card
             wx:for="{{newGoods}}"
             wx:key="id"
-            class="goods__item"
+            class="fresh__item"
             goods="{{item}}"
             bind:tap-card="onTapGoods"
           />
-        </view>
+        </scroll-view>
       </view>
 
       <!-- 热门推荐：两列入口卡片 -->
       <view class="section">
         <view class="section__header">
+          <view class="section__rule"></view>
           <text class="section__title">热门推荐</text>
           <text class="section__desc">大家都在买</text>
         </view>
@@ -134,6 +142,7 @@
       <!-- 猜你喜欢：接口是真分页（page/pageSize），两列复用 goods-card -->
       <view class="section">
         <view class="section__header">
+          <view class="section__rule"></view>
           <text class="section__title">猜你喜欢</text>
           <text class="section__desc">根据你的喜好推荐</text>
         </view>

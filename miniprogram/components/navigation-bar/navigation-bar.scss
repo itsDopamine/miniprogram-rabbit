@@ -1,3 +1,5 @@
+@import '../../global.scss';
+
 .nav {
   position: relative;
   width: 100%;
@@ -8,7 +10,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  padding: 0 24rpx;
+  padding: 0 $gap-base;
   box-sizing: border-box;
 }
 
@@ -28,8 +30,8 @@
 .nav__back-icon {
   width: 20rpx;
   height: 20rpx;
-  border-left: 4rpx solid #1a1a1a;
-  border-bottom: 4rpx solid #1a1a1a;
+  border-left: 4rpx solid $text-primary;
+  border-bottom: 4rpx solid $text-primary;
   transform: rotate(45deg);
 }
 

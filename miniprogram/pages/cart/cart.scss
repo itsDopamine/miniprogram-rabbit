@@ -205,7 +205,7 @@ page {
   align-items: center;
   padding: $gap-sm $gap-base;
   background-color: $bg-card;
-  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.04);
+  box-shadow: $shadow-float;
 }
 
 .bar__all {

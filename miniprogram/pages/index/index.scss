@@ -33,9 +33,23 @@ page {
   }
 }
 
+/* ---------- 头部氛围区 ---------- */
+// 品牌淡底向下渐隐到页面底色，承担首屏的氛围而不是铺满全屏
+.hero {
+  padding: 0 $gap-base 72rpx;
+  background-image: linear-gradient(
+    180deg,
+    $brand-color-soft 0%,
+    $brand-color-soft 55%,
+    $bg-page 100%
+  );
+}
+
 // swiper 是容器组件，高度不会被子元素撑开，必须显式给
 .banner {
-  height: 340rpx;
+  height: 300rpx;
+  overflow: hidden;
+  border-radius: $radius-base;
   background-color: $bg-card;
 
   &__img {
@@ -45,10 +59,15 @@ page {
   }
 }
 
+/* ---------- 分类宫格 ---------- */
+// 负边距压住 hero 底部：白卡浮在淡色渐隐上，靠层次代替阴影
 .categories {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
-  padding: $gap-base 0 $gap-xs;
+  margin: -48rpx $gap-base 0;
+  padding: $gap-lg 0 $gap-xs;
+  border-radius: $radius-base;
   background-color: $bg-card;
 
   &__item {
@@ -71,20 +90,37 @@ page {
   }
 }
 
+.categories__item--active {
+  opacity: 0.6;
+}
+
+/* ---------- 模块卡片 ---------- */
+// 白卡 + 24rpx 侧边距，与通栏的楼层形成两种间距节奏
 .section {
-  margin-top: $gap-base;
+  margin: $gap-base $gap-base 0;
   padding: $gap-base $gap-base 0;
+  border-radius: $radius-base;
   background-color: $bg-card;
 
   &__header {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     margin-bottom: $gap-base;
+  }
+
+  // 品牌色短横：与登录页标题短横同一套语汇
+  &__rule {
+    flex: none;
+    width: 40rpx;
+    height: 8rpx;
+    margin-right: $gap-sm;
+    border-radius: $radius-sm;
+    background-color: $brand-color;
   }
 
   &__title {
     color: $text-primary;
-    font-size: $font-md;
+    font-size: $font-lg;
     font-weight: 600;
   }
 
@@ -95,18 +131,26 @@ page {
   }
 }
 
-// 列数由这里控制：24% = 4 列，48% = 2 列
-.goods {
+/* ---------- 新鲜好物：横滑 ---------- */
+.fresh {
   display: flex;
-  justify-content: space-between;
   padding-bottom: $gap-base;
 
   &__item {
-    width: 24%;
+    flex: none;
+    width: 300rpx;
+    margin-right: $gap-sm;
   }
 }
 
-// 猜你喜欢：两列
+// 横滑容器不要出现滚动条
+.fresh::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* ---------- 猜你喜欢：两列 ---------- */
 .guess {
   display: flex;
   flex-wrap: wrap;
@@ -119,12 +163,14 @@ page {
   }
 }
 
+/* ---------- 热门推荐 ---------- */
 .panels {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   padding-bottom: $gap-base;
 
+  // 浅灰底块：品牌淡红在白卡上偏脏，改用页面背景色
   &__item {
     display: flex;
     flex-direction: column;
@@ -139,6 +185,7 @@ page {
   &__pic {
     width: 100%;
     height: 200rpx;
+    border-radius: $radius-sm;
   }
 
   &__title {
@@ -153,10 +200,16 @@ page {
   }
 }
 
+/* ---------- 分类楼层：通栏，四层贴成一组 ---------- */
 .floor {
   margin-top: $gap-base;
-  padding: $gap-base;
+  padding: $gap-base $gap-base $gap-sm;
   background-color: $bg-card;
+
+  // 楼层之间收紧到 16rpx：同属一组，别再按模块间距撑开
+  & + & {
+    margin-top: $gap-sm;
+  }
 
   // 标题靠左撑满、楼层图贴右，右侧不留空白
   &__head {
@@ -189,7 +242,7 @@ page {
     width: 120rpx;
     height: 120rpx;
     margin-left: $gap-base;
-    border-radius: $radius-sm;
+    border-radius: $radius-base;
     background-color: $bg-page;
   }
 
@@ -215,20 +268,32 @@ page {
     margin-top: $gap-sm;
   }
 
+  // 接口每层固定 8 个商品，4 列正好两行
   &__goods-item {
     width: 24%;
     margin-bottom: $gap-sm;
   }
 }
 
-// 骨架屏用边框色当占位块，避免再引一个颜色变量
+/* ---------- 骨架屏 ---------- */
+// 占位块样式在 global.scss 的 skeleton-block mixin 里
+@keyframes skeleton-sweep {
+  0% {
+    background-position: -150% 0;
+  }
+
+  100% {
+    background-position: 250% 0;
+  }
+}
+
 .skeleton {
   padding: $gap-base;
 
   &__banner {
-    height: 340rpx;
+    height: 300rpx;
     border-radius: $radius-base;
-    background-color: $border-color;
+    @include skeleton-block;
   }
 
   &__row {
@@ -241,23 +306,26 @@ page {
     width: 80rpx;
     height: 80rpx;
     border-radius: 50%;
-    background-color: $border-color;
+    @include skeleton-block;
   }
 
   &__goods {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     margin-top: $gap-lg;
   }
 
   &__card {
-    width: 24%;
-    height: 220rpx;
+    width: 48%;
+    height: 300rpx;
+    margin-bottom: $gap-sm;
     border-radius: $radius-base;
-    background-color: $border-color;
+    @include skeleton-block;
   }
 }
 
+/* ---------- 空态 / 错误态 ---------- */
 .state {
   display: flex;
   flex-direction: column;

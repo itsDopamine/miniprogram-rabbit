@@ -3,9 +3,12 @@
 
 /* ---------- 品牌色 ---------- */
 $brand-color: #cf4444; // 主色（价格、按钮、选中态）
-$brand-color-light: #f5e6e6;
+$brand-color-light: #f5e6e6; // 品牌色 20% 淡底，用于头像占位等小面积
+$brand-color-soft: #fbf1f0; // 品牌色 7% 淡底，用于大块氛围底（首页 hero、推荐位）
 
 /* ---------- 文字 ---------- */
+// 四档：正文 / 次正文 / 说明 / 占位与脚注
+// 取值对齐 react-rabbit：次要文字 #999，最浅一档 #bbb
 $text-primary: #1a1a1a;
 $text-regular: #4a4a4a;
 $text-secondary: #999;
@@ -14,7 +17,9 @@ $text-placeholder: #bbb;
 /* ---------- 背景与边框 ---------- */
 $bg-page: #f7f7f8;
 $bg-card: #ffffff;
+$bg-fill: #f6f6f8; // 填充式输入框、图片占位
 $border-color: #ededed;
+$divider-color: #f0f0f2; // 比 border 更浅，用于分隔线
 
 /* ---------- 字号（单位 rpx） ---------- */
 $font-xs: 20rpx;
@@ -33,8 +38,11 @@ $gap-xl: 48rpx;
 
 /* ---------- 圆角 ---------- */
 $radius-sm: 8rpx;
-$radius-base: 16rpx;
-$radius-round: 999rpx;
+$radius-base: 20rpx; // 卡片、图片、输入框、大按钮统一 20rpx
+$radius-round: 999rpx; // 小按钮、标签、chip
+
+/* ---------- 阴影 ---------- */
+$shadow-float: 0 -2rpx 12rpx rgba(0, 0, 0, 0.04); // 钉底操作栏，取自购物车/详情页实测值
 
 /* ---------- 常用 mixin ---------- */
 // 单行省略号
@@ -66,4 +74,19 @@ $radius-round: 999rpx;
     background-color: $color;
     transform: scaleY(0.5);
   }
+}
+
+// 骨架屏占位块：扫光让占位块看起来在加载，而不是加载失败
+// 依赖使用方所在页面自己声明 @keyframes skeleton-sweep
+@mixin skeleton-block {
+  background-color: $bg-fill;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.9) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 60% 100%;
+  background-repeat: no-repeat;
+  animation: skeleton-sweep 1.4s ease-in-out infinite;
 }

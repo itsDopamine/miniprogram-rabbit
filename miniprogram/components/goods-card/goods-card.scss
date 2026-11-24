@@ -41,10 +41,28 @@
   @include ellipsis;
 }
 
+// 三档字重排价格：符号小、整数大、小数回落，数字等宽避免变价时抖动
 .goods-card__price {
+  display: flex;
+  align-items: baseline;
   margin-top: $gap-xs;
   color: $brand-color;
-  font-size: $font-md;
+  font-variant-numeric: tabular-nums;
+}
+
+.goods-card__currency {
+  margin-right: 2rpx;
+  font-size: $font-sm;
+}
+
+.goods-card__int {
+  font-size: $font-lg;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.goods-card__dec {
+  font-size: $font-sm;
 }
 
 /* ---------- 横向布局 ---------- */

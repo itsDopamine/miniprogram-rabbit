@@ -1,8 +1,14 @@
 <navigation-bar title="商品详情" background="#FFFFFF" />
 
 <scroll-view class="body" scroll-y>
-  <view class="state" wx:if="{{loading}}">
-    <text class="state__text">加载中…</text>
+  <!-- 骨架屏：主图 + 信息占位，高度贴近真实内容，避免加载完跳版 -->
+  <view class="skeleton" wx:if="{{loading}}">
+    <view class="skeleton__gallery"></view>
+    <view class="skeleton__info">
+      <view class="skeleton__price"></view>
+      <view class="skeleton__line"></view>
+      <view class="skeleton__line skeleton__line--short"></view>
+    </view>
   </view>
 
   <view class="state" wx:elif="{{error}}">
@@ -66,13 +72,15 @@
 <!-- 操作栏在滚动容器外，跟着页面固定，不随内容滚走 -->
 <view class="bar" wx:if="{{!loading && !error}}">
   <view class="bar__entry" bindtap="onTapService">
+    <view class="bar__icon bar__icon--service"></view>
     <text class="bar__entry-text">客服</text>
   </view>
-  <view class="bar__entry bar__entry--collect" bindtap="onTapCollect">
-    <text class="bar__entry-icon {{collected ? 'bar__entry-icon--on' : ''}}">♥</text>
+  <view class="bar__entry" bindtap="onTapCollect">
+    <view class="bar__icon bar__icon--heart {{collected ? 'bar__icon--on' : ''}}"></view>
     <text class="bar__entry-text">{{collected ? '已收藏' : '收藏'}}</text>
   </view>
   <view class="bar__entry" bindtap="onTapCart">
+    <view class="bar__icon bar__icon--cart"></view>
     <text class="bar__entry-text">购物车</text>
   </view>
   <view class="bar__actions">

@@ -1,6 +1,8 @@
 /** pages/login/login.scss */
 @import '../../global.scss';
 
+// 独立视觉：以下原值不在令牌体系内，保留不改
+// #fff 反白 / #07c160 微信绿 / #eeeef1 圆形描边 / #cfcfd4 勾选框描边 / #d0d0d6 底部脚注
 page {
   background-color: #fff;
 }
@@ -71,13 +73,13 @@ page {
   margin-bottom: 24rpx;
   padding: 0 32rpx;
   border-radius: 20rpx;
-  background-color: #f6f6f8;
+  background-color: $bg-fill;
   color: $text-primary;
   font-size: 30rpx;
 }
 
 .field__ph {
-  color: #b5b5bd;
+  color: $text-placeholder;
 }
 
 .submit {
@@ -115,12 +117,12 @@ page {
 .divider__line {
   flex: 1;
   height: 1rpx;
-  background-color: #f0f0f2;
+  background-color: $divider-color;
 }
 
 .divider__text {
   margin: 0 $gap-base;
-  color: #b5b5bd;
+  color: $text-placeholder;
   font-size: 22rpx;
 }
 
@@ -164,7 +166,7 @@ page {
   margin-top: 18rpx;
   // 不换行：「模拟快捷登录」折成两行会和左边不齐
   white-space: nowrap;
-  color: #8a8a93;
+  color: $text-secondary;
   font-size: 22rpx;
 }
 
@@ -227,7 +229,7 @@ page {
 }
 
 .agreement__text {
-  color: #b5b5bd;
+  color: $text-placeholder;
   font-size: 22rpx;
 }
 
