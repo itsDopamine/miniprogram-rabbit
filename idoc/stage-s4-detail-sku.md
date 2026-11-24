@@ -1,6 +1,6 @@
 # 阶段 S4 · 商品详情与 SKU
 
-> 状态：**Step 1–3 代码完成，Step 3 用例已用真实接口数据跑通；Step 4 未开始**
+> 状态：**Step 1–5 代码完成**；Step 3 用例与离线加购已用真实数据/真实源码跑通；登录合并的触发点在 S5
 > 工时：3 天 · 前置：S2/S3 的商品卡能拿到 id（首页、分类页、搜索结果）
 > 关联：[`api-reference.md`](./api-reference.md) `GET /goods`、[`03-roadmap.md`](./03-roadmap.md) §2
 
@@ -46,13 +46,28 @@
 - 该商品 `oldPrice` 与 `price` 都是 `128.00`，所以划线价要加「两个值不相等」的判断才显示
 - `specs` 3 组（颜色 2 / 尺寸 3 / 产地 2）× `skus` 12 条，且存在 `inventory: 0` 的 sku——正好用来验证 Step 3 的禁用态，3 组规格对应幂集 7 个子集
 
-### 2.2 `POST /member/cart`（加购，S4 后半段用）
+### 2.2 `POST /member/cart`（加购）
 
 ```json
 { "skuId": "string", "count": 1 }
 ```
 
-需要登录（`auth: true`）。未登录时的处理在 S5 讲，本阶段先直接调用，失败走 401 分支。
+需要登录。**实测未登录返回 HTTP 401**，body `{ "message": "token校验失败", "msg": "token校验失败", "code": "10019" }`。
+
+因为未登录不可用，加购不能直接调它——未登录场景走本地暂存，见 2.3。
+
+### 2.3 `POST /member/cart/merge`（合并本地购物车，**Apifox 未收录**）
+
+```json
+[{ "skuId": "string", "count": 1, "selected": true }]
+```
+
+**请求体是数组**，不是对象。
+
+- 来源：React 版 `F:\Web\react-rabbit\src\apis\cart.js` 的 `mergeCartAPI`，登录 thunk 里调用
+- 验证：2026-11-24 实测 `POST /member/cart/merge` 未登录返回 **401**（不是 404），说明接口真实存在
+- 文档缺口：`api-reference.md` 的购物车分组只列了 5 个接口，没有 merge。**以实测为准，并在 Apifox 里补登记**
+- 合并成功后再拉 `GET /member/cart` 以服务端数据为准
 
 ---
 
@@ -189,6 +204,57 @@ const next = Math.min(Math.max(count, 1), stock) // 不小于 1，不超过库�
 - 规格未选全 → 提示「请选择规格」
 - 选全 → `POST /member/cart`，成功后 toast 并关闭面板
 
+**实现记录（2026-11-24）**
+
+- 校验分两层：组件内 `onConfirm` 负责「规格选全 / 库存 > 0」，通过后 `triggerEvent('confirm', { skuId, count })`；页面只拿结果发请求。**组件不碰接口，页面不碰规格算法**，这是 Step 3 重构后自然的结果
+- `api/cart.js` 的 `addToCart` 带 `auth: true`（带 `Authorization`）与 `loading: true`（全局遮罩）
+- 实测未登录调用：**HTTP 401**，body `{ "message": "token校验失败", "msg": "token校验失败", "code": "10019" }`。`request.js` 的 `statusCode === 401` 分支在业务码判断之前，所以走的是「清 token + toast 请先登录」，不会落到 `code !== '1'` 的通用失败提示
+- 失败时**不关闭面板**，用户可以重试；成功才 `setData({ skuVisible: false })`
+- 连点用 `this.adding` 标志兜一层（`loading` 的 `mask` 生效前仍有极短窗口）
+- 「立即购买」目前和「加入购物车」共用同一个面板，加购成功后提示语也相同。这是暂时的：下单流程在 S7，届时需要在 `onOpenSku` 上区分意图（面板加一个 `mode` 属性决定按钮文案与后续动作）
+
+### Step 5：离线加购与登录合并（与 React 版对齐）
+
+**为什么要做**：Step 4 做完时，未登录点「确定」会被 401 弹一句「请先登录」，用户刚选好的规格和数量全部作废。React 版不是这么处理的——游客能正常加购，登录后自动合并。
+
+**分流规则**
+
+| 场景 | 行为 |
+| --- | --- |
+| 未登录加购 | 写本地 Storage（key `rabbit_cart`），同 sku 数量累加，新条目 `selected: true` |
+| 已登录加购 | `POST /member/cart` |
+| 登录成功 | `POST /member/cart/merge` 一次性提交本地条目，成功才清本地 |
+| 购物车页读取 | 有 token 拉接口，无 token 读本地（S6 实装） |
+
+**本地条目结构**（与 React 版 payload 一致）
+
+```js
+{ id, name, picture, price, count, skuId, attrsText, selected }
+```
+
+`id` 是 SPU id，`skuId` 才是加购要用的。`attrsText` 形如 `颜色：黑色 尺寸：30cm`。
+
+**代码位置**
+
+| 层 | 文件 | 内容 |
+| --- | --- | --- |
+| 接口 | `api/cart.js` | `addToCart`、`mergeCart` |
+| 门面 | `utils/cart.js` | `readLocalCart` / `appendLocalCart` / `clearLocalCart` / `addGoodsToCart`（按 token 分流）/ `mergeLocalCart` |
+| 页面 | `pages/goods/detail` | 只调 `addGoodsToCart`，不再自己判断登录态 |
+
+组件 `onConfirm` 事件因此多抛了 `price` / `picture` / `attrsText`——未登录落本地时需要这些字段才能渲染购物车列表，光有 `skuId` 不够。
+
+**与 React 版的两处差异**
+
+1. **合并失败不清本地**。React 版 `userSlice.js` 里合并失败只 `console.warn`，接着仍 `fetchCartList` 用服务端数据覆盖，游客选的商品直接消失。这里改成 `mergeLocalCart` 失败时抛错且不清 Storage，下次登录重试。
+2. **不用节流整存**。React 版把整个 Redux state 节流 1s 写进 localStorage，加购后 1 秒内刷新会丢最后一次。小程序端每次加购同步 `setStorageSync`，没有这个窗口。
+
+**验证（2026-11-24，Node mock `wx` + 剥离 import 后跑真实源码，13 条全 PASS）**
+
+未登录不调接口 / 同 sku 累加为 3 且仍 1 条 / 不同 sku 追加为 2 条 / 已登录走接口且不写本地 / 合并请求体只有 `skuId,count,selected` / 合并成功后本地清空 / 合并失败抛错且本地条目仍在。
+
+**待接（S5）**：登录成功后按顺序执行 `await mergeLocalCart()` → `fetchCartList()`，合并失败不能让登录本身失败。
+
 ---
 
 ## 5. 常见坑
@@ -210,7 +276,9 @@ const next = Math.min(Math.max(count, 1), stock) // 不小于 1，不超过库�
 - [ ] 主图可预览大图，详情长图不溢出
 - [ ] SKU 禁用态用例表（≥ 5 组）全部正确
 - [ ] 数量不超过库存，切规格后自动夹取
-- [ ] 加购成功有反馈
+- [ ] 未登录加购成功，Storage 里 `rabbit_cart` 有对应条目且同 sku 会累加
+- [ ] 加购成功有反馈（未登录提示「登录后同步」）
+- [ ] 登录后本地购物车自动合并并清空（等 S5）
 
 ### SKU 禁用态用例表（必须自己填满并实测）
 
@@ -252,6 +320,8 @@ const next = Math.min(Math.max(count, 1), stock) // 不小于 1，不超过库�
 | --- | --- |
 | 2026-11-24 | 阶段文档建立。接口字段全部来自 `api-reference.md`（Apifox 导出），`GET /goods` 返回 `specs` + `skus` 两套结构，靠规格名与值名做匹配，无 valueId。 |
 | 2026-11-24 | Step 1 落地：`api/goods.js` + `pages/goods/detail`（四件套）+ `app.json` 注册 + 首页/分类页/搜索页三处 `onTapGoods` 改 `wx.navigateTo`。用真实接口抓包核对了字段，顺手修掉「oldPrice 与 price 相同仍显示划线价」的问题。`wx.previewImage` 的 `current` 统一从 `this.data` 的数组里取，不用 dataset 传数组。 |
+| 2026-11-24 | 离线加购：用户指出应该和 React 版一样「本地先存、登录后合并」。去看 `F:\Web\react-rabbit` 才发现它用的是 `POST /member/cart/merge` 批量合并，**而本项目 Apifox 文档里根本没有这个接口**——文档漏登记，靠实测（401 而非 404）才确认存在。**教训：需求说「和 web 一样」时，先去读 web 版代码，不能只看本项目文档。** 另一处主动修正：web 版合并失败会丢本地条目，我们改成失败不清、下次重试。 |
+| 2026-11-24 | Step 4 落地：`api/cart.js` + 页面 `onSkuConfirm`。`request.js` 把 401 判断放在业务码之前是对的——实测未登录返回 HTTP 401 + `code:10019`，如果先判 `code !== '1'` 就会提示成「请求失败」，用户看不出要登录。**401 是「没资格」，不是「请求错了」，两者的提示文案与后续动作完全不同。** |
 | 2026-11-24 | 重构：详情页拆成 `utils/sku.js`（纯算法）+ `components/sku-panel`（弹层）+ `pages/goods/detail`（取数与页面交互），js 从 250 行降到 103 行。**教训：一个页面同时放算法、视图状态和业务取数，改任何一处都要通读全文件**；纯函数抽出去后还能脱离小程序环境用 Node 直接验证。拆分完后把 `utils/sku.js` 复制成 `.mjs` 跑了一遍原用例，确认 33 条字典与禁用结果都没变。 |
 | 2026-11-24 | Step 3 落地：位掩码生成子集 → `pathMap`（33 条）→ `isAvailable` 查表 → `disabled` 二维数组驱动置灰。**写完后用 Node 脚本把 detail.js 的同一份逻辑抄出来跑了 5 组用例，确认「选蓝色时 20cm 仍可选」「选蓝色+20cm 后中国禁用」才对**——这类算法不能靠读代码判断对错。另：`specs[].values[].available` 实测全部为 `undefined`，服务端没给，彻底坐实必须自算。 |
 | 2026-11-24 | Step 2 落地：底部操作栏 + SKU 面板。首版用 `t-popup`，实机表现为「无遮罩 + 面板混进页面流 + 底部栏被顶到中间」，判断是 TDesign 的 npm 产物不完整（`miniprogram_npm/tdesign-miniprogram/` 缺 `package.json`）导致组件未被识别、slot 被当普通节点渲染，遂改为自绘。**教训：`position: fixed` 的弹层绝不能参与 `page` 的 flex 流，否则 `flex: 1` 的滚动区会被它挤扁。** 排查顺序应是「先看 DOM 是否被当普通节点渲染，再怀疑样式」。 |

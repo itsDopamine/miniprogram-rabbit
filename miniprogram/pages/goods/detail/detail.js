@@ -1,4 +1,5 @@
 import { getGoodsDetail } from '../../../api/goods'
+import { addGoodsToCart } from '../../../utils/cart'
 import { toHttps } from '../../../utils/common'
 
 Page({
@@ -83,10 +84,35 @@ Page({
     this.setData({ skuVisible: e.detail.visible })
   },
 
-  onSkuConfirm(e) {
-    // Step 4 在这里换成 POST /member/cart，e.detail 里有 skuId 与 count
-    console.log('[sku-confirm]', e.detail)
-    wx.showToast({ title: '加购在 Step 4 接入', icon: 'none' })
+  async onSkuConfirm(e) {
+    const { skuId, count, price, picture, attrsText } = e.detail
+
+    // 请求层已有 loading 遮罩，这里再挡一次极短时间内的连点
+    if (this.adding) return
+    this.adding = true
+
+    try {
+      const from = await addGoodsToCart({
+        id: this.data.id,
+        name: this.data.name,
+        picture: picture || this.data.mainPictures[0] || '',
+        price,
+        count,
+        skuId,
+        attrsText
+      })
+
+      this.setData({ skuVisible: false })
+      wx.showToast({
+        title: from === 'local' ? '已加入购物车，登录后同步' : '已加入购物车',
+        icon: from === 'local' ? 'none' : 'success'
+      })
+    } catch (err) {
+      // 已登录时 401 与业务错误由 request.js 统一 toast，面板保持打开让用户重试
+      console.log('[cart-add]', err)
+    } finally {
+      this.adding = false
+    }
   },
 
   /* ---------- 底部操作栏 ---------- */

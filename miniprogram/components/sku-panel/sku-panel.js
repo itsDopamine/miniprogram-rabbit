@@ -137,7 +137,14 @@ Component({
         return
       }
 
-      this.triggerEvent('confirm', { skuId: sku.id, count: this.data.count })
+      // 未登录要落本地暂存，所以把展示需要的字段一起抛给页面
+      this.triggerEvent('confirm', {
+        skuId: sku.id,
+        count: this.data.count,
+        price: sku.price,
+        picture: toHttps(sku.picture) || '',
+        attrsText: this.data.selectedText
+      })
     }
   }
 })
