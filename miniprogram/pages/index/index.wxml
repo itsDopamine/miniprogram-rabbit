@@ -1,13 +1,55 @@
 <navigation-bar title="小兔鲜儿" back="{{false}}" color="black" background="#FFF"></navigation-bar>
 
 <view class="page">
-  <swiper class="banner" indicator-dots circular autoplay interval="3000" indicator-color="rgba(255, 255, 255, 0.4)" indicator-active-color="#ffffff">
+  <swiper
+    class="banner"
+    indicator-dots
+    circular
+    autoplay
+    interval="3000"
+    indicator-color="rgba(255, 255, 255, 0.4)"
+    indicator-active-color="#ffffff"
+  >
     <swiper-item wx:for="{{banners}}" wx:key="id">
       <image class="banner__img" src="{{item.imgUrl}}" mode="aspectFill" />
     </swiper-item>
   </swiper>
 
-  <view class="sections">
-    <text class="sections__hint">分类宫格、楼层、猜你喜欢待 Step 3 接入</text>
+  <!-- 分类宫格：一行 5 个 -->
+  <view class="categories">
+    <view class="categories__item" wx:for="{{categories}}" wx:key="id">
+      <image class="categories__icon" src="{{item.icon}}" mode="aspectFit" />
+      <text class="categories__name">{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 新鲜好物 -->
+  <view class="section">
+    <view class="section__header">
+      <text class="section__title">新鲜好物</text>
+      <text class="section__desc">新鲜出炉 品质靠谱</text>
+    </view>
+    <view class="goods">
+      <view class="goods__item" wx:for="{{newGoods}}" wx:key="id">
+        <image class="goods__pic" src="{{item.picture}}" mode="aspectFill" />
+        <text class="goods__name">{{item.name}}</text>
+        <text class="goods__price">¥{{item.price}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 热门推荐：两列入口卡片 -->
+  <view class="section">
+    <view class="section__header">
+      <text class="section__title">热门推荐</text>
+      <text class="section__desc">大家都在买</text>
+    </view>
+    <view class="panels">
+      <view class="panels__item" wx:for="{{hotPanels}}" wx:key="id">
+        <image class="panels__pic" src="{{item.pictures[0]}}" mode="aspectFit" />
+        <text class="panels__title">{{item.title}}</text>
+        <text class="panels__alt">{{item.alt}}</text>
+      </view>
+    </view>
   </view>
 </view>

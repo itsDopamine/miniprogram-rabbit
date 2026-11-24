@@ -4,6 +4,7 @@
 
 .page {
   min-height: 100vh;
+  padding-bottom: $gap-xl;
   background-color: $bg-page;
 }
 
@@ -19,11 +20,122 @@
   }
 }
 
-.sections {
-  padding: 120rpx $gap-xl 0;
-  text-align: center;
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  padding: $gap-base 0 $gap-xs;
+  background-color: $bg-card;
 
-  &__hint {
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 20%;
+    padding-bottom: $gap-base;
+  }
+
+  &__icon {
+    width: 80rpx;
+    height: 80rpx;
+  }
+
+  &__name {
+    margin-top: $gap-xs;
+    color: $text-regular;
+    font-size: $font-sm;
+  }
+}
+
+.section {
+  margin-top: $gap-base;
+  padding: $gap-base $gap-base 0;
+  background-color: $bg-card;
+
+  &__header {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: $gap-base;
+  }
+
+  &__title {
+    color: $text-primary;
+    font-size: $font-md;
+    font-weight: 600;
+  }
+
+  &__desc {
+    margin-left: $gap-sm;
+    color: $text-secondary;
+    font-size: $font-sm;
+  }
+}
+
+.goods {
+  display: flex;
+  padding-bottom: $gap-base;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+    padding-right: $gap-sm;
+
+    &:last-child {
+      padding-right: 0;
+    }
+  }
+
+  // 图片必须给宽高，否则按默认 320×240 渲染
+  &__pic {
+    width: 100%;
+    height: 160rpx;
+    border-radius: $radius-sm;
+    background-color: $bg-page;
+  }
+
+  &__name {
+    margin-top: $gap-xs;
+    color: $text-regular;
+    font-size: $font-sm;
+    @include ellipsis-multi(2);
+  }
+
+  &__price {
+    margin-top: $gap-xs;
+    color: $brand-color;
+    font-size: $font-base;
+  }
+}
+
+.panels {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding-bottom: $gap-base;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 48%;
+    margin-bottom: $gap-sm;
+    padding: $gap-sm;
+    border-radius: $radius-base;
+    background-color: $bg-page;
+  }
+
+  &__pic {
+    width: 100%;
+    height: 200rpx;
+  }
+
+  &__title {
+    margin-top: $gap-xs;
+    color: $text-primary;
+    font-size: $font-base;
+  }
+
+  &__alt {
     color: $text-secondary;
     font-size: $font-sm;
   }
