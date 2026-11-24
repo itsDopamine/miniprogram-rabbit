@@ -14,5 +14,12 @@ Page({
    */
   onLoad(options) {
     // S2：在这里请求首页 banner / 分类 / 楼层数据
+  },
+
+  /**
+   * S0-2 冒烟测试：TDesign 组件能渲染且能触发事件，就说明 npm 构建成功
+   */
+  onSmokeTest() {
+    wx.showToast({ title: 'TDesign 可用', icon: 'success' })
   }
 })

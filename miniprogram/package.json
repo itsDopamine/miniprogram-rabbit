@@ -1,0 +1,10 @@
+{
+  "name": "miniprogram-rabbit-mp",
+  "version": "1.0.0",
+  "description": "小程序源码依赖（TDesign）。放在 miniprogramRoot 内，开发者工具构建 npm 时会直接读取本目录的 node_modules",
+  "private": true,
+  "dependencies": {
+    "tdesign-miniprogram": "^1.18.0",
+    "tslib": "^2.9.1"
+  }
+}

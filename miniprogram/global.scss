@@ -1,13 +1,17 @@
 /**
- * global.scss —— 全局 SCSS 公共文件
+ * global.scss —— 全局 SCSS 变量与 mixin
  *
- * 它由 project.config.json 的 sassSetting.scssCommonUseFilePath 指定，
- * 开发者工具会把本文件「自动注入」到每一个 .scss 文件的顶部，
- * 所以这里只放【变量】和【mixin / function】，绝对不要写选择器，
- * 否则每编译一个 scss 都会重复输出一遍这些样式，包体积会翻倍。
+ * 引入方式：**显式 @import**（不要依赖开发者工具的自动注入，见下方说明）
+ *   pages/xxx/xxx.scss      →  @import '../../global.scss';
+ *   components/xxx/xxx.scss →  @import '../../global.scss';
+ *   packageGoods/pages/xxx/xxx.scss → @import '../../../global.scss';
  *
- * 使用方式（任意 .scss 里直接用，无需 import）：
- *   .title { color: $brand-color; font-size: $font-lg; }
+ * 为什么不用 project.config.json 的 sassSetting.scssCommonUseFilePath 自动注入：
+ * 该配置在本机开发者工具版本上没生效（编译报 Undefined variable），
+ * 显式 @import 是任何工具链都成立的做法。
+ *
+ * 本文件只放【变量】和【mixin / function】，绝对不要写选择器——
+ * 它会被多个 scss 重复 import，写选择器会导致同一段样式被输出多次。
  */
 
 /* ---------- 品牌色 ---------- */

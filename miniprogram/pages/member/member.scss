@@ -1,0 +1,11 @@
+/** pages/member/member.scss */
+@import '../../global.scss';
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  color: $text-secondary;
+  font-size: $font-base;
+}

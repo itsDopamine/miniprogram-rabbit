@@ -14,13 +14,13 @@
     "coverView": false,
     "postcss": false,
     "minified": false,
-    "enhance": false,
+    "enhance": true,
     "showShadowRootInWxmlPanel": false,
     "packNpmRelationList": [],
     "ignoreUploadUnusedFiles": true,
     "compileHotReLoad": false,
     "skylineRenderEnable": false,
-    "es6": false,
+    "es6": true,
     "uglifyFileName": false,
     "uploadWithSourceMap": true,
     "packNpmManually": false,
@@ -29,11 +29,7 @@
     "condition": false,
     "compileWorklet": false,
     "disableUseStrict": false,
-    "minifyWXML": true,
-    "sassSetting": {
-      "sassCommonUseFilePath": "global.sass",
-      "scssCommonUseFilePath": "global.scss"
-    }
+    "minifyWXML": true
   },
   "simulatorType": "wechat",
   "simulatorPluginLibVersion": {},
