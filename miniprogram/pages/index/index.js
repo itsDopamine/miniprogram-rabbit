@@ -1,16 +1,22 @@
-import request from "../../utils/request"
+import { getBannerList } from '../../api/home'
 
 // 首页（S0 占位，S2 正式开发）
 Page({
   data: {
-    ready: true
+    bannerCount: 0
   },
 
-  async onLoad(options) {
-    // S2：请求首页数据
-    const res = await request({ url: '/home/banner', data: { distributionSite: 1 } })
+  onLoad() {
+    this.fetchBanners()
+  },
 
-    console.log('res', res)
+  async fetchBanners() {
+    try {
+      const list = await getBannerList()
+      this.setData({ bannerCount: list.length })
+    } catch (e) {
+      console.log('[banner]', e)
+    }
   },
 
   onSmokeTest() {

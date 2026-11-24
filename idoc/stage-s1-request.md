@@ -79,6 +79,29 @@ config/env.js                   配置层  域名、公共头
 
 来源：https://s.apifox.cn/0e6ee326-d646-41bd-9214-29dbf47648fa
 
+### 2.5 首页接口实测记录（2026-11-24，来源级别 C）
+
+用 `curl -H "source-client: miniapp"` 直接打 dev 域名得到，非文档抄录。
+
+| 用途 | 方法 + 路径 | 返回 `result` 结构 | 条数 |
+| --- | --- | --- | --- |
+| 广告区域 | GET `/home/banner?distributionSite=1`（`2` 为分类页用） | `[{ id, imgUrl, hrefUrl, type }]` | 5 |
+| 前台分类（首页宫格） | GET `/home/category/mutli` | `[{ id, name, icon }]` | 10 |
+| 热门推荐（楼层入口） | GET `/home/hot/mutli` | `[{ id, pictures[], title, alt, target, type }]` | 4 |
+| 新鲜好物 | GET `/home/new` | `[{ id, name, desc, price, picture, orderNum }]` | 4 |
+| 分类楼层 + 商品 | GET `/home/goods` | `[{ id, name, picture, saleInfo, children[], goods[] }]`，`children` 为 `{ id, name, layer, parent }`，`goods` 为 `{ id, name, desc, price, picture, orderNum }` | 4 层 × 8 商品 |
+| 分类详情 | GET `/category?id=<一级分类id>` | `{ id, name, picture, children[] }` | — |
+
+**被证伪的路径假设**（都返回 404，别再试）：
+
+`/home/category/head`、`/home/hot`（无 `/mutli` 后缀）、`/home/preference`、`/home/recommend`、`/search`、`/category/mutli`
+
+**参数缺失的报错形态**（可用于 S3 搜索页调试）：
+
+`GET /category` → `{"code":"10001","msg":"服务器内部错误","data":"Required String parameter 'id' is not present"}`
+
+**字段类型注意**：`id`、`price`、`type`、`code` 全是**字符串**，比对 id 时不要用 `===` 比数字。
+
 ---
 
 ## 3. Step 0：前置确认（5 分钟）
@@ -186,7 +209,7 @@ let redirecting = false
 
 > 登录页还不存在（S5 才建），本阶段可以先用 `wx.showToast` 占位，把 `redirecting` 去重逻辑写好；S5 再接真页面。
 
-### Step 5：`api/home.js` + 首页验证（40 分钟）
+### Step 5：`api/home.js` + 首页验证 ✅ 已完成
 
 - `api/home.js` 写 5 个函数（banner / 分类 / 热门 / 新鲜 / 猜你喜欢），每个都带 `@typedef` 描述返回结构；
 - **字段以 Apifox 子页面为准**，不要照抄 React 版；
@@ -257,3 +280,4 @@ let redirecting = false
 | --- | --- |
 | 2026-11-24 | Step 1-2 完成：`config/env.js`（BASE_URL 按 `envVersion` 切 dev/prod、导出 `SOURCE_CLIENT`）、`config/constants.js`（`ORDER_STATE` + `ORDER_STATE_TEXT`，`Object.freeze`）。<br>**发现一处真实差异**：React 版 `src/utils/http.js` 的生产域名是 `https://apipc-xiaotuxian-front.itheima.net`，而接口文档是 `https://pcapi-xiaotuxian-front.itheima.net`（`apipc` 与 `pcapi` 顺序相反）。按 A 级压 B 级的原则，以文档为准。 |
 | 2026-11-24 | Step 3-4 完成：`utils/auth.js`（token 三件套）、`utils/request.js`（网络 → 401 → HTTP → 业务四层判断、`loading` 计数器、`silent` 静默模式、401 `redirecting` 去重）。<br>**初版踩到的坑**：`success/fail` 处理函数写在 `new Promise` 执行器外部，`resolve/reject` 不在作用域 → `ReferenceError`；鉴权头误写为 `token`（应为 `Authorization`）；缺 `statusCode` 判断导致 401 响应体为空时解构抛错。 |
+| 2026-11-24 | Step 5 完成：`api/home.js` 5 个函数 + 5 个 `@typedef`，首页 `onLoad` 拉 banner 并显示条数。<br>**用 curl 直连 dev 域名实测后，纠正了三处路径**：`/home/category/head`→`/home/category/mutli`、`/home/hot`→`/home/hot/mutli`、`/home/preference` 与 `/home/recommend` 不存在。详见 §2.5。 |

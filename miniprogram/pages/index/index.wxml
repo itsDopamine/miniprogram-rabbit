@@ -6,6 +6,7 @@
     <text class="placeholder__title">小兔鲜儿</text>
     <text class="placeholder__desc">工程骨架已就绪</text>
     <text class="placeholder__desc">S2 开始搭建首页</text>
+    <text class="placeholder__desc">banner 接口返回：{{bannerCount}} 条</text>
   </view>
 
   <!-- S0-2 冒烟测试：能渲染出 TDesign 按钮 = npm 构建成功 -->
