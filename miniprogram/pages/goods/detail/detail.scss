@@ -1,0 +1,139 @@
+/** pages/goods/detail/detail.scss */
+// 三级目录，global.scss 要多退一层
+@import '../../../global.scss';
+
+// 导航栏与滚动区上下分栏，导航栏不跟随内容滚走
+page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.body {
+  flex: 1;
+  height: 0; // flex 子项要有确定高度，scroll-view 才真正滚动
+  background-color: $bg-page;
+}
+
+.gallery {
+  height: 750rpx; // 750rpx 即屏宽，正方形
+  background-color: $bg-card;
+
+  &__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  padding: $gap-base;
+  background-color: $bg-card;
+
+  &__price {
+    display: flex;
+    align-items: baseline;
+    color: $brand-color;
+  }
+
+  &__symbol {
+    font-size: $font-sm;
+  }
+
+  &__now {
+    font-size: $font-xl;
+    font-weight: 600;
+  }
+
+  &__old {
+    margin-left: $gap-sm;
+    color: $text-placeholder;
+    font-size: $font-sm;
+    text-decoration: line-through;
+  }
+
+  &__name {
+    margin-top: $gap-xs;
+    color: $text-primary;
+    font-size: $font-md;
+    font-weight: 600;
+  }
+
+  &__desc {
+    margin-top: $gap-xs;
+    color: $text-secondary;
+    font-size: $font-sm;
+  }
+}
+
+.props {
+  margin-top: $gap-sm;
+  padding: 0 $gap-base;
+  background-color: $bg-card;
+
+  &__item {
+    display: flex;
+    padding: $gap-base 0;
+    border-bottom: 1rpx solid $border-color;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__name {
+    width: 160rpx;
+    flex: none;
+    color: $text-secondary;
+    font-size: $font-base;
+  }
+
+  &__value {
+    flex: 1;
+    min-width: 0;
+    color: $text-primary;
+    font-size: $font-base;
+  }
+}
+
+.detail {
+  margin-top: $gap-sm;
+  padding-bottom: $gap-xl;
+  background-color: $bg-card;
+
+  &__title {
+    padding: $gap-base;
+    color: $text-primary;
+    font-size: $font-md;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  &__img {
+    display: block;
+    width: 100%;
+  }
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 200rpx $gap-xl;
+
+  &__text {
+    color: $text-secondary;
+    font-size: $font-base;
+  }
+
+  &__btn {
+    margin-top: $gap-base;
+    padding: $gap-sm $gap-lg;
+    border: 1rpx solid $brand-color;
+    border-radius: $radius-round;
+    color: $brand-color;
+    font-size: $font-base;
+  }
+}

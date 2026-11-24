@@ -1,0 +1,64 @@
+<navigation-bar title="商品详情" background="#FFFFFF" />
+
+<scroll-view class="body" scroll-y>
+  <view class="state" wx:if="{{loading}}">
+    <text class="state__text">加载中…</text>
+  </view>
+
+  <view class="state" wx:elif="{{error}}">
+    <text class="state__text">{{error}}</text>
+    <view class="state__btn" wx:if="{{id}}" bindtap="onRetry">重新加载</view>
+  </view>
+
+  <block wx:else>
+    <!-- swiper 的高度不会被子元素撑开，正方形靠 rpx 固定 -->
+    <swiper
+      class="gallery"
+      indicator-dots
+      indicator-color="rgba(255, 255, 255, 0.5)"
+      indicator-active-color="#cf4444"
+    >
+      <swiper-item wx:for="{{mainPictures}}" wx:key="*this">
+        <image
+          class="gallery__img"
+          src="{{item}}"
+          mode="aspectFill"
+          data-index="{{index}}"
+          bindtap="onPreviewMain"
+        />
+      </swiper-item>
+    </swiper>
+
+    <view class="info">
+      <view class="info__price">
+        <text class="info__symbol">¥</text>
+        <text class="info__now">{{price}}</text>
+        <!-- 实测有商品 oldPrice 与 price 相同，同价时不摆划线价 -->
+        <text class="info__old" wx:if="{{oldPrice && oldPrice !== price}}">¥{{oldPrice}}</text>
+      </view>
+      <text class="info__name">{{name}}</text>
+      <text class="info__desc" wx:if="{{desc}}">{{desc}}</text>
+    </view>
+
+    <view class="props" wx:if="{{properties.length}}">
+      <view class="props__item" wx:for="{{properties}}" wx:key="name">
+        <text class="props__name">{{item.name}}</text>
+        <text class="props__value">{{item.value}}</text>
+      </view>
+    </view>
+
+    <view class="detail" wx:if="{{detailPictures.length}}">
+      <view class="detail__title">商品详情</view>
+      <!-- widthFix：长图高度由宽度推算，不写死比例 -->
+      <image
+        class="detail__img"
+        wx:for="{{detailPictures}}"
+        wx:key="*this"
+        src="{{item}}"
+        mode="widthFix"
+        data-index="{{index}}"
+        bindtap="onPreviewDetail"
+      />
+    </view>
+  </block>
+</scroll-view>
