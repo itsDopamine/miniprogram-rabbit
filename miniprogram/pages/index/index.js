@@ -33,5 +33,10 @@ Page({
     } catch (e) {
       console.log('[home]', e)
     }
+  },
+
+  onTapGoods(e) {
+    // 详情页在 S4 才建，这里先给出可验证的反馈
+    wx.showToast({ title: `商品 ${e.detail.id}`, icon: 'none' })
   }
 })

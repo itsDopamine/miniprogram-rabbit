@@ -1,0 +1,10 @@
+<view class="goods-card goods-card--{{layout}}" hover-class="goods-card--active" bindtap="onTap">
+  <view class="goods-card__cover">
+    <image class="goods-card__pic" src="{{goods.picture}}" mode="aspectFill" />
+  </view>
+
+  <view class="goods-card__info">
+    <text class="goods-card__name">{{goods.name}}</text>
+    <text class="goods-card__price">¥{{goods.price}}</text>
+  </view>
+</view>

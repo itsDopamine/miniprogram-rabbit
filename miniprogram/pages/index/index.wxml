@@ -30,11 +30,13 @@
       <text class="section__desc">新鲜出炉 品质靠谱</text>
     </view>
     <view class="goods">
-      <view class="goods__item" wx:for="{{newGoods}}" wx:key="id">
-        <image class="goods__pic" src="{{item.picture}}" mode="aspectFill" />
-        <text class="goods__name">{{item.name}}</text>
-        <text class="goods__price">¥{{item.price}}</text>
-      </view>
+      <goods-card
+        wx:for="{{newGoods}}"
+        wx:key="id"
+        class="goods__item"
+        goods="{{item}}"
+        bind:tap-card="onTapGoods"
+      />
     </view>
   </view>
 
