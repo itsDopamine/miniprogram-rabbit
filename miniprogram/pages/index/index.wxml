@@ -114,17 +114,19 @@
 
       <!-- 分类楼层：接口无分页参数，一次返回 4 层全量渲染 -->
       <view class="floor" wx:for="{{floors}}" wx:key="id">
-        <!-- 标题在左、楼层图在右，填满整行不留空 -->
-        <view class="floor__head">
-          <view class="floor__meta">
-            <text class="floor__name">{{item.name}}</text>
-            <text class="floor__sale">{{item.saleInfo}}</text>
-          </view>
-          <image class="floor__pic" src="{{item.picture}}" mode="aspectFill" />
+        <!-- 不用接口的楼层图：它是随机裁切的小方块，和楼层主题无关
+             促销信息并入标题行靠右，右侧不留空，也不用加假入口 -->
+        <view class="floor__title-row">
+          <text class="floor__index">0{{index + 1}}</text>
+          <text class="floor__name">{{item.name}}</text>
+          <text class="floor__sale">{{item.saleInfo}}</text>
         </view>
 
-        <view class="floor__tags">
-          <text class="floor__tag" wx:for="{{item.children}}" wx:for-item="tag" wx:key="id">{{tag.name}}</text>
+        <!-- 分类标签单行横滑：7 个铺两行会剩一个孤行，横滑既不留孤行也不占两行高度 -->
+        <view class="floor__tag-wrap">
+          <scroll-view class="floor__tags" scroll-x>
+            <text class="floor__tag" wx:for="{{item.children}}" wx:for-item="tag" wx:key="id">{{tag.name}}</text>
+          </scroll-view>
         </view>
 
         <view class="floor__goods">

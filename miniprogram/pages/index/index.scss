@@ -200,72 +200,88 @@ page {
   }
 }
 
-/* ---------- 分类楼层：通栏，四层贴成一组 ---------- */
+/* ---------- 分类楼层 ---------- */
+// 与上面的 section 统一成圆角卡：通栏时商品卡会贴到屏幕边缘，看着挤
 .floor {
-  margin-top: $gap-base;
+  margin: $gap-sm $gap-base 0;
   padding: $gap-base $gap-base $gap-sm;
+  border-radius: $radius-base;
   background-color: $bg-card;
 
-  // 楼层之间收紧到 16rpx：同属一组，别再按模块间距撑开
-  & + & {
-    margin-top: $gap-sm;
-  }
-
-  // 标题靠左撑满、楼层图贴右，右侧不留空白
-  &__head {
+  // 编号 + 标题同一行：四层楼长得完全一样，编号是唯一能把它们区分开的记号
+  &__title-row {
     display: flex;
-    align-items: flex-start;
+    align-items: baseline;
   }
 
-  &__meta {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  &__name {
-    color: $text-primary;
-    font-size: $font-md;
+  &__index {
+    margin-right: $gap-xs;
+    color: $brand-color;
+    font-size: $font-sm;
     font-weight: 600;
+    letter-spacing: 1rpx;
   }
 
+  // 标题吃掉中间的空间，把促销推到最右，右半边就不会空着
+  &__name {
+    flex: 1;
+    margin-right: $gap-sm;
+    color: $text-primary;
+    font-size: $font-lg;
+    font-weight: 600;
+    @include ellipsis;
+  }
+
+  // 促销信息用品牌色：灰色小字读不出"在打折"
   &__sale {
-    margin-top: $gap-xs;
-    color: $text-secondary;
+    flex: none;
+    max-width: 45%; // 促销文案过长时截断，不能把标题挤没
+    color: $brand-color;
     font-size: $font-sm;
     @include ellipsis;
   }
 
-  &__pic {
-    flex: none;
-    width: 120rpx;
-    height: 120rpx;
-    margin-left: $gap-base;
-    border-radius: $radius-base;
-    background-color: $bg-page;
+  &__tag-wrap {
+    position: relative;
+    margin-top: $gap-sm;
+
+    // 右边缘渐隐：横滑容器本身没有"还有内容"的视觉提示
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 48rpx;
+      background-image: linear-gradient(90deg, rgba(255, 255, 255, 0), $bg-card 70%);
+      pointer-events: none;
+    }
   }
 
   &__tags {
-    display: flex;
-    flex-wrap: wrap;
-    margin-top: $gap-sm;
+    white-space: nowrap;
   }
 
+  // 去掉胶囊底：7 个灰药丸排在一起像一排按钮，会盖过商品本身
+  // 字色用 regular 而不是 secondary——#999 在 20rpx 上只有 2.85:1，读不清
   &__tag {
-    margin: 0 $gap-xs $gap-xs 0;
-    padding: 4rpx $gap-sm;
-    border-radius: $radius-round;
-    background-color: $bg-page;
+    display: inline-block;
     color: $text-regular;
     font-size: $font-xs;
+
+    // 分隔点用伪元素，最后一项不带，避免出现尾随的点
+    &:not(:last-child)::after {
+      content: '·';
+      margin: 0 $gap-sm;
+      color: $text-placeholder;
+    }
   }
 
   &__goods {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    margin-top: $gap-sm;
+    margin-top: $gap-base;
   }
 
   // 接口每层固定 8 个商品，4 列正好两行
@@ -273,6 +289,12 @@ page {
     width: 24%;
     margin-bottom: $gap-sm;
   }
+}
+
+.floor__tags::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }
 
 /* ---------- 骨架屏 ---------- */
