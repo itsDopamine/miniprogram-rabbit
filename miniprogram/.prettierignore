@@ -1,0 +1,7 @@
+# 只作用于 miniprogram/ 内的源码
+node_modules/
+miniprogram_npm/
+package-lock.json
+
+# WXML 没有可靠解析器，强行走 html 解析会把标签改坏
+**/*.wxml

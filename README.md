@@ -4,14 +4,14 @@
 
 ## 技术栈
 
-| 项 | 选择 |
-| --- | --- |
-| 框架 | 微信小程序原生（无 Taro / uni-app） |
-| 语言 | JavaScript（ES6+），用 JSDoc 标类型，保留 TS 迁移能力 |
-| 样式 | SCSS（编译为 WXSS），单位 `rpx` |
-| 渲染 | WebView 默认渲染（未启用 Skyline） |
-| UI | [TDesign Miniprogram](https://tdesign.tencent.com/miniprogram/overview) |
-| 请求 | 自建 `utils/request.js`（未开始，见阶段 S1） |
+| 项   | 选择                                                                    |
+| ---- | ----------------------------------------------------------------------- |
+| 框架 | 微信小程序原生（无 Taro / uni-app）                                     |
+| 语言 | JavaScript（ES6+），用 JSDoc 标类型，保留 TS 迁移能力                   |
+| 样式 | SCSS（编译为 WXSS），单位 `rpx`                                         |
+| 渲染 | WebView 默认渲染（未启用 Skyline）                                      |
+| UI   | [TDesign Miniprogram](https://tdesign.tencent.com/miniprogram/overview) |
+| 请求 | 自建 `utils/request.js`（未开始，见阶段 S1）                            |
 
 ## 目录
 
@@ -48,6 +48,25 @@ idoc/                 # 方案、阶段任务书、作业看板、验收总表
 
 > 改了 `package.json` 依赖后，必须重新执行一次「构建 npm」。
 
+## 代码规范
+
+工具链跟运行时依赖一起放在 `miniprogram/`，**不要放仓库根目录**：构建 npm 只认 `miniprogramRoot` 内的 `node_modules`，根目录再放一份只会制造歧义（S0 复盘里已经踩过一次）。
+
+```bash
+cd miniprogram
+npm install          # 同时装 tdesign/tslib 与 eslint/prettier
+npm run lint         # 检查 miniprogram/**/*.js
+npm run lint:fix     # 自动修复可修复项
+npm run format       # 格式化 miniprogram/
+npm run format:check # 只校验不改文件
+```
+
+- `eslint.config.mjs`（ESLint 10 flat config）：与 `node_modules` 同层，`import '@eslint/js'` 才解析得到。已声明 `wx` / `Page` / `Component` / `getApp` 等小程序全局，否则 `no-undef` 全红；只留正确性规则，格式一律交给 Prettier
+- ESLint 只处理 `dependencies` 之外的代码：`devDependencies` 不参与「构建 npm」，不会被打进 `miniprogram_npm/`
+- 四件套全在 `miniprogram/`：`package.json`（脚本 + devDependencies）、`eslint.config.mjs`、`.prettierrc`、`.prettierignore`。根目录不留任何工具链文件，只有 `.vscode/settings.json`（VS Code 只认工作区根目录）
+- **WXML 暂不格式化**：没有可靠解析器，硬走 html 解析会改坏标签，等社区插件稳定再开
+- 编辑器：`.vscode/settings.json` 已开启保存即格式化 + ESLint 自动修复
+
 ## 接口
 
 - 文档：https://s.apifox.cn/0e6ee326-d646-41bd-9214-29dbf47648fa
@@ -61,15 +80,15 @@ idoc/                 # 方案、阶段任务书、作业看板、验收总表
 
 从 [`idoc/00-overview.md`](./idoc/00-overview.md) 开始读：
 
-| 文件 | 内容 |
-| --- | --- |
-| `idoc/00-overview.md` | 范围、协作方式、完成口径、页面清单 |
+| 文件                       | 内容                                  |
+| -------------------------- | ------------------------------------- |
+| `idoc/00-overview.md`      | 范围、协作方式、完成口径、页面清单    |
 | `idoc/01-migration-map.md` | React → 小程序 概念/接口/组件/UI 对照 |
-| `idoc/02-architecture.md` | 目录、分层、请求层契约、数据流、规范 |
-| `idoc/03-roadmap.md` | 9 个阶段、工时、44 个接口映射 |
-| `idoc/assignments.md` | 阶段闸门与进度看板 |
-| `idoc/checklist.md` | 验收总表、回归旅程、自评 |
-| `idoc/stage-sX-*.md` | 各阶段任务书 |
+| `idoc/02-architecture.md`  | 目录、分层、请求层契约、数据流、规范  |
+| `idoc/03-roadmap.md`       | 9 个阶段、工时、44 个接口映射         |
+| `idoc/assignments.md`      | 阶段闸门与进度看板                    |
+| `idoc/checklist.md`        | 验收总表、回归旅程、自评              |
+| `idoc/stage-sX-*.md`       | 各阶段任务书                          |
 
 ## 进度
 

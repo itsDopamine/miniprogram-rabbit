@@ -24,8 +24,7 @@ export function formatTime(date) {
   const second = date.getSeconds()
 
   return (
-    [year, month, day].map(padZero).join('/') +
-    ' ' + [hour, minute, second].map(padZero).join(':')
+    [year, month, day].map(padZero).join('/') + ' ' + [hour, minute, second].map(padZero).join(':')
   )
 }
 

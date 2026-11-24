@@ -64,7 +64,15 @@ function handleUnauthorized() {
  * @returns {Promise<any>} 业务 result，失败时 reject RequestError
  */
 export function request(options) {
-  const { url, method = 'GET', data, auth = false, loading = false, silent = false, header = {} } = options
+  const {
+    url,
+    method = 'GET',
+    data,
+    auth = false,
+    loading = false,
+    silent = false,
+    header = {}
+  } = options
 
   return new Promise((resolve, reject) => {
     if (loading) showLoading()

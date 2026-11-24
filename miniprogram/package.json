@@ -1,10 +1,22 @@
 {
   "name": "miniprogram-rabbit-mp",
   "version": "1.0.0",
-  "description": "小程序源码依赖（TDesign）。放在 miniprogramRoot 内，开发者工具构建 npm 时会直接读取本目录的 node_modules",
+  "description": "小程序源码依赖（TDesign）与开发工具链（ESLint / Prettier）。放在 miniprogramRoot 内：构建 npm 只读这里的 node_modules，工具链放一起，避免根目录再出现第二份 node_modules",
   "private": true,
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
   "dependencies": {
     "tdesign-miniprogram": "^1.18.0",
     "tslib": "^2.9.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1"
   }
 }
