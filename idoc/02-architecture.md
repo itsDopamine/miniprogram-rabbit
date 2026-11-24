@@ -171,6 +171,7 @@ request({ url, method = 'GET', data = {}, auth = false, loading = false })
 | 单位 | 一律 `rpx`，边框可用 `1px` + `scaleY(.5)` | `margin: 24rpx` |
 | 颜色/字号 | 走 `global.scss` 变量 | `color: $brand-color` |
 | 变量引入 | **每个 scss 顶部显式 `@import`**（本机工具的自动注入未生效） | `pages/*/` 与 `components/*/` 用 `@import '../../global.scss';`，`packageGoods/pages/*/` 用 `@import '../../../global.scss';` |
+| 注释 | **精简**：只写「为什么」和「来源」，不写「是什么」，不逐行解释 API | `// 401 去重：并发请求只跳一次` 而不是 `// 判断是否 401` |
 | 样式隔离 | 自研组件默认 `isolated`；需覆盖 TDesign 用 `custom-style` 或 CSS 变量 | `--td-brand-color` |
 
 ---

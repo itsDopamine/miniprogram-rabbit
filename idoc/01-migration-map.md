@@ -150,3 +150,4 @@
 | 4 | 详情库存从详情响应取 | 等价 | 无独立库存接口 |
 | 5 | 地址编辑独立成页 | 必须 | 小程序弹层内做长表单体验差 |
 | 6 | 不实现注册/404 | 裁剪 | 无接口、小程序无 404 概念 |
+| 7 | 生产域名用 `pcapi-` | 修正 | React 版写作 `apipc-xiaotuxian-front.itheima.net`，接口文档是 `pcapi-xiaotuxian-front.itheima.net`，以文档为准 |
