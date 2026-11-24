@@ -1,6 +1,7 @@
 import {
   getBannerList,
   getCategoryFloors,
+  getGuessLike,
   getHomeCategories,
   getHotPanels,
   getNewGoods
@@ -14,6 +15,10 @@ Page({
     newGoods: [],
     hotPanels: [],
     floors: [],
+    guessLikes: [],
+    guessPage: 1,
+    guessHasMore: false,
+    guessLoading: false,
     loading: true,
     refreshing: false,
     error: ''
@@ -30,17 +35,41 @@ Page({
     this.setData({ refreshing: false })
   },
 
+  // 猜你喜欢触底加载下一页：接口带 page/pageSize，是真分页
+  async loadMoreGuess() {
+    const { guessLoading, guessHasMore, guessPage, loading } = this.data
+    // 首屏或上一页还在请求时不再叠加
+    if (loading || guessLoading || !guessHasMore) return
+
+    this.setData({ guessLoading: true })
+    try {
+      const res = await getGuessLike({ page: guessPage + 1 })
+      const items = res.items.map((item) => ({ ...item, picture: toHttps(item.picture) }))
+      this.setData({
+        guessLikes: this.data.guessLikes.concat(items),
+        guessPage: res.page,
+        guessHasMore: res.page < res.pages,
+        guessLoading: false
+      })
+    } catch (e) {
+      console.log('[guessLike]', e)
+      this.setData({ guessLoading: false })
+    }
+  },
+
   async fetchHome() {
-    this.setData({ loading: true, error: '' })
+    // 重置分页状态，避免上一轮失败时卡住 guessLoading
+    this.setData({ loading: true, error: '', guessLoading: false })
 
     try {
-      // 五个接口互不依赖，并发拿
-      const [banners, categories, newGoods, hotPanels, floors] = await Promise.all([
+      // 六个接口互不依赖，并发拿
+      const [banners, categories, newGoods, hotPanels, floors, guess] = await Promise.all([
         getBannerList(),
         getHomeCategories(),
         getNewGoods(),
         getHotPanels(),
-        getCategoryFloors()
+        getCategoryFloors(),
+        getGuessLike({ page: 1 })
       ])
 
       // 接口返回 http 直链，map 出新对象，避免直接改接口返回的数据
@@ -54,6 +83,9 @@ Page({
           picture: toHttps(floor.picture),
           goods: floor.goods.map((goods) => ({ ...goods, picture: toHttps(goods.picture) }))
         })),
+        guessLikes: guess.items.map((item) => ({ ...item, picture: toHttps(item.picture) })),
+        guessPage: guess.page,
+        guessHasMore: guess.page < guess.pages,
         loading: false
       })
     } catch (e) {

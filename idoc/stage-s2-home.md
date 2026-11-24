@@ -12,7 +12,7 @@
 - 会用 `swiper` 做轮播，知道 `<image>` 为什么必须给宽高
 - 掌握 `wx:for` / `wx:key` / `wx:if`，知道 `wx:key` 写错会怎样
 - 会写自定义组件（`properties` / `triggerEvent` / `observers`），并解释它和 `data` 的区别
-- 会用 `onReachBottom` 做分页、用 `onShow` 做「切回来不重复请求」
+- 知道分页只在接口真有 `page` 参数时才做；首页用「只在 `onLoad` 请求一次」实现切回来不重复请求
 - 知道页面三态（loading / empty / error）怎么落地
 
 ---
@@ -172,7 +172,7 @@ const toHttps = (url) => url.replace(/^http:\/\//, 'https://')
 ### Step 2：首页轮播（半天）
 
 - `getBannerList('1')` 拿数据 → `setData({ banners })`
-- `swiper` 高度写死一个值（如 `300rpx`），`<image>` 用 `mode="aspectFill"`
+- `swiper` 高度写死一个值（本项目取 `340rpx`），`<image>` 用 `mode="aspectFill"`
 - `circular` / `autoplay` / `interval="3000"` / `indicator-dots`
 - 图片地址套 `toHttps`
 
@@ -210,17 +210,18 @@ Component({
 - 点击时 `triggerEvent('tap-card', { id })`，父页面 `bind:tap-card` 接收
 - 价格用 `$brand-color`
 
-**验收**：首页两次使用同一组件（新鲜好物 2 列、猜你喜欢 2 列），样式不一致时只改组件一处。
+**验收**：同一组件在首页用两次——新鲜好物 **4 列**、猜你喜欢 **2 列**，列数只由父级宽度决定（24% / 48%），组件内部零改动。
 
 ### Step 5：分页 + 下拉刷新 + 三态（半天）
 
 - 分类楼层用 `getCategoryFloors()`：**接口没有分页参数**，一次返回 4 层，直接全量渲染。不要自己切片造假分页——内容不足一屏时 `scrolltolower` 会立刻触发，等于没分页，还会误导阅读代码的人
 - 但**底部要有「没有更多了」的静态提示**：用户需要知道列表到头了。提示归提示，别给它挂加载逻辑，两者是两件事
 - 下拉刷新：页面改成 `flex` 上下分栏 + `scroll-view` 的 `refresher-enabled`。页面级 `enablePullDownRefresh` 会把整个容器（含自定义导航栏）一起下移，标题跟着动
-- 真正的触底分页留到**确实有 `page` / `pageSize` 参数**的接口再做（分类列表、搜索结果），判断 `loadingMore` / `hasMore`
+- 真正的触底分页放在**猜你喜欢** `GET /home/goods/guessLike`：Apifox 只文档化了响应里的 `counts` / `page` / `pageSize` / `pages` / `items`，**没写请求参数**；实测 `?page=2&pageSize=4` 生效（`page` 原样回显），默认 `counts=338 / pageSize=10 / pages=34`。首屏取第 1 页 10 条，触底加载下一页，用 `page < pages` 判断还有没有
+- 楼层 `/home/goods` 则相反：没有分页参数，一次性 4 层，不做分页
 - 三态：`loading`（骨架）、`empty`（无数据文案）、`error`（重试按钮）
 
-**验收**：4 层楼层完整渲染、下拉刷新能收起且标题不动、三态齐全。
+**验收**：4 层楼层完整渲染、猜你喜欢触底能加载下一页且到底显示「没有更多了」、下拉刷新能收起且标题不动、三态齐全。
 
 ---
 
@@ -231,6 +232,7 @@ Component({
 - [ ] 分类宫格 10 项、楼层数据正确
 - [ ] `goods-card` 组件被复用且点击能拿到 id
 - [ ] 楼层一次性渲染完整（接口无分页参数，不做假分页）
+- [ ] 猜你喜欢 2 列、触底加载下一页、到底显示「没有更多了」
 - [ ] 下拉刷新可收起
 - [ ] 三态齐全，断网不白屏
 - [ ] 切到别的 tab 再回首页，Network 面板**没有**新请求
@@ -260,7 +262,7 @@ Component({
 | 2-1 | 导航栏自适应（iOS + Android 截图） | 两张图 |
 | 2-2 | 轮播可用（含 https 处理） | 代码 + 真机/工具截图 |
 | 2-3 | `goods-card` 组件复用两处 | 代码 |
-| 2-4 | 分页 + 三态 | Network 截图（触底只多一页请求） |
+| 2-4 | 猜你喜欢分页 + 下拉刷新 + 三态 | Network 截图（触底只多一页，切 tab 不重发） |
 
 ### 闸门答辩（先读答案，再合上自测）
 
@@ -279,7 +281,7 @@ Component({
 
 - 首页 5 个区块渲染正确
 - 导航栏在各种机型不遮挡
-- 分页、下拉刷新、三态可用
+- 猜你喜欢触底分页、下拉刷新、三态可用
 - 切 tab 回来不重复请求
 
 ---

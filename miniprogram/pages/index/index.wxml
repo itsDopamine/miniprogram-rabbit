@@ -7,6 +7,8 @@
   refresher-enabled
   refresher-triggered="{{refreshing}}"
   bindrefresherrefresh="onRefresh"
+  bindscrolltolower="loadMoreGuess"
+  lower-threshold="80"
 >
   <!-- 首屏骨架：只在还没有任何数据时显示，下拉刷新不会闪 -->
   <view class="skeleton" wx:if="{{loading && !banners.length}}">
@@ -107,12 +109,31 @@
       </view>
     </view>
 
+    <!-- 猜你喜欢：接口是真分页（page/pageSize），两列复用 goods-card -->
+    <view class="section">
+      <view class="section__header">
+        <text class="section__title">猜你喜欢</text>
+        <text class="section__desc">根据你的喜好推荐</text>
+      </view>
+      <view class="guess">
+        <goods-card
+          wx:for="{{guessLikes}}"
+          wx:key="id"
+          class="guess__item"
+          goods="{{item}}"
+          bind:tap-card="onTapGoods"
+        />
+      </view>
+    </view>
+
     <!-- 空态 -->
     <view class="state" wx:if="{{!floors.length}}">
       <text class="state__text">暂无推荐内容</text>
     </view>
 
-    <!-- 列表结束提示：内容一次全渲染，所以这里是静态的，没有加载逻辑 -->
-    <view class="more" wx:if="{{floors.length}}">没有更多了</view>
+    <!-- 提示反映猜你喜欢的真实加载状态 -->
+    <view class="more" wx:if="{{guessLikes.length}}">
+      {{guessLoading ? '加载中…' : guessHasMore ? '上拉加载更多' : '没有更多了'}}
+    </view>
   </block>
 </scroll-view>

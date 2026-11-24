@@ -87,6 +87,19 @@ page {
   }
 }
 
+// 猜你喜欢：两列
+.guess {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding-bottom: $gap-base;
+
+  &__item {
+    width: 48%;
+    margin-bottom: $gap-sm;
+  }
+}
+
 .panels {
   display: flex;
   flex-wrap: wrap;

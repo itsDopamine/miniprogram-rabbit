@@ -86,3 +86,22 @@ export function getNewGoods() {
 export function getCategoryFloors() {
   return request({ url: '/home/goods' })
 }
+
+/**
+ * 猜你喜欢（真实分页接口）
+ * @typedef {Object} GuessLikePage
+ * @property {number} counts 总条数（实测 338）
+ * @property {number} page 当前页
+ * @property {number} pageSize 每页条数（默认 10）
+ * @property {number} pages 总页数
+ * @property {GoodsItem[]} items 商品列表
+ */
+
+/**
+ * Apifox 只文档化了响应里的分页字段，没写请求参数；实测 ?page=2&pageSize=4 生效
+ * @param {{page?: number, pageSize?: number}} [params]
+ * @returns {Promise<GuessLikePage>}
+ */
+export function getGuessLike({ page = 1, pageSize = 10 } = {}) {
+  return request({ url: '/home/goods/guessLike', data: { page, pageSize } })
+}
