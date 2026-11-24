@@ -294,11 +294,44 @@ git commit -m "feat(S0): 关闭 Skyline、迁移 JS、接入 TDesign、配置 ta
 | 0-3 | 变量注入验证 | 一句结论：改色后是否全局生效 |
 | 0-4 | tabBar 四页 + `api/`、`config/` 目录 | 截图 |
 
-### 闸门答辩（答不出就不算通过）
+### 闸门答辩（**先读答案，再合上自测**）
 
-1. `setData` 为什么不能像 React 的 `setState` 那样理解？它的开销从哪来？
-2. 为什么关 Skyline 要改两个文件？只改一个会怎样？
-3. 「构建 npm」到底做了什么？为什么 `miniprogram_npm` 不提交到 git？
+> 这三问不是闭卷考试，是「用自己的话复述」的检验。答案就在下面，先读，再遮住回答一遍。
+
+**Q1 `setData` 为什么不能像 React 的 `setState` 那样理解？开销从哪来？**
+
+React 的 `setState` 和渲染在同一个 JS 运行时里，重渲染就是跑一遍 render 函数。小程序是**两个上下文**：逻辑层（iOS 的 JavaScriptCore / Android 的 V8）和渲染层（WebView），`setData` 是**跨线程消息**。
+
+一次 `setData` 的开销分三段：
+
+| 段 | 内容 | 影响 |
+| --- | --- | --- |
+| ① 序列化 | 把 JS 对象转成字符串（桥只能传字符串） | 数据越大越慢 |
+| ② 跨线程传输 | 从逻辑层送到渲染层 | 次数越多越慢，跟频率成正比 |
+| ③ 渲染层 diff | 解析字符串、比对、更新视图 | 与更新节点数相关 |
+
+三条实践结论：只传**变化路径**（`'list[2].count'`）、**合并**多次 setData、**别**把长列表/大对象整块塞进去。另外 `setData` 是异步的，`this.data` 会立刻更新但视图不是。
+
+**Q2 为什么关 Skyline 要改两个文件？只改一个会怎样？**
+
+- `project.config.json` 的 `skylineRenderEnable`：**项目级/工具级**开关，影响工具的编译与运行模式；
+- `app.json` 的 `rendererOptions.skyline` + `componentFramework: "glass-easel"`：**应用运行时配置**，告诉运行时「按 Skyline 渲染、组件框架用 glass-easel」。
+
+两者是「工具侧」与「运行时侧」两道闸门，必须一致。只关一处，另一处仍声明启用，就会继续按 Skyline 走（实测当时两处一起关才真正回到 WebView）。
+
+> **来源级别：C（实测）**。我没有找到官方文档逐字说明两者的优先级，结论来自本机实测；工具升级后需重新验证。
+
+**Q3 「构建 npm」到底做了什么？为什么 `miniprogram_npm` 不提交？**
+
+小程序运行时**没有 Node 的模块解析能力**（不会逐级向上找 `node_modules`），所以 `require('tdesign-miniprogram/button/button')` 在真机上找不到包。
+
+「构建 npm」做的事就是补上这一步：读 `package.json` 的依赖 → 找到每个包 → 以包的 **`miniprogram` 字段**（TDesign 是 `miniprogram_dist`）为入口 → 把文件按小程序的模块规则拷贝/改写到 `miniprogramRoot/miniprogram_npm/` 下，让 `require` 能解析到。
+
+不提交的两个原因：
+1. **它是派生产物**：完全由 `package.json` + `node_modules` 决定，提交等于把同一份内容存两遍；
+2. **体积与漂移**：TDesign 一份就 1191 个文件，入库会撑爆仓库，且容易与依赖版本不一致。
+
+复现方式写进 README：`npm install` + 构建 npm（本项目因工具未生效，用等价的手工镜像，见 Step 5 兜底方案）。
 
 ---
 
