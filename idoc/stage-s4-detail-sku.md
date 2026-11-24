@@ -1,6 +1,6 @@
 # 阶段 S4 · 商品详情与 SKU
 
-> 状态：**Step 1 代码完成，待真机验收；Step 2 未开始**
+> 状态：**Step 1、Step 2 代码完成，待真机验收；Step 3 未开始**
 > 工时：3 天 · 前置：S2/S3 的商品卡能拿到 id（首页、分类页、搜索结果）
 > 关联：[`api-reference.md`](./api-reference.md) `GET /goods`、[`03-roadmap.md`](./03-roadmap.md) §2
 
@@ -133,10 +133,21 @@ const next = Math.min(Math.max(count, 1), stock) // 不小于 1，不超过库�
 ### Step 2：SKU 弹层 UI
 
 - 底部操作栏：客服、购物车、加入购物车、立即购买
-- 点「加入购物车」弹出 SKU 面板（自绘遮罩 + 上滑面板，或 TDesign `t-popup`）
+- 点「加入购物车」弹出 SKU 面板（自绘遮罩 + 上滑面板，`fixed` 定位）
 - 面板内按 `specs` 渲染规格组与值按钮，选中态高亮
 
 **验收**：面板能弹出/收起；规格值可点选/取消。
+
+**实现记录（2026-11-24）**
+
+- **面板改为自绘，没用 `t-popup`。** 曾按 TDesign 写法接入，真机/模拟器上遮罩不出现、面板被当作普通块塞进页面流里，把 `.bar` 顶到了内容中间。查 `miniprogram_npm/tdesign-miniprogram/popup/popup.wxss` 里 `position: fixed` 明明存在，且 `miniprogram_npm/tdesign-miniprogram/` 下缺 `package.json`，判断是 npm 产物不完整导致组件没被识别、slot 内容被当普通节点展开
+- 自绘要点：遮罩与面板都用 `position: fixed`，**绝对不能参与 `page` 的 flex 流**，否则 `flex: 1` 的 `.body` 会被挤压，底部栏上移
+- 进出场用 `transform: translateY(100%)` → `translateY(0)` + `transition`，隐藏态保留节点（用 `visibility` 与位移），才能有可过渡的起点；不要用 `wx:if`，节点一销毁就没有动画
+- 滚动穿透用遮罩的 `catchtouchmove="noop"` 吃掉手势；面板内部是 `scroll-view`，靠自身滚动，不受影响
+- 叉号仍是 CSS 自绘（两条旋转的 1px 线），不用图标字体
+- 「选中态」的数据结构：`selected` 是与 `specs` **等长的数组**，`''` 表示未选。用数组而不是对象，因为规格组顺序必须和 `skus[].specs` 对得上，按下标取值最直接；判断选全就是 `selected.some(v => !v)`
+- **Step 2 不做禁用态**，所有值都可点。`skus` 已随接口返回但暂存不用，留给 Step 3
+- 面板头部的 `skuPicture` / `skuPrice` 先给 SPU 的图与价，Step 3 选全规格后改成 sku 的值，模板不用动
 
 ### Step 3：SKU 联动与禁用态
 
@@ -208,3 +219,4 @@ const next = Math.min(Math.max(count, 1), stock) // 不小于 1，不超过库�
 | --- | --- |
 | 2026-11-24 | 阶段文档建立。接口字段全部来自 `api-reference.md`（Apifox 导出），`GET /goods` 返回 `specs` + `skus` 两套结构，靠规格名与值名做匹配，无 valueId。 |
 | 2026-11-24 | Step 1 落地：`api/goods.js` + `pages/goods/detail`（四件套）+ `app.json` 注册 + 首页/分类页/搜索页三处 `onTapGoods` 改 `wx.navigateTo`。用真实接口抓包核对了字段，顺手修掉「oldPrice 与 price 相同仍显示划线价」的问题。`wx.previewImage` 的 `current` 统一从 `this.data` 的数组里取，不用 dataset 传数组。 |
+| 2026-11-24 | Step 2 落地：底部操作栏 + SKU 面板。首版用 `t-popup`，实机表现为「无遮罩 + 面板混进页面流 + 底部栏被顶到中间」，判断是 TDesign 的 npm 产物不完整（`miniprogram_npm/tdesign-miniprogram/` 缺 `package.json`）导致组件未被识别、slot 被当普通节点渲染，遂改为自绘。**教训：`position: fixed` 的弹层绝不能参与 `page` 的 flex 流，否则 `flex: 1` 的滚动区会被它挤扁。** 排查顺序应是「先看 DOM 是否被当普通节点渲染，再怀疑样式」。 |

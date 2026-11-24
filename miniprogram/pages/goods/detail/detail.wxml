@@ -62,3 +62,70 @@
     </view>
   </block>
 </scroll-view>
+
+<!-- 操作栏在滚动容器外，跟着页面固定，不随内容滚走 -->
+<view class="bar" wx:if="{{!loading && !error}}">
+  <view class="bar__entry" bindtap="onTapService">
+    <text class="bar__entry-text">客服</text>
+  </view>
+  <view class="bar__entry" bindtap="onTapCart">
+    <text class="bar__entry-text">购物车</text>
+  </view>
+  <view class="bar__actions">
+    <view class="bar__btn bar__btn--cart" bindtap="onOpenSku">加入购物车</view>
+    <view class="bar__btn bar__btn--buy" bindtap="onOpenSku">立即购买</view>
+  </view>
+</view>
+
+<!-- 遮罩与面板都 fixed 定位，不参与 page 的 flex 分配 -->
+<view
+  class="mask {{skuVisible ? 'mask--show' : ''}}"
+  bindtap="onCloseSku"
+  catchtouchmove="noop"
+></view>
+
+<view class="sku {{skuVisible ? 'sku--show' : ''}}">
+  <view class="sku__head">
+    <image class="sku__pic" src="{{skuPicture}}" mode="aspectFill" />
+    <view class="sku__meta">
+      <view class="sku__price">
+        <text class="sku__symbol">¥</text>
+        <text class="sku__num">{{skuPrice}}</text>
+      </view>
+      <text class="sku__tip">{{selectedText || '请选择规格'}}</text>
+    </view>
+    <view class="sku__close" bindtap="onCloseSku">
+      <view class="sku__close-icon"></view>
+    </view>
+  </view>
+
+  <!-- scroll-view 必须有高度上限才能滚，内容少时由内容撑开 -->
+  <scroll-view class="sku__body" scroll-y>
+    <view
+      class="sku__group"
+      wx:for="{{specs}}"
+      wx:key="name"
+      wx:for-item="spec"
+      wx:for-index="specIndex"
+    >
+      <text class="sku__group-name">{{spec.name}}</text>
+      <view class="sku__values">
+        <view
+          class="sku__value {{selected[specIndex] === value.name ? 'sku__value--active' : ''}}"
+          wx:for="{{spec.values}}"
+          wx:for-item="value"
+          wx:key="name"
+          data-spec-index="{{specIndex}}"
+          data-value-name="{{value.name}}"
+          bindtap="onTapSpec"
+        >
+          {{value.name}}
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="sku__footer">
+    <view class="sku__confirm" bindtap="onConfirmSku">确定</view>
+  </view>
+</view>
