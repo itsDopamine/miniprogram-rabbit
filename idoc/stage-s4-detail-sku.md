@@ -127,10 +127,13 @@ wx.previewImage({
 ### 3.4 数量夹取
 
 ```js
-const next = Math.min(Math.max(count, 1), stock) // 不小于 1，不超过库存
+const limit = Math.max(Math.min(stock, MAX_CART_COUNT), 1) // 上限 = 库存与业务上限取小
+const next = Math.min(Math.max(count, 1), limit) // 不小于 1，不超过上限
 ```
 
 切规格后库存会变，**当前数量可能超过新 sku 的库存**，必须重新夹取，否则会提交一个超卖的数量。
+
+上限不能直接等于库存：接口的 `inventory` 动辄几千（样例数据），用户能加到「8854 件、合计五千万」。业务上限 `MAX_CART_COUNT = 99` 放在 `config/constants.js`，取值处统一走 `utils/sku.js` 的 `countLimit(sku)`，避免同一规则在两处各写一遍。
 
 ---
 
@@ -181,7 +184,7 @@ const next = Math.min(Math.max(count, 1), stock) // 不小于 1，不超过库�
 - 判断候选值时，候选值所在组用候选值、其它组用 `selected` 里已选的值、未选的组跳过——所以未选状态也能查（查的是单元素子集）
 - 已选中的值永远可点（用来取消），`onTapSpec` 里只对「未选中且不可用」拦截
 - `findSku` 依赖「`sku.specs` 与 `specs` 同序」这条接口约束，直接按下标比 `valueName`
-- 数量夹取在 `syncSku` 里做：`Math.max(Math.min(count, inventory), 1)`，同时把 `maxCount` 跟着换掉
+- 数量夹取在 `syncSku` 里做：`limit = countLimit(sku)`（库存与 99 取小），`count` 与 `maxCount` 一起按 `limit` 重算；`onConfirm` 提交前用同一个 `countLimit` 再夹一次，两处规则只留一份
 
 **代码分层（2026-11-24 重构）**
 
@@ -189,9 +192,9 @@ const next = Math.min(Math.max(count, 1), stock) // 不小于 1，不超过库�
 
 | 层 | 位置 | 职责 | 行数 |
 | --- | --- | --- | --- |
-| 算法 | `utils/sku.js` | `buildKey` / `buildPathMap` / `isAvailable` / `buildDisabled` / `findSku` / `buildSelectedText`，纯函数，无 `this`、无 `setData`、不碰任何小程序 API | 86 |
-| 交互 | `components/sku-panel` | 遮罩、面板进出场、选中态、禁用态、数量夹取；对外只有 `visible` 属性 + `visible-change` / `confirm` 两个事件 | 137 + 59 + 226 |
-| 页面 | `pages/goods/detail` | 取数、图片预览、开合面板、处理加购结果 | 103 |
+| 算法 | `utils/sku.js` | `buildKey` / `buildPathMap` / `isAvailable` / `buildDisabled` / `findSku` / `buildSelectedText` / `countLimit`，纯函数，无 `this`、无 `setData`、不碰任何小程序 API | 99 |
+| 交互 | `components/sku-panel` | 遮罩、面板进出场、选中态、禁用态、数量夹取；对外是 `visible` 属性 + `visible-change` / `confirm` 两个事件 + `reset()` 方法 | 185 + 66 + 229 |
+| 页面 | `pages/goods/detail` | 取数、图片预览、开合面板、处理加购结果 | 136 |
 
 拆分后的判据：**能脱离 `this` 算的，进 `utils`；只在弹层里有意义的，进组件；页面只剩「取数」和「页面级交互」。**
 
@@ -211,6 +214,7 @@ const next = Math.min(Math.max(count, 1), stock) // 不小于 1，不超过库�
 - 实测未登录调用：**HTTP 401**，body `{ "message": "token校验失败", "msg": "token校验失败", "code": "10019" }`。`request.js` 的 `statusCode === 401` 分支在业务码判断之前，所以走的是「清 token + toast 请先登录」，不会落到 `code !== '1'` 的通用失败提示
 - 失败时**不关闭面板**，用户可以重试；成功才 `setData({ skuVisible: false })`
 - 连点用 `this.adding` 标志兜一层（`loading` 的 `mask` 生效前仍有极短窗口）
+- 加购成功后页面调 `this.selectComponent('#skuPanel').reset()`，把选择与数量恢复初始态；否则下次打开还留着上次的规格，用户会误以为已经选过。`reset()` 与 `observers` 复用同一个 `initState`，初始化逻辑只留一份
 - 「立即购买」目前和「加入购物车」共用同一个面板，加购成功后提示语也相同。这是暂时的：下单流程在 S7，届时需要在 `onOpenSku` 上区分意图（面板加一个 `mode` 属性决定按钮文案与后续动作）
 
 ### Step 5：离线加购与登录合并（与 React 版对齐）
@@ -328,4 +332,5 @@ const next = Math.min(Math.max(count, 1), stock) // 不小于 1，不超过库�
 | 2026-11-24 | Step 4 落地：`api/cart.js` + 页面 `onSkuConfirm`。`request.js` 把 401 判断放在业务码之前是对的——实测未登录返回 HTTP 401 + `code:10019`，如果先判 `code !== '1'` 就会提示成「请求失败」，用户看不出要登录。**401 是「没资格」，不是「请求错了」，两者的提示文案与后续动作完全不同。** |
 | 2026-11-24 | 重构：详情页拆成 `utils/sku.js`（纯算法）+ `components/sku-panel`（弹层）+ `pages/goods/detail`（取数与页面交互），js 从 250 行降到 103 行。**教训：一个页面同时放算法、视图状态和业务取数，改任何一处都要通读全文件**；纯函数抽出去后还能脱离小程序环境用 Node 直接验证。拆分完后把 `utils/sku.js` 复制成 `.mjs` 跑了一遍原用例，确认 33 条字典与禁用结果都没变。 |
 | 2026-11-24 | Step 3 落地：位掩码生成子集 → `pathMap`（33 条）→ `isAvailable` 查表 → `disabled` 二维数组驱动置灰。**写完后用 Node 脚本把 detail.js 的同一份逻辑抄出来跑了 5 组用例，确认「选蓝色时 20cm 仍可选」「选蓝色+20cm 后中国禁用」才对**——这类算法不能靠读代码判断对错。另：`specs[].values[].available` 实测全部为 `undefined`，服务端没给，彻底坐实必须自算。 |
+| 2026-11-24 | 面板状态收口：`observers` 与 `reset()` 共用 `initState`，加购成功后由页面 `selectComponent` 调用；数量上限从硬编码 99 改为 `countLimit(sku) = min(库存, 99)`，`syncSku` 与 `onConfirm` 用的是同一个函数。**硬编码上限的另一半问题在别处：`syncSku` 会把 `count` 夹到库存（几千），所以必须同时改上限，否则夹取等于没夹。** 9 条用例用 Node 直接 import 真实源码验证，全 PASS。 |
 | 2026-11-24 | Step 2 落地：底部操作栏 + SKU 面板。首版用 `t-popup`，实机表现为「无遮罩 + 面板混进页面流 + 底部栏被顶到中间」，判断是 TDesign 的 npm 产物不完整（`miniprogram_npm/tdesign-miniprogram/` 缺 `package.json`）导致组件未被识别、slot 被当普通节点渲染，遂改为自绘。**教训：`position: fixed` 的弹层绝不能参与 `page` 的 flex 流，否则 `flex: 1` 的滚动区会被它挤扁。** 排查顺序应是「先看 DOM 是否被当普通节点渲染，再怀疑样式」。 |

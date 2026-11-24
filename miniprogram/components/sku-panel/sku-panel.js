@@ -4,6 +4,7 @@ import {
   buildDisabled,
   buildPathMap,
   buildSelectedText,
+  countLimit,
   findSku,
   isAvailable
 } from '../../utils/sku'
@@ -111,8 +112,7 @@ Component({
         return
       }
 
-      // 上限取库存与业务上限的较小值：库存几千是样例数据，不能直接当上限
-      const limit = Math.max(Math.min(sku.inventory, MAX_CART_COUNT), 1)
+      const limit = countLimit(sku)
       // 切到库存更少的 sku 时，之前加的数量可能超卖，必须重新夹取
       const count = Math.max(Math.min(Number(this.data.count) || 1, limit), 1)
 
@@ -179,7 +179,7 @@ Component({
       }
 
       // 提交前再夹一次：输入框里可能有没失焦的值，库存也可能刚被刷新过
-      const count = clampCount(this.data.count, sku.inventory) || 1
+      const count = clampCount(this.data.count, countLimit(sku)) || 1
 
       // 未登录要落本地暂存，stock 也得带上，否则本地购物车查不到真实库存
       this.triggerEvent('confirm', {

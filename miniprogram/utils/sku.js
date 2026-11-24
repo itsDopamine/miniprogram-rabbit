@@ -5,6 +5,8 @@
  * available 实测恒为 undefined，所以全部从 skus 自己算。
  */
 
+import { MAX_CART_COUNT } from '../config/constants'
+
 /**
  * 把 ['颜色:黑色', '尺寸:20cm'] 拼成稳定的 key
  * 必须先排序：同一组值换个顺序拼出来就是两个 key，互相查不到
@@ -82,6 +84,17 @@ export function buildDisabled(pathMap, specs, selected) {
 export function findSku(skus, selected) {
   if (!selected.length || selected.some((v) => !v)) return null
   return (skus || []).find((sku) => sku.specs.every((s, i) => s.valueName === selected[i])) || null
+}
+
+/**
+ * 单个 sku 的可购上限：库存与业务上限取小，且至少 1
+ * 库存几千是样例数据，直接当上限会算出「合计五千万」这种数
+ * @param {Object} sku
+ * @returns {number}
+ */
+export function countLimit(sku) {
+  const inventory = Number(sku && sku.inventory) || 0
+  return Math.max(Math.min(inventory, MAX_CART_COUNT), 1)
 }
 
 /**
