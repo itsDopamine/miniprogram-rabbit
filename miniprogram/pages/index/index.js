@@ -126,5 +126,29 @@ Page({
 
   onTapGoods(e) {
     wx.navigateTo({ url: `/pages/goods/detail/detail?id=${e.detail.id}` })
+  },
+
+  /**
+   * 轮播 / 宫格 / 热门推荐都只给分类 id，统一走这里
+   * switchTab 不能带参数，所以用 globalData 交接一次，分类页 onShow 读走即清
+   */
+  goCategory(id) {
+    if (!id) return
+
+    const app = getApp()
+    app.globalData.pendingCategoryId = String(id)
+    wx.switchTab({ url: '/pages/category/category' })
+  },
+
+  onTapBanner(e) {
+    this.goCategory(e.currentTarget.dataset.href)
+  },
+
+  onTapCategory(e) {
+    this.goCategory(e.currentTarget.dataset.id)
+  },
+
+  onTapPanel(e) {
+    this.goCategory(e.currentTarget.dataset.target)
   }
 })

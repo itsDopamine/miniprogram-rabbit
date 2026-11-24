@@ -1,6 +1,6 @@
 import { loginByPassword } from '../../api/auth'
 import { TAB_PAGES } from '../../config/constants'
-import { setToken } from '../../utils/auth'
+import { setToken, setUser } from '../../utils/auth'
 import { mergeLocalCart } from '../../utils/cart'
 
 Page({
@@ -37,7 +37,10 @@ Page({
 
     try {
       const result = await loginByPassword({ account, password })
+
       setToken(result.token)
+      // 记下 id + account：token 到期时靠它俩调 /login/refresh
+      setUser({ id: result.id, account: result.account })
 
       await this.mergeCart()
       this.goBack()

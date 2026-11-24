@@ -40,7 +40,10 @@
         <view class="block__title">{{cat.name}}</view>
 
         <view wx:for="{{cat.children}}" wx:key="id" wx:for-item="child">
-          <view class="block__sub-title">{{child.name}}</view>
+          <view class="block__sub-title" data-id="{{child.id}}" catchtap="onTapSub">
+            <text class="block__sub-text">{{child.name}}</text>
+            <text class="block__sub-arrow">›</text>
+          </view>
 
           <view class="block__goods" wx:if="{{child.goods.length}}">
             <goods-card

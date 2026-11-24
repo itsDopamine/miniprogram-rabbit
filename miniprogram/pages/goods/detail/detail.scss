@@ -132,6 +132,21 @@ page {
   align-items: center;
   justify-content: center;
   width: 96rpx;
+
+  // 带图标的入口上下排，纯文字入口保持单行居中
+  &--collect {
+    flex-direction: column;
+  }
+}
+
+.bar__entry-icon {
+  color: $text-regular;
+  font-size: $font-md;
+  line-height: 1;
+
+  &--on {
+    color: $brand-color;
+  }
 }
 
 .bar__entry-text {

@@ -55,9 +55,19 @@
         <view class="btn btn--primary" bindtap="onPay" data-id="{{item.id}}">去支付</view>
       </block>
       <block wx:elif="{{item.orderState === 3}}">
+        <view class="btn" bindtap="onLogistics" data-id="{{item.id}}" data-state="{{item.orderState}}">查看物流</view>
         <view class="btn btn--primary" bindtap="onConfirmReceipt" data-id="{{item.id}}">确认收货</view>
       </block>
       <block wx:elif="{{item.orderState === 4 || item.orderState === 5 || item.orderState === 6}}">
+        <!-- 已取消(6) 没有物流，不给入口 -->
+        <view
+          class="btn"
+          wx:if="{{item.orderState <= 5}}"
+          bindtap="onLogistics"
+          data-id="{{item.id}}"
+          data-state="{{item.orderState}}"
+        >查看物流</view>
+        <view class="btn" bindtap="onBuyAgain" data-id="{{item.id}}">再次购买</view>
         <view class="btn" bindtap="onDelete" data-id="{{item.id}}">删除订单</view>
       </block>
     </view>

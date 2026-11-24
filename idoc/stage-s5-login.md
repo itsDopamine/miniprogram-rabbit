@@ -1,6 +1,6 @@
 # 阶段 S5 · 登录与个人中心
 
-> 状态：**Step 1–6 代码完成**（登录闭环 / 401 回跳 / 我的 / 资料编辑 / 地址 CRUD）；头像上传受服务端 OSS 限制无法验证成功路径；Step 7 合并待真机验
+> 状态：**Step 1–6 代码完成**（登录闭环 / 401 回跳 / 我的 / 资料编辑 / 地址 CRUD），另补了 token 续期与本地收藏（见 `stage-s7-order-pay.md` §9）；头像上传受服务端 OSS 限制无法验证成功路径；Step 7 合并待真机验
 > 工时：2.5 天 · 前置：S1 请求层、S4 加购（`utils/cart.js` 已有 `mergeLocalCart` 待接线）
 > 关联：[`api-reference.md`](./api-reference.md) 会员登录 / 个人信息 / 地址管理、[`stage-s6-cart.md`](./stage-s6-cart.md)（合并补丁）
 

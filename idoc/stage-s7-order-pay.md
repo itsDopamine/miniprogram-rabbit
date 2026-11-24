@@ -1,6 +1,6 @@
 # 阶段 S7 · 结算 / 订单 / 支付
 
-> 状态：**Step 1–7 代码完成**（结算 / 提交 / 模拟支付 / 订单列表 / 详情）；Step 8「立即购买」未做；支付只能走模拟接口，见 §2.4
+> 状态：**Step 1–7 代码完成**（结算 / 提交 / 模拟支付 / 订单列表 / 详情），另补齐物流页与再次购买（见 §9）；Step 8「立即购买」未做；支付只能走模拟接口，见 §2.4
 > 工时：3 天 · 前置：S6 购物车（勾选与合计）、S5 登录与地址
 > 关联：[`api-reference.md`](./api-reference.md) 订单管理 / 支付分组、[`stage-s6-cart.md`](./stage-s6-cart.md)
 
@@ -318,3 +318,28 @@ wx.navigateBack()
 | --- | --- |
 | 2026-11-24 | 任务书建立。实测推翻了 Apifox 两处描述：`payLatestTime` 是日期字符串（不是剩余秒数）、待付款订单的 `countdown` 可能是 `-1`（已超时）。另确认支付必须走 `/pay/mock`——`/pay/wxPay/miniPay` 限 appid `wx26729f20b9efae3a`，本项目不匹配。 |
 | 2026-11-24 | Step 1–7 落地：`api/order.js` + `api/pay.js` + 结算 / 支付 / 列表 / 详情四个页面，购物车与「我的」入口接上。三条主线：**金额只在 js 里格式化一次**（`toFixed(2)` 成字符串进 `data`）、**`countdown === -1` 是已超时不是 1 秒**、**提交后用 `redirectTo` 而不是 `navigateTo`**（否则从支付页返回会二次下单）。列表分页的 `pages` 实测是字符串，比较前必须 `Number()`。 |
+
+---
+
+## 9. 同日附带补齐（跨 S2/S3/S5/S7）
+
+这轮把全盘审查发现的 8 处缺口一起补了，记录在这里，避免散落在各阶段文档里。
+
+| # | 缺口 | 落地 | 关键决策 |
+| --- | --- | --- | --- |
+| 1 | 二级分类页缺失 | 新页 `pages/category/sub/sub` | 数据用 `/category/top`（`/search/all` 2026-11-24 实测仍 500，不能依赖）；一次取回该一级下所有二级分类的商品，切换不再请求；两列 `goods-card` |
+| 2 | 收藏（选做） | `utils/collect.js` + 详情页心形 + `pages/collect/collect` + 「我的」入口 | 接口文档无收藏分组，落 Storage 存商品快照；详情页 `onLoad` 后回填 `collected`，收藏页 `onShow` 重读（取消后返回要立刻生效） |
+| 3 | 物流页缺失 | `pages/order/logistics/logistics` + `api.getOrderLogistics` / `mockConsignment` | 状态 2（待发货）走「模拟发货」按钮；发货成功后页内直接把 state 改成 3 再查物流，不用回列表 |
+| 4 | 结算页换地址无效 | 地址列表 `select` 模式（`?select=1` + `onTapItem` + `eventChannel`） | 选择模式下隐藏操作区、标题改「选择收货地址」；操作区 `catchtap` 防止误触发选中 |
+| 5 | 首页三处入口不可点 | `index.js` 的 `goCategory(id)` | 轮播 `hrefUrl`、宫格 `id`、热门推荐 `target` 实测**都是分类 id**；`switchTab` 不能带参，用 `globalData.pendingCategoryId` 交接，分类页 `onShow` 读走即清 |
+| 6 | 订单物流信息 | 详情/列表加「查看物流」入口 | 已取消(6) 不给物流入口——没发过货，查出来也是空 |
+| 7 | 「再次购买」 | `api.getRepurchaseOrder` + 详情/列表按钮 + 结算页 `from=repurchase` | 结算页三个入口（cart / now / repurchase）统一走 `loadPreOrder()`，返回结构一致，渲染与提交完全共用 |
+| 8 | token 刷新 | `utils/auth.js` 记 `rabbit_user`（id + account）+ `request.js` 401 → `refreshAuth()` → 重放一次 | 续期请求**直接发 `wx.request`**：api/* 全部 import request.js，互相引用会成环；并发 401 共用一个刷新 Promise；重放带 `retried` 标记防死循环 |
+
+**实测（2026-11-24）**
+
+- `PUT /login/refresh` **当前不可用**：带 token 返回 401，不带 token 返回 500，`id` 传数字/字符串都试过。所以续期成功路径无法验证，失败降级为「清 token + 跳登录」，与改造前一致
+- `POST /search/all` **仍 500**（即使只传 `categoryId`、不带 keyword），搜索筛选与二级分类分页都不能基于它
+- `/home/banner` 的 `hrefUrl` 是分类 id（如 `1005000`）；`/home/hot/mutli` 的 `target` 也是分类 id（如 `10050`），`type` 1–4 才对应 `/hot/*` 四个接口（未接）
+
+**遗留**：二级分类与首页入口的理想形态是走 `/hot/*`（特惠/爆款/一站买全/新鲜好物），当前统一降级为「落到对应分类」，等后端恢复 `/search/all` 再改。

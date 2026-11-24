@@ -1,5 +1,6 @@
 import { getGoodsDetail } from '../../../api/goods'
 import { addGoodsToCart } from '../../../utils/cart'
+import { isCollected, toggleCollect } from '../../../utils/collect'
 import { toHttps } from '../../../utils/common'
 
 Page({
@@ -16,6 +17,8 @@ Page({
     specs: [],
     skus: [],
     skuVisible: false,
+    // 收藏是本地降级实现，进页面时按 Storage 里的记录回填
+    collected: false,
     loading: true,
     error: ''
   },
@@ -49,6 +52,7 @@ Page({
         detailPictures: (details.pictures || []).map(toHttps),
         specs: goods.specs || [],
         skus: goods.skus || [],
+        collected: isCollected(goods.id || this.data.id),
         loading: false
       })
     } catch (e) {
@@ -134,6 +138,19 @@ Page({
 
   onTapCart() {
     wx.switchTab({ url: '/pages/cart/cart' })
+  },
+
+  // 收藏存本地：接口文档没有收藏分组，只记商品快照
+  onTapCollect() {
+    const collected = toggleCollect({
+      id: this.data.id,
+      name: this.data.name,
+      picture: this.data.mainPictures[0] || '',
+      price: Number(this.data.price) || 0
+    })
+
+    this.setData({ collected })
+    wx.showToast({ title: collected ? '已收藏' : '已取消收藏', icon: 'none' })
   },
 
   onRetry() {

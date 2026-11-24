@@ -121,6 +121,18 @@ Page({
     wx.navigateTo({ url: `/pages/order/pay/pay?orderId=${e.currentTarget.dataset.id}` })
   },
 
+  onLogistics(e) {
+    const { id, state } = e.currentTarget.dataset
+    wx.navigateTo({ url: `/pages/order/logistics/logistics?id=${id}&state=${state}` })
+  },
+
+  // 再次购买直接进结算页，由它去调 /member/order/repurchase/{id}
+  onBuyAgain(e) {
+    wx.navigateTo({
+      url: `/pages/order/confirm/confirm?from=repurchase&orderId=${e.currentTarget.dataset.id}`
+    })
+  },
+
   onCancel(e) {
     const id = e.currentTarget.dataset.id
 

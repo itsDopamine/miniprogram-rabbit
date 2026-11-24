@@ -46,14 +46,21 @@
         indicator-color="rgba(255, 255, 255, 0.4)"
         indicator-active-color="#ffffff"
       >
-        <swiper-item wx:for="{{banners}}" wx:key="id">
+        <!-- hrefUrl 实测是分类 id，为空时不响应点击 -->
+        <swiper-item wx:for="{{banners}}" wx:key="id" bindtap="onTapBanner" data-href="{{item.hrefUrl}}">
           <image class="banner__img" src="{{item.imgUrl}}" mode="aspectFill" />
         </swiper-item>
       </swiper>
 
       <!-- 分类宫格：一行 5 个 -->
       <view class="categories">
-        <view class="categories__item" wx:for="{{categories}}" wx:key="id">
+        <view
+          class="categories__item"
+          wx:for="{{categories}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onTapCategory"
+        >
           <image class="categories__icon" src="{{item.icon}}" mode="aspectFit" />
           <text class="categories__name">{{item.name}}</text>
         </view>
@@ -83,7 +90,13 @@
           <text class="section__desc">大家都在买</text>
         </view>
         <view class="panels">
-          <view class="panels__item" wx:for="{{hotPanels}}" wx:key="id">
+          <view
+            class="panels__item"
+            wx:for="{{hotPanels}}"
+            wx:key="id"
+            data-target="{{item.target}}"
+            bindtap="onTapPanel"
+          >
             <image class="panels__pic" src="{{item.pictures[0]}}" mode="aspectFit" />
             <text class="panels__title">{{item.title}}</text>
             <text class="panels__alt">{{item.alt}}</text>

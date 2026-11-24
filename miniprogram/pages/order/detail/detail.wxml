@@ -74,12 +74,26 @@
     </view>
   </view>
 
-  <view class="bar" wx:if="{{order.orderState === 1 || order.orderState === 3 || order.orderState >= 4}}">
+  <view class="bar">
     <block wx:if="{{order.orderState === 1}}">
       <view class="btn" bindtap="onCancel">取消订单</view>
       <view class="btn btn--primary" bindtap="onPay">去支付</view>
     </block>
-    <view class="btn btn--primary" wx:elif="{{order.orderState === 3}}" bindtap="onConfirmReceipt">确认收货</view>
-    <view class="btn" wx:elif="{{order.orderState >= 4}}" bindtap="onDelete">删除订单</view>
+
+    <block wx:elif="{{order.orderState === 2}}">
+      <view class="btn" bindtap="onTapLogistics">模拟发货</view>
+      <view class="btn btn--primary" bindtap="onBuyAgain">再次购买</view>
+    </block>
+
+    <block wx:elif="{{order.orderState === 3}}">
+      <view class="btn" bindtap="onTapLogistics">查看物流</view>
+      <view class="btn btn--primary" bindtap="onConfirmReceipt">确认收货</view>
+    </block>
+
+    <block wx:else>
+      <view class="btn" wx:if="{{order.orderState >= 4}}" bindtap="onTapLogistics">查看物流</view>
+      <view class="btn" bindtap="onBuyAgain">再次购买</view>
+      <view class="btn btn--primary" wx:if="{{order.orderState >= 4}}" bindtap="onDelete">删除订单</view>
+    </block>
   </view>
 </block>

@@ -1,5 +1,5 @@
 import { getProfile } from '../../api/member'
-import { clearToken, getToken } from '../../utils/auth'
+import { clearAuth, getToken } from '../../utils/auth'
 import { toHttps } from '../../utils/common'
 
 Page({
@@ -50,7 +50,8 @@ Page({
       confirmColor: '#cf4444',
       success: (res) => {
         if (!res.confirm) return
-        clearToken()
+        // token 与用户信息一起清，留着 user 会让续期逻辑拿着废数据空转
+        clearAuth()
         this.setData({ logged: false, profile: null })
         wx.showToast({ title: '已退出登录', icon: 'none' })
       }
@@ -71,5 +72,10 @@ Page({
       return
     }
     wx.navigateTo({ url: '/pages/address/list/list' })
+  },
+
+  // 收藏是本地数据，未登录也能看
+  onCollect() {
+    wx.navigateTo({ url: '/pages/collect/collect' })
   }
 })

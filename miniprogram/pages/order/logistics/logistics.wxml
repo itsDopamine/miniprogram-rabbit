@@ -1,0 +1,39 @@
+<navigation-bar title="物流信息" background="#FFFFFF" />
+
+<!-- 待发货：没有物流，只给模拟发货入口 -->
+<view class="state" wx:if="{{state === 2}}">
+  <text class="state__text">商家还未发货</text>
+  <view class="state__btn {{shipping ? 'state__btn--disabled' : ''}}" bindtap="onMockConsignment">
+    {{shipping ? '处理中…' : '模拟发货（DEV）'}}
+  </view>
+  <text class="state__tip">真实项目由商家后台发货，这里用 DEV 接口走通链路</text>
+</view>
+
+<view class="state" wx:elif="{{loading}}">
+  <text class="state__text">加载中…</text>
+</view>
+
+<view class="state" wx:elif="{{error}}">
+  <text class="state__text">{{error}}</text>
+  <view class="state__btn" bindtap="onRetry">重新加载</view>
+</view>
+
+<block wx:else>
+  <view class="goods">
+    <image class="goods__img" src="{{info.picture}}" mode="aspectFill" />
+    <view class="goods__info">
+      <text class="goods__name">{{info.companyName}}</text>
+      <text class="goods__count">共 {{info.count}} 件商品</text>
+    </view>
+  </view>
+
+  <view class="timeline">
+    <view class="node {{index === 0 ? 'node--on' : ''}}" wx:for="{{info.list}}" wx:key="time">
+      <view class="node__dot" />
+      <view class="node__body">
+        <text class="node__text">{{item.text}}</text>
+        <text class="node__time">{{item.time}}</text>
+      </view>
+    </view>
+  </view>
+</block>

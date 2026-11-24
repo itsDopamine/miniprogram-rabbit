@@ -1,4 +1,4 @@
-import { getPreOrder, getPreOrderNow, submitOrder } from '../../../api/order'
+import { getPreOrder, getPreOrderNow, getRepurchaseOrder, submitOrder } from '../../../api/order'
 import { toHttps } from '../../../utils/common'
 
 // 与接口枚举一一对应：deliveryTimeType 1/2/3，payType 1/2
@@ -30,11 +30,13 @@ Page({
   },
 
   onLoad(options) {
-    // 立即购买带 skuId/count，购物车结算不带
+    // 三个入口：购物车结算 / 立即购买（skuId+count）/ 再次购买（orderId）
     this.skuId = options.skuId || ''
     this.count = Number(options.count) || 1
+    this.orderId = options.orderId || ''
 
-    this.setData({ from: options.from === 'now' ? 'now' : 'cart' })
+    const from = options.from === 'now' || options.from === 'repurchase' ? options.from : 'cart'
+    this.setData({ from })
     this.fetchData()
   },
 
@@ -42,10 +44,7 @@ Page({
     this.setData({ loading: true, error: '' })
 
     try {
-      const data =
-        this.data.from === 'now'
-          ? await getPreOrderNow({ skuId: this.skuId, count: this.count })
-          : await getPreOrder()
+      const data = await this.loadPreOrder()
 
       const goods = (data.goods || []).map((item) => ({
         ...item,
@@ -71,6 +70,22 @@ Page({
       console.log('[order-confirm]', err)
       this.setData({ loading: false, error: '加载失败，请稍后重试' })
     }
+  },
+
+  /**
+   * 三个入口的数据来源不同，返回结构一致（userAddresses / goods / summary）
+   * 所以后续渲染与提交逻辑完全共用
+   */
+  loadPreOrder() {
+    if (this.data.from === 'now') {
+      return getPreOrderNow({ skuId: this.skuId, count: this.count })
+    }
+
+    if (this.data.from === 'repurchase') {
+      return getRepurchaseOrder(this.orderId)
+    }
+
+    return getPreOrder()
   },
 
   // 金额全部按接口给的值格式化：前端再算一遍就会和服务端对不上

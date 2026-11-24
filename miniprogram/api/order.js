@@ -88,3 +88,33 @@ export function deleteOrders(ids) {
     loading: true
   })
 }
+
+/**
+ * 订单物流：仅待收货 / 待评价 / 已完成可查
+ * @param {string} id
+ * @returns {Promise<{picture: string, count: number, company: Object, list: Array}>}
+ */
+export function getOrderLogistics(id) {
+  return request({ url: `/member/order/${id}/logistics`, auth: true })
+}
+
+/**
+ * 模拟发货（仅 DEV）：待发货 -> 待收货，用来走通物流链路
+ * @param {string} id
+ */
+export function mockConsignment(id) {
+  return request({
+    url: `/member/order/consignment/${id}`,
+    method: 'GET',
+    auth: true,
+    loading: true
+  })
+}
+
+/**
+ * 再次购买：结构与预订单一致（userAddresses / goods / summary）
+ * @param {string} id 订单 id
+ */
+export function getRepurchaseOrder(id) {
+  return request({ url: `/member/order/repurchase/${id}`, auth: true })
+}

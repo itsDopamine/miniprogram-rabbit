@@ -14,6 +14,36 @@ Page({
     this.fetchCategories()
   },
 
+  // 首页宫格/轮播只能给分类 id，switchTab 又不带参数，靠 globalData 交接
+  onShow() {
+    this.applyPendingCategory()
+  },
+
+  applyPendingCategory() {
+    const app = getApp()
+    const pending = app.globalData && app.globalData.pendingCategoryId
+    if (!pending) return
+
+    // 读走就清，避免下次进分类页又被拽到某个分类
+    app.globalData.pendingCategoryId = ''
+
+    if (!this.data.categories.length) {
+      // 数据还没回来，量完高度再处理
+      this.pendingCategoryId = pending
+      return
+    }
+
+    this.selectCategoryById(pending)
+  },
+
+  selectCategoryById(id) {
+    const index = this.data.categories.findIndex((cat) => cat.id === id)
+    if (index < 0 || !this.blockOffsets) return
+
+    // 复用点导航的逻辑：滚动定位、高亮、防抖都在一起，不必写第二份
+    this.onTapNav({ currentTarget: { dataset: { index } } })
+  },
+
   onUnload() {
     clearTimeout(this.syncLockTimer)
   },
@@ -37,7 +67,15 @@ Page({
 
       this.setData({ categories, loading: false }, () => {
         // 等这一帧渲染完再量，否则量到的是空节点
-        wx.nextTick(() => this.measureBlocks())
+        wx.nextTick(() =>
+          this.measureBlocks(() => {
+            // 首页带过来的分类要等偏移量算完才能滚
+            if (!this.pendingCategoryId) return
+            const id = this.pendingCategoryId
+            this.pendingCategoryId = ''
+            this.selectCategoryById(id)
+          })
+        )
       })
     } catch (e) {
       console.log('[category]', e)
@@ -49,7 +87,7 @@ Page({
    * 量出每个区块相对右侧滚动区顶部的偏移，缓存在 this 上
    * 不放进 data：它不参与渲染，放进去只会多传一份数据给渲染层
    */
-  measureBlocks() {
+  measureBlocks(done) {
     wx.createSelectorQuery()
       .selectAll('.block')
       .boundingClientRect()
@@ -63,6 +101,7 @@ Page({
         // 能滚到的最远位置。超过它的目标值会被容器截断，平滑滚动到边界再回弹
         this.maxScrollTop = Math.max(0, this.contentHeight - this.rightHeight)
         this.currentScrollTop = 0
+        if (typeof done === 'function') done()
       })
   },
 
@@ -144,5 +183,10 @@ Page({
 
   onTapGoods(e) {
     wx.navigateTo({ url: `/pages/goods/detail/detail?id=${e.detail.id}` })
+  },
+
+  // 二级分类标题 → 二级分类页（只带 id，页面自己反查所属一级）
+  onTapSub(e) {
+    wx.navigateTo({ url: `/pages/category/sub/sub?id=${e.currentTarget.dataset.id}` })
   }
 })

@@ -68,6 +68,10 @@
   <view class="bar__entry" bindtap="onTapService">
     <text class="bar__entry-text">客服</text>
   </view>
+  <view class="bar__entry bar__entry--collect" bindtap="onTapCollect">
+    <text class="bar__entry-icon {{collected ? 'bar__entry-icon--on' : ''}}">♥</text>
+    <text class="bar__entry-text">{{collected ? '已收藏' : '收藏'}}</text>
+  </view>
   <view class="bar__entry" bindtap="onTapCart">
     <text class="bar__entry-text">购物车</text>
   </view>

@@ -1,0 +1,68 @@
+/** pages/category/sub/sub.scss */
+@import '../../../global.scss';
+
+page {
+  background-color: $bg-page;
+}
+
+.subs {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  white-space: nowrap;
+  background-color: $bg-card;
+  // 不能用 hairline：那个 mixin 会写 position: relative，把 sticky 顶掉
+  border-bottom: 1px solid $border-color;
+}
+
+.sub {
+  flex-shrink: 0;
+  padding: $gap-base $gap-base;
+  color: $text-regular;
+  font-size: $font-sm;
+
+  &--on {
+    color: $brand-color;
+    font-weight: 500;
+  }
+}
+
+.goods-list {
+  display: flex;
+  flex-wrap: wrap;
+  padding: $gap-sm $gap-base 0;
+}
+
+// 两列：48% × 2 + 4% ＝ 100%，留不出余量就靠 box-sizing 吸收
+.goods-list__item {
+  flex: 0 0 48%;
+  margin: 0 4% $gap-base 0;
+  min-width: 0;
+
+  &:nth-child(2n) {
+    margin-right: 0;
+  }
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx $gap-xl;
+}
+
+.state__text {
+  color: $text-secondary;
+  font-size: $font-base;
+}
+
+.state__btn {
+  margin-top: $gap-base;
+  padding: $gap-sm $gap-lg;
+  border: 1rpx solid $brand-color;
+  border-radius: $radius-round;
+  color: $brand-color;
+  font-size: $font-base;
+}

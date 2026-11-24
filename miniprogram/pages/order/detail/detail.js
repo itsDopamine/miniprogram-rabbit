@@ -1,4 +1,5 @@
 import { cancelOrder, confirmReceipt, deleteOrders, getOrderDetail } from '../../../api/order'
+
 import { toHttps } from '../../../utils/common'
 
 const STATE_TEXT = {
@@ -51,6 +52,20 @@ Page({
 
   onPay() {
     wx.navigateTo({ url: `/pages/order/pay/pay?orderId=${this.id}` })
+  },
+
+  /**
+   * 查看物流：待发货走模拟发货入口，其余状态查真实物流
+   * 状态一并带过去，物流页据此决定显示哪种内容
+   */
+  onTapLogistics() {
+    const state = (this.data.order && this.data.order.orderState) || 0
+    wx.navigateTo({ url: `/pages/order/logistics/logistics?id=${this.id}&state=${state}` })
+  },
+
+  // 再次购买：结算页自己去调 /member/order/repurchase/{id}
+  onBuyAgain() {
+    wx.navigateTo({ url: `/pages/order/confirm/confirm?from=repurchase&orderId=${this.id}` })
   },
 
   onCancel() {

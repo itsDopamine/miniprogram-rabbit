@@ -13,7 +13,10 @@
     "pages/order/confirm/confirm",
     "pages/order/pay/pay",
     "pages/order/list/list",
-    "pages/order/detail/detail"
+    "pages/order/detail/detail",
+    "pages/order/logistics/logistics",
+    "pages/category/sub/sub",
+    "pages/collect/collect"
   ],
   "window": {
     "navigationBarTextStyle": "black",

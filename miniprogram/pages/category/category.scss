@@ -118,10 +118,19 @@ navigation-bar {
     backface-visibility: hidden;
   }
 
+  // 可点：进二级分类页
   &__sub-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: $gap-sm $gap-base $gap-xs;
     color: $text-regular;
     font-size: $font-base;
+  }
+
+  &__sub-arrow {
+    color: $text-placeholder;
+    font-size: $font-md;
   }
 
   &__goods {

@@ -1,4 +1,4 @@
-<navigation-bar title="收货地址" background="#FFFFFF" />
+<navigation-bar title="{{selectMode ? '选择收货地址' : '收货地址'}}" background="#FFFFFF" />
 
 <view class="state" wx:if="{{loading}}">
   <text class="state__text">加载中…</text>
@@ -10,7 +10,7 @@
 </view>
 
 <block wx:elif="{{list.length}}">
-  <view class="card" wx:for="{{list}}" wx:key="id">
+  <view class="card" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="onTapItem">
     <view class="card__head">
       <text class="card__receiver">{{item.receiver}}</text>
       <text class="card__contact">{{item.contact}}</text>
@@ -19,7 +19,7 @@
 
     <text class="card__address">{{item.fullLocation}} {{item.address}}</text>
 
-    <view class="card__actions">
+    <view class="card__actions" catchtap="noop" wx:if="{{!selectMode}}">
       <view class="card__check" bindtap="onSetDefault" data-id="{{item.id}}">
         <view class="radio {{item.isDefault === 1 ? 'radio--on' : ''}}" />
         <text class="card__check-text">设为默认</text>

@@ -4,12 +4,34 @@ import { ensureSingleDefault } from '../../../utils/address'
 Page({
   data: {
     list: [],
+    // 结算页以 ?select=1 打开时，点条目是「选中」而不是「编辑」
+    selectMode: false,
     loading: true,
     error: ''
   },
 
+  onLoad(options) {
+    this.setData({ selectMode: options.select === '1' })
+  },
+
   onShow() {
     this.fetchList()
+  },
+
+  /**
+   * 选择模式：把地址回传给打开方（结算页），然后退回
+   * eventChannel 随页面实例存在，不会把这次选择留到下一次结算
+   */
+  onTapItem(e) {
+    if (!this.data.selectMode) return
+
+    const item = this.data.list.find((i) => i.id === e.currentTarget.dataset.id)
+    if (!item) return
+
+    const channel = this.getOpenerEventChannel()
+    if (channel && channel.emit) channel.emit('select', item)
+
+    wx.navigateBack()
   },
 
   async fetchList() {
@@ -29,6 +51,9 @@ Page({
   onAdd() {
     wx.navigateTo({ url: '/pages/address/edit/edit' })
   },
+
+  // 操作区用 catchtap 挂它，避免点按钮时连带触发「选中地址」
+  noop() {},
 
   onEdit(e) {
     wx.navigateTo({ url: `/pages/address/edit/edit?id=${e.currentTarget.dataset.id}` })

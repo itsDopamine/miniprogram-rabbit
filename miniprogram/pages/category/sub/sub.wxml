@@ -1,0 +1,34 @@
+<navigation-bar title="{{parentName || '分类商品'}}" background="#FFFFFF" />
+
+<scroll-view class="subs" scroll-x enable-flex>
+  <view
+    class="sub {{activeId === item.id ? 'sub--on' : ''}}"
+    wx:for="{{children}}"
+    wx:key="id"
+    data-id="{{item.id}}"
+    bindtap="onTapSub"
+  >{{item.name}}</view>
+</scroll-view>
+
+<view class="state" wx:if="{{loading}}">
+  <text class="state__text">加载中…</text>
+</view>
+
+<view class="state" wx:elif="{{error}}">
+  <text class="state__text">{{error}}</text>
+  <view class="state__btn" bindtap="onRetry">重新加载</view>
+</view>
+
+<view class="state" wx:elif="{{!goods.length}}">
+  <text class="state__text">该分类下暂无商品</text>
+</view>
+
+<view class="goods-list" wx:else>
+  <goods-card
+    wx:for="{{goods}}"
+    wx:key="id"
+    class="goods-list__item"
+    goods="{{item}}"
+    bind:tap-card="onTapGoods"
+  />
+</view>
