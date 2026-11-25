@@ -2,7 +2,15 @@
 @import '../../../global.scss';
 
 page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   background-color: $bg-page;
+}
+
+.body {
+  flex: 1;
+  height: 0;
   // 给固定底部按钮留出空间
   padding-bottom: 180rpx;
 }

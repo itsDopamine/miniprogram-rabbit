@@ -1,99 +1,101 @@
 <navigation-bar title="订单详情" background="#FFFFFF" />
 
-<view class="state" wx:if="{{loading}}">
-  <text class="state__text">加载中…</text>
-</view>
-
-<view class="state" wx:elif="{{error}}">
-  <text class="state__text">{{error}}</text>
-  <view class="state__btn" bindtap="onRetry">重新加载</view>
-</view>
-
-<block wx:else>
-  <view class="banner">
-    <text class="banner__state">{{order.stateText}}</text>
-    <text class="banner__tip" wx:if="{{order.orderState === 1}}">请在 {{order.payLatestTime}} 前完成支付</text>
+<scroll-view class="body" scroll-y>
+  <view class="state" wx:if="{{loading}}">
+    <text class="state__text">加载中…</text>
   </view>
 
-  <view class="card">
-    <view class="row">
-      <text class="row__label">收货人</text>
-      <text class="row__value">{{order.receiverContact}} {{order.receiverMobile}}</text>
-    </view>
-    <view class="row">
-      <text class="row__label">收货地址</text>
-      <text class="row__value">{{order.receiverAddress}}</text>
-    </view>
+  <view class="state" wx:elif="{{error}}">
+    <text class="state__text">{{error}}</text>
+    <view class="state__btn" bindtap="onRetry">重新加载</view>
   </view>
 
-  <view class="card">
-    <view class="goods" wx:for="{{order.skus}}" wx:key="id">
-      <image class="goods__img" src="{{item.image}}" mode="aspectFill" />
-      <view class="goods__info">
-        <text class="goods__name">{{item.name}}</text>
-        <text class="goods__attrs">{{item.attrsText}}</text>
-        <view class="goods__foot">
-          <text class="goods__price">¥{{item.priceText}}</text>
-          <text class="goods__count">×{{item.quantity}}</text>
+  <block wx:else>
+    <view class="banner">
+      <text class="banner__state">{{order.stateText}}</text>
+      <text class="banner__tip" wx:if="{{order.orderState === 1}}">请在 {{order.payLatestTime}} 前完成支付</text>
+    </view>
+
+    <view class="card">
+      <view class="row">
+        <text class="row__label">收货人</text>
+        <text class="row__value">{{order.receiverContact}} {{order.receiverMobile}}</text>
+      </view>
+      <view class="row">
+        <text class="row__label">收货地址</text>
+        <text class="row__value">{{order.receiverAddress}}</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="goods" wx:for="{{order.skus}}" wx:key="id">
+        <image class="goods__img" src="{{item.image}}" mode="aspectFill" />
+        <view class="goods__info">
+          <text class="goods__name">{{item.name}}</text>
+          <text class="goods__attrs">{{item.attrsText}}</text>
+          <view class="goods__foot">
+            <text class="goods__price">¥{{item.priceText}}</text>
+            <text class="goods__count">×{{item.quantity}}</text>
+          </view>
         </view>
       </view>
     </view>
-  </view>
 
-  <view class="card">
-    <view class="line">
-      <text class="line__label">商品金额</text>
-      <text class="line__value">¥{{order.totalMoneyText}}</text>
+    <view class="card">
+      <view class="line">
+        <text class="line__label">商品金额</text>
+        <text class="line__value">¥{{order.totalMoneyText}}</text>
+      </view>
+      <view class="line">
+        <text class="line__label">运费</text>
+        <text class="line__value">¥{{order.postFeeText}}</text>
+      </view>
+      <view class="line line--total">
+        <text class="line__label">实付</text>
+        <text class="line__value line__value--total">¥{{order.payMoneyText}}</text>
+      </view>
     </view>
-    <view class="line">
-      <text class="line__label">运费</text>
-      <text class="line__value">¥{{order.postFeeText}}</text>
-    </view>
-    <view class="line line--total">
-      <text class="line__label">实付</text>
-      <text class="line__value line__value--total">¥{{order.payMoneyText}}</text>
-    </view>
-  </view>
 
-  <view class="card">
-    <view class="row">
-      <text class="row__label">订单编号</text>
-      <text class="row__value">{{order.id}}</text>
+    <view class="card">
+      <view class="row">
+        <text class="row__label">订单编号</text>
+        <text class="row__value">{{order.id}}</text>
+      </view>
+      <view class="row">
+        <text class="row__label">下单时间</text>
+        <text class="row__value">{{order.createTime}}</text>
+      </view>
+      <view class="row" wx:if="{{order.payTime}}">
+        <text class="row__label">付款时间</text>
+        <text class="row__value">{{order.payTime}}</text>
+      </view>
+      <view class="row" wx:if="{{order.consignTime}}">
+        <text class="row__label">发货时间</text>
+        <text class="row__value">{{order.consignTime}}</text>
+      </view>
     </view>
-    <view class="row">
-      <text class="row__label">下单时间</text>
-      <text class="row__value">{{order.createTime}}</text>
+
+    <view class="bar">
+      <block wx:if="{{order.orderState === 1}}">
+        <view class="btn" bindtap="onCancel">取消订单</view>
+        <view class="btn btn--primary" bindtap="onPay">去支付</view>
+      </block>
+
+      <block wx:elif="{{order.orderState === 2}}">
+        <view class="btn" bindtap="onTapLogistics">模拟发货</view>
+        <view class="btn btn--primary" bindtap="onBuyAgain">再次购买</view>
+      </block>
+
+      <block wx:elif="{{order.orderState === 3}}">
+        <view class="btn" bindtap="onTapLogistics">查看物流</view>
+        <view class="btn btn--primary" bindtap="onConfirmReceipt">确认收货</view>
+      </block>
+
+      <block wx:else>
+        <view class="btn" wx:if="{{order.orderState >= 4}}" bindtap="onTapLogistics">查看物流</view>
+        <view class="btn" bindtap="onBuyAgain">再次购买</view>
+        <view class="btn btn--primary" wx:if="{{order.orderState >= 4}}" bindtap="onDelete">删除订单</view>
+      </block>
     </view>
-    <view class="row" wx:if="{{order.payTime}}">
-      <text class="row__label">付款时间</text>
-      <text class="row__value">{{order.payTime}}</text>
-    </view>
-    <view class="row" wx:if="{{order.consignTime}}">
-      <text class="row__label">发货时间</text>
-      <text class="row__value">{{order.consignTime}}</text>
-    </view>
-  </view>
-
-  <view class="bar">
-    <block wx:if="{{order.orderState === 1}}">
-      <view class="btn" bindtap="onCancel">取消订单</view>
-      <view class="btn btn--primary" bindtap="onPay">去支付</view>
-    </block>
-
-    <block wx:elif="{{order.orderState === 2}}">
-      <view class="btn" bindtap="onTapLogistics">模拟发货</view>
-      <view class="btn btn--primary" bindtap="onBuyAgain">再次购买</view>
-    </block>
-
-    <block wx:elif="{{order.orderState === 3}}">
-      <view class="btn" bindtap="onTapLogistics">查看物流</view>
-      <view class="btn btn--primary" bindtap="onConfirmReceipt">确认收货</view>
-    </block>
-
-    <block wx:else>
-      <view class="btn" wx:if="{{order.orderState >= 4}}" bindtap="onTapLogistics">查看物流</view>
-      <view class="btn" bindtap="onBuyAgain">再次购买</view>
-      <view class="btn btn--primary" wx:if="{{order.orderState >= 4}}" bindtap="onDelete">删除订单</view>
-    </block>
-  </view>
-</block>
+  </block>
+</scroll-view>

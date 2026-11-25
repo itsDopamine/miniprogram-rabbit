@@ -18,10 +18,18 @@ swiper-item {
 }
 
 page {
-  height: 100%;
+  // 全局不钉死高度：骨架页自己写 height:100%，其余页面内容自然撑开
+  min-height: 100vh;
   background-color: #f7f7f8;
   color: #1a1a1a;
   font-size: 28rpx;
   font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* 页面统一骨架：page 做 flex 纵列，导航栏是分栏头，内容区用 scroll-view。
+   头部不在滚动容器里，结构上就不可能被滚走；宿主节点默认行内元素，需块级化 */
+navigation-bar {
+  display: block;
+  flex: none;
 }

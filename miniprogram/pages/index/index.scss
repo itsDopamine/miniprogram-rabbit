@@ -5,9 +5,11 @@
 @import './index.skeleton.scss';
 
 // 导航栏与滚动区上下分栏：下拉刷新只动下面的滚动区，标题不动
+// 全局 page 不再是确定高度，这里要靠 height:100% 撑住，下方 .page 的 flex:1 才有参照
 page {
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .page {

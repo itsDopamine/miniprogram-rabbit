@@ -2,8 +2,17 @@
 @import '../../../global.scss';
 
 page {
-  padding-bottom: 220rpx;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   background-color: $bg-page;
+}
+
+.body {
+  flex: 1;
+  height: 0;
+  // 给固定底栏留出空间
+  padding-bottom: 220rpx;
 }
 
 .state {

@@ -4,7 +4,15 @@
 // 独立视觉：以下原值不在令牌体系内，保留不改
 // #fff 反白 / #07c160 微信绿 / #eeeef1 圆形描边 / #cfcfd4 勾选框描边 / #d0d0d6 底部脚注
 page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   background-color: #fff;
+}
+
+.body {
+  flex: 1;
+  height: 0; // flex 子项要有确定高度，scroll-view 才真正滚动
 }
 
 .page {

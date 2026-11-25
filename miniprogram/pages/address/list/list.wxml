@@ -1,40 +1,42 @@
 <navigation-bar title="{{selectMode ? '选择收货地址' : '收货地址'}}" background="#FFFFFF" />
 
-<view class="state" wx:if="{{loading}}">
-  <text class="state__text">加载中…</text>
-</view>
-
-<view class="state" wx:elif="{{error}}">
-  <text class="state__text">{{error}}</text>
-  <view class="state__btn" bindtap="onRetry">重新加载</view>
-</view>
-
-<block wx:elif="{{list.length}}">
-  <view class="card" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="onTapItem">
-    <view class="card__head">
-      <text class="card__receiver">{{item.receiver}}</text>
-      <text class="card__contact">{{item.contact}}</text>
-      <text class="card__tag" wx:if="{{item.isDefault === 1}}">默认</text>
-    </view>
-
-    <text class="card__address">{{item.fullLocation}} {{item.address}}</text>
-
-    <view class="card__actions" catchtap="noop" wx:if="{{!selectMode}}">
-      <view class="card__check" bindtap="onSetDefault" data-id="{{item.id}}">
-        <view class="radio {{item.isDefault === 1 ? 'radio--on' : ''}}" />
-        <text class="card__check-text">设为默认</text>
-      </view>
-      <view class="card__ops">
-        <text class="card__op" bindtap="onEdit" data-id="{{item.id}}">编辑</text>
-        <text class="card__op card__op--danger" bindtap="onDelete" data-id="{{item.id}}">删除</text>
-      </view>
-    </view>
+<scroll-view class="body" scroll-y>
+  <view class="state" wx:if="{{loading}}">
+    <text class="state__text">加载中…</text>
   </view>
-</block>
 
-<view class="state" wx:else>
-  <text class="state__text">还没有收货地址</text>
-</view>
+  <view class="state" wx:elif="{{error}}">
+    <text class="state__text">{{error}}</text>
+    <view class="state__btn" bindtap="onRetry">重新加载</view>
+  </view>
+
+  <block wx:elif="{{list.length}}">
+    <view class="card" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="onTapItem">
+      <view class="card__head">
+        <text class="card__receiver">{{item.receiver}}</text>
+        <text class="card__contact">{{item.contact}}</text>
+        <text class="card__tag" wx:if="{{item.isDefault === 1}}">默认</text>
+      </view>
+
+      <text class="card__address">{{item.fullLocation}} {{item.address}}</text>
+
+      <view class="card__actions" catchtap="noop" wx:if="{{!selectMode}}">
+        <view class="card__check" bindtap="onSetDefault" data-id="{{item.id}}">
+          <view class="radio {{item.isDefault === 1 ? 'radio--on' : ''}}" />
+          <text class="card__check-text">设为默认</text>
+        </view>
+        <view class="card__ops">
+          <text class="card__op" bindtap="onEdit" data-id="{{item.id}}">编辑</text>
+          <text class="card__op card__op--danger" bindtap="onDelete" data-id="{{item.id}}">删除</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <view class="state" wx:else>
+    <text class="state__text">还没有收货地址</text>
+  </view>
+</scroll-view>
 
 <view class="footer">
   <view class="footer__btn" bindtap="onAdd">新增收货地址</view>

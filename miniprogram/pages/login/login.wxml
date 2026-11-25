@@ -1,5 +1,6 @@
 <navigation-bar title="" background="#FFFFFF" />
 
+<scroll-view class="body" scroll-y>
 <view class="page">
   <!-- 右上角一团品牌色光斑，给纯白页面一点层次，不抢内容 -->
   <view class="glow" />
@@ -77,3 +78,4 @@
   <!-- 账号来自 config/env.js 的 TEST_USER，避免和代码里的测试号各写一份 -->
   <!-- <text class="tip">测试账号 {{testHint}}</text> -->
 </view>
+</scroll-view>

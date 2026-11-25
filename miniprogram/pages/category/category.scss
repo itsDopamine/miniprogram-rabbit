@@ -8,14 +8,10 @@ page {
   height: 100%;
 }
 
-// 自定义组件宿主节点默认是行内元素，底部会带行内基线空隙；块级化后才与下方内容严丝合缝
-// z-index 兜底：右侧的 sticky 标题有 z-index，滚动时可能把自己画到导航栏区域
+// 导航栏在这里是 flex 分栏头，本来就不参与滚动；块级化与吸顶由 app.scss 统一处理，
+// 这里只固定住不被压缩
 navigation-bar {
-  position: relative;
-  z-index: 10;
-  display: block;
   flex: none;
-  background-color: $bg-card;
 }
 
 // 搜索入口：只是个假输入框，点进搜索页才真正输入

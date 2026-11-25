@@ -186,6 +186,8 @@ request({ url, method = 'GET', data, auth = false, loading = false, silent = fal
 6. **`onReachBottom` 只在页面级生效**，页面里有全屏 `scroll-view` 时收不到，改用 `bindscrolltolower`。
 7. **`triggerEvent` 事件名全小写**。
 8. **每个数据页都要三态**：loading / empty / error，断网时不白屏。
+9. **页面统一骨架（头部固定靠结构，不靠 sticky）**：`page{display:flex;flex-direction:column;height:100%}` + 头部 `flex:none` + 内容 `<scroll-view class="body" scroll-y>`（`.body{flex:1;height:0}`）。头部不在滚动容器里，回弹/惯性都碰不到它。双条头部（tab / 子分类）用 `.header` 把两条一起包住。`app.scss` 只统一宿主节点的 `display:block; flex:none`。详见 `notes/flex-layout.md` 第 5 节。
+10. **固定底栏的留白写在 `.body` 上**：骨架页里 `page{padding-bottom}` 会把页面盒撑出滚动区，改成 `.body{padding-bottom}`。骨架页分页用 `bindscrolltolower`，页面级 `onReachBottom` 收不到。
 
 ---
 

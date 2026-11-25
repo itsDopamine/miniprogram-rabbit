@@ -40,10 +40,6 @@ Page({
     this.reload()
   },
 
-  onReachBottom() {
-    this.loadMore()
-  },
-
   async reload() {
     this.setData({ loading: true, error: '', page: 1, hasMore: false })
 

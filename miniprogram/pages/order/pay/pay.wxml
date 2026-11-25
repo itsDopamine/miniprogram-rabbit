@@ -1,47 +1,49 @@
 <navigation-bar title="支付订单" background="#FFFFFF" />
 
-<view class="state" wx:if="{{loading}}">
-  <text class="state__text">加载中…</text>
-</view>
-
-<view class="state" wx:elif="{{error}}">
-  <text class="state__text">{{error}}</text>
-  <view class="state__btn" bindtap="onRetry">重新加载</view>
-</view>
-
-<block wx:else>
-  <view class="amount">
-    <text class="amount__label">应付金额</text>
-    <view class="amount__num">
-      <text class="amount__symbol">¥</text>
-      <text class="amount__value">{{order.payMoneyText}}</text>
-    </view>
-    <text class="amount__tip {{expired ? 'amount__tip--expired' : ''}}">
-      {{expired ? '付款已超时，请重新下单' : '剩余支付时间 ' + countdownText}}
-    </text>
+<scroll-view class="body" scroll-y>
+  <view class="state" wx:if="{{loading}}">
+    <text class="state__text">加载中…</text>
   </view>
 
-  <view class="card">
-    <view class="row">
-      <text class="row__label">订单编号</text>
-      <text class="row__value">{{order.id}}</text>
-    </view>
-    <view class="row">
-      <text class="row__label">收货人</text>
-      <text class="row__value">{{order.receiverContact}} {{order.receiverMobile}}</text>
-    </view>
-    <view class="row">
-      <text class="row__label">收货地址</text>
-      <text class="row__value">{{order.receiverAddress}}</text>
-    </view>
+  <view class="state" wx:elif="{{error}}">
+    <text class="state__text">{{error}}</text>
+    <view class="state__btn" bindtap="onRetry">重新加载</view>
   </view>
 
-  <view class="bar">
-    <view class="bar__btn {{expired || paying ? 'bar__btn--disabled' : ''}}" bindtap="onPay">
-      {{paying ? '支付中…' : (mockMode ? '模拟支付（DEV）' : '微信支付')}}
+  <block wx:else>
+    <view class="amount">
+      <text class="amount__label">应付金额</text>
+      <view class="amount__num">
+        <text class="amount__symbol">¥</text>
+        <text class="amount__value">{{order.payMoneyText}}</text>
+      </view>
+      <text class="amount__tip {{expired ? 'amount__tip--expired' : ''}}">
+        {{expired ? '付款已超时，请重新下单' : '剩余支付时间 ' + countdownText}}
+      </text>
     </view>
-    <text class="bar__tip">
-      {{mockMode ? '当前环境拿不到微信支付参数，已切换为 DEV 模拟支付' : '将调起微信支付，失败时可回退模拟支付'}}
-    </text>
-  </view>
-</block>
+
+    <view class="card">
+      <view class="row">
+        <text class="row__label">订单编号</text>
+        <text class="row__value">{{order.id}}</text>
+      </view>
+      <view class="row">
+        <text class="row__label">收货人</text>
+        <text class="row__value">{{order.receiverContact}} {{order.receiverMobile}}</text>
+      </view>
+      <view class="row">
+        <text class="row__label">收货地址</text>
+        <text class="row__value">{{order.receiverAddress}}</text>
+      </view>
+    </view>
+
+    <view class="bar">
+      <view class="bar__btn {{expired || paying ? 'bar__btn--disabled' : ''}}" bindtap="onPay">
+        {{paying ? '支付中…' : (mockMode ? '模拟支付（DEV）' : '微信支付')}}
+      </view>
+      <text class="bar__tip">
+        {{mockMode ? '当前环境拿不到微信支付参数，已切换为 DEV 模拟支付' : '将调起微信支付，失败时可回退模拟支付'}}
+      </text>
+    </view>
+  </block>
+</scroll-view>

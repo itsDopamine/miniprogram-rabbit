@@ -62,19 +62,17 @@
 
 首页同样有导航栏却不明显——因为首页下方接的是灰色背景的 `scroll-view`，缝隙融进去了；分类页下面紧接商品图，就暴露了。
 
-**解法**：在**使用该组件的页面 wxss** 里给宿主节点显式块级化：
+**解法**：宿主节点的块级化已在 `app.scss` 里统一写好（2026-11-25 起），**页面不用再抄**：
 
 ```scss
 navigation-bar {
-  position: relative;
-  z-index: 10;   // 兜底：下方 sticky 标题有 z-index，滚动时可能画到导航栏地盘
   display: block;
-  flex: none;
-  background-color: $bg-card;
+  flex: none;   // 骨架页里是分栏头，不被压缩
 }
 ```
+页面样式在 `@import global.scss` 之后，能覆盖全局规则。
 
-页面 wxss 可以用标签名选择器直接命中组件宿主节点。
+页面 wxss（以及 `app.wxss`）都可以用标签名选择器直接命中组件宿主节点。
 
 **记忆点**：凡是用自定义组件拼页面骨架（导航栏、tab 容器、底部工具栏），都要考虑宿主节点的 `display` 与 `flex` 行为，别假设它跟 `view` 一样。
 
@@ -84,4 +82,39 @@ navigation-bar {
 
 `.block__title` 用了 `position: sticky; top: 0; z-index: 1`。这里的 `z-index` **不能省**——省略后，滚动上来的商品图会盖住吸顶标题。但 `z-index` 只在元素处于「参与层叠计算」的状态下生效，也就是说必须同时有 `position: relative/absolute/sticky/fixed` 之一，单写 `z-index` 完全无效。
 
-这也是导航栏要写 `position: relative` 才带得动 `z-index: 10` 的原因。
+固定底栏（`.bar` / `.save` / `.footer`）不参与滚动，所以同样带 z-index；它们与内容区的遮挡关系靠留白解决，不靠把内容压到底栏下面。
+
+---
+
+## 5. 页面级 `sticky` 方案已废弃：改用 flex 骨架
+
+**现象**：早期给导航栏和 tab 条写 `position: sticky; top: 0`，滚动一段后仍会被顶出屏幕；即使没被顶出，拖动/回弹时头部还是跟着整页一起动，滚动范围仍是整页。
+
+**两个原因**：
+1. `sticky` 元素只在**父元素的盒子范围**内生效。当时 `page` 被全局 `height: 100%` 钉死成一屏高，内容溢出到盒子外面滚，吸顶最多撑一屏就被父盒底边顶走。
+2. `sticky` 的元素**仍在滚动容器里**。视觉上粘住，但滚动惯性、回弹、滚动条都作用于整页，头部并没有真正脱离滚动范围。
+
+**最终解法（2026-11-25）**：全站统一 flex 骨架，头部放进滚动容器之外。
+
+```scss
+page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;        // 骨架需要确定高度，.body 的 flex:1 才有参照
+}
+
+.header { flex: none; }  // 导航栏（+ tab / 子分类条），双条头部包在一起
+
+.body {
+  flex: 1;
+  height: 0;           // flex 子项要有确定高度，scroll-view 才真正滚动
+}
+```
+
+要点：
+- 头部不滚是**结构保证**的，不需要 sticky / fixed，也没有 z-index 冲突。
+- 固定底栏的留白从 `page{padding-bottom}` 移到 `.body{padding-bottom}`，否则会把 page 盒撑出滚动区。
+- 骨架页的分页用 `scroll-view` 的 `bindscrolltolower`，页面级 `onReachBottom` 收不到。
+- 新页面按这套写即可；`navigation-bar` 的 `display:block; flex:none` 由 `app.scss` 统一提供，页面不用再写。
+
+**已覆盖全部 16 个页面**，包括 `search`（自绘输入型导航，同属 flex 骨架）。

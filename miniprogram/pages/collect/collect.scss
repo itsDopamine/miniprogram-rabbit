@@ -2,7 +2,15 @@
 @import '../../global.scss';
 
 page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   background-color: $bg-page;
+}
+
+.body {
+  flex: 1;
+  height: 0; // flex 子项要有确定高度，scroll-view 才真正滚动
 }
 
 .state {
