@@ -24,7 +24,7 @@ miniprogram/
 ├─ components/                    # navigation-bar / goods-card / sku-panel
 ├─ data/areas.js                  # 生成文件（省市区 6 位 code），勿手改
 │
-└─ pages/                         # 17 个页面，全部在主包（无 packageGoods 分包）
+└─ pages/                         # 17 个页面，全部在主包（S8 分包任务书已建，代码未开始）
    ├─ index/  category/  category/sub/  search/  cart/  member/
    ├─ goods/detail/
    ├─ login/  profile/  collect/
@@ -34,7 +34,7 @@ miniprogram/
 
 **为什么这么分**
 
-- `app.json` 未配置 `subPackages`：S8 分包阶段尚未开始，17 页都在主包；`lazyCodeLoading: requiredComponents` 已开启。
+- `app.json` 未配置 `subPackages`：S8 任务书已建、代码未开始，17 页都在主包；`lazyCodeLoading: requiredComponents` 已开启。
 - `api/` 与 `pages/` 分离，页面里不出现 URL 字符串；`config/` 与 `utils/` 分离：配置是常量，工具是有行为的函数。
 - `data/areas.js` 是生成数据，来源与 6 位 code 的原因见文件头注释。
 
@@ -115,7 +115,7 @@ request({ url, method = 'GET', data, auth = false, loading = false, silent = fal
 | `style` | `v2` | 新版组件样式 |
 | `lazyCodeLoading` | `requiredComponents` | 只注入用到的自定义组件 |
 | `navigationStyle` | `custom` | 顶部自绘，需处理胶囊安全区 |
-| 分包 | 未启用 | S8 才做；当前 17 页全部在主包，`app.json` 无 `subPackages` |
+| 分包 | 未启用 | S8 任务书已建、代码未开始；当前 17 页全部在主包，`app.json` 无 `subPackages` |
 | npm | `tdesign-miniprogram` | 必须「工具 → 构建 npm」，产物 `miniprogram_npm/` 不入库 |
 
 ---
