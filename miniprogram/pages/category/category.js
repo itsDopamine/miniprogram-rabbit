@@ -174,7 +174,7 @@ Page({
   },
 
   onTapSearch() {
-    wx.navigateTo({ url: '/pages/search/search' })
+    wx.navigateTo({ url: '/packageGoods/pages/search/search' })
   },
 
   onRetry() {
@@ -182,11 +182,11 @@ Page({
   },
 
   onTapGoods(e) {
-    wx.navigateTo({ url: `/pages/goods/detail/detail?id=${e.detail.id}` })
+    wx.navigateTo({ url: `/packageGoods/pages/goods/detail/detail?id=${e.detail.id}` })
   },
 
   // 二级分类标题 → 二级分类页（只带 id，页面自己反查所属一级）
   onTapSub(e) {
-    wx.navigateTo({ url: `/pages/category/sub/sub?id=${e.currentTarget.dataset.id}` })
+    wx.navigateTo({ url: `/packageGoods/pages/category/sub/sub?id=${e.currentTarget.dataset.id}` })
   }
 })

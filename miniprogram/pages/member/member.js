@@ -32,7 +32,7 @@ Page({
 
   onLogin() {
     const redirect = encodeURIComponent('/pages/member/member')
-    wx.navigateTo({ url: `/pages/login/login?redirect=${redirect}` })
+    wx.navigateTo({ url: `/packageGoods/pages/login/login?redirect=${redirect}` })
   },
 
   onEditProfile() {
@@ -40,7 +40,7 @@ Page({
       this.onLogin()
       return
     }
-    wx.navigateTo({ url: '/pages/profile/profile' })
+    wx.navigateTo({ url: '/packageGoods/pages/profile/profile' })
   },
 
   onLogout() {
@@ -63,7 +63,7 @@ Page({
       this.onLogin()
       return
     }
-    wx.navigateTo({ url: '/pages/order/list/list' })
+    wx.navigateTo({ url: '/packageGoods/pages/order/list/list' })
   },
 
   onAddress() {
@@ -71,11 +71,11 @@ Page({
       this.onLogin()
       return
     }
-    wx.navigateTo({ url: '/pages/address/list/list' })
+    wx.navigateTo({ url: '/packageGoods/pages/address/list/list' })
   },
 
   // 收藏是本地数据，未登录也能看
   onCollect() {
-    wx.navigateTo({ url: '/pages/collect/collect' })
+    wx.navigateTo({ url: '/packageGoods/pages/collect/collect' })
   }
 })

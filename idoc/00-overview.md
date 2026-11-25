@@ -47,9 +47,9 @@
 ```
 f:/WeChatProjects/miniprogram-rabbit/
 ├── idoc/                 # 方案 + S0~S7 阶段任务书 + 作业看板 + 验收总表
-├── miniprogram/          # 小程序源码（17 个页面，全部在主包，无分包）
+├── miniprogram/          # 小程序源码（主包 4 个 tabBar 页，13 页在 packageGoods 分包）
 │   ├── package.json      # 依赖与 lint/format 脚本（构建 npm 只认这里）
-│   └── data/areas.js     # 由 china-division 生成的省市区数据（勿手改）
+│   └── packageGoods/     # 分包页面 + 分包专用 api/utils/data（含 areas.js）
 ├── typings/              # TS 类型声明（为未来迁移保留，当前不参与编译）
 ├── tsconfig.json         # 同上；当前无 .ts 业务源码
 ├── project.config.json   # 开发者工具项目配置（AppID 为公开标识）
@@ -149,4 +149,4 @@ f:/WeChatProjects/miniprogram-rabbit/
 4. **每阶段结束前过作业闸门**：`assignments.md` 里该阶段必做作业全部完成、答辩 3 问能脱稿回答，才可进入下一阶段。
 5. 每阶段完成后回 `checklist.md` 勾选对应区块。
 
-> 阶段编号统一用 **S0–S8**（与代码提交信息一致）。当前已建任务书 `stage-s0`…`stage-s7`；S8（分包与性能收尾）尚未开始，所以没有 `stage-s8` 文件。`S0` 对应「阶段 1」。
+> 阶段编号统一用 **S0–S8**（与代码提交信息一致）。当前已建任务书 `stage-s0`…`stage-s8`；S8（分包与性能收尾）的任务书是 `stage-s8-subpackage-release.md`，代码已完成，待体验版真机回归。`S0` 对应「阶段 1」。

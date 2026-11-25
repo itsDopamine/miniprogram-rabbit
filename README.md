@@ -9,7 +9,7 @@
 ## 当前状态
 
 - S0–S7 的页面与链路代码均已落地：首页、分类/二级分类/搜索、商品详情 + SKU、登录/个人中心/地址/收藏、购物车、结算/支付/订单/物流，共 **17 个页面**。
-- **S8（分包与性能收尾）未开始**：没有 `stage-s8-*.md`，`app.json` 没有 `subPackages`，17 页都在主包。
+- **S8（分包与性能收尾）代码已完成**：17 页中 13 页已迁入 `packageGoods` 分包，主包只剩 4 个 tabBar 页；图片懒加载与购物车 `setData` 路径更新已落地。待重新上传体验版并做真机回归，任务书见 `idoc/stage-s8-subpackage-release.md`。
 - 闸门答辩没有逐条留证据：`idoc/assignments.md` / `idoc/checklist.md` 的 ☑ 只表示**代码已落地**，不等于答辩或真机回归已通过。
 - 已知受限项：搜索结果接口 `/search/all` 曾返回 500（代码走 error 态）；真实微信支付受 appid 白名单与 openid 限制，当前先试真实、失败降级模拟；头像上传受服务端 OSS 限制，成功路径未验证。
 
@@ -24,7 +24,7 @@
 | UI | [TDesign Miniprogram](https://tdesign.tencent.com/miniprogram/overview) |
 | 请求 | 自建 `utils/request.js`：统一头、token 注入、401 去重、abort、三态 |
 | 导航 | 自定义 `navigation-bar`；页面统一 flex 骨架，头部不进滚动容器 |
-| 分包 | 未启用（`lazyCodeLoading: requiredComponents` 已开） |
+| 分包 | 已启用：13 页在 `packageGoods`，4 个 tabBar 页在主包；`lazyCodeLoading: requiredComponents` |
 
 ## 目录结构
 
@@ -36,11 +36,11 @@
 │   ├── global.scss           # 变量与 mixin；全局选择器在 app.scss
 │   ├── package.json          # 依赖 + lint/format 脚本（构建 npm 只认这里）
 │   ├── config/               # env.js（域名 + TEST_USER）、constants.js
-│   ├── utils/                # request/auth/cart/collect/sku/area/address/common
-│   ├── api/                  # 一域一文件：auth/cart/category/goods/home/member/order/pay/search
+│   ├── utils/                # request/auth/cart/sku/common（主包共享）
+│   ├── api/                  # cart/category/home/member（主包共享）
 │   ├── components/           # navigation-bar / goods-card / sku-panel
-│   ├── data/areas.js         # 生成的省市区数据（勿手改）
-│   └── pages/                # 17 个页面，全部在主包
+│   ├── packageGoods/         # 13 个分包页面 + 分包专用 api/ utils/ data/
+│   └── pages/                # 4 个 tabBar 页在主包
 ├── typings/ + tsconfig.json  # 为未来 TS 迁移保留；当前无 .ts 业务源码，不参与编译
 ├── project.config.json       # 开发者工具配置（AppID 是公开标识，不是密钥）
 └── .vscode/settings.json     # 保存即格式化 + ESLint 自动修复
@@ -57,7 +57,7 @@
    npm install --registry=https://registry.npmmirror.com
    ```
 
-   运行时依赖 3 个：`tdesign-miniprogram`、`lodash.debounce`、`tslib`（TDesign 编译产物依赖 tslib）；其余为 ESLint / Prettier 开发依赖。
+   运行时依赖 2 个：`tdesign-miniprogram`、`tslib`（TDesign 编译产物依赖 tslib）；搜索页防抖已改为分包本地实现，不再依赖 `lodash.debounce`。其余为 ESLint / Prettier 开发依赖。
 
 2. 用微信开发者工具导入**项目根目录**（不是 `miniprogram/`），AppID 见 `project.config.json`。
 
@@ -87,7 +87,7 @@ npm run format:check
 ## 合并前须知
 
 - 仓库里出现的两个 `wx` 开头的 AppID 是**公开标识**（一个来自 Apifox 文档，一个来自 `project.config.json`），不是 AppSecret；仓库内没有 AppSecret 或 API Key。GitHub 密钥扫描若报「Tencent WeChat API App ID」，按误报关掉即可。
-- 未做真机完整回归与分包体积检查（S8）；合主干后若要继续，从 `idoc/03-roadmap.md` 的 S8 开始。
+- S8 分包与性能优化代码已完成，但**未做重新上传后的包体确认与真机完整回归**；继续从 `idoc/stage-s8-subpackage-release.md` Step 5 开始。
 - 页面骨架约定见 `idoc/02-architecture.md` §8：新页面必须是 `page` flex 纵列 + 头部分栏 + `scroll-view` 内容区，不要靠 sticky 解决头部固定。
 
 ## 文档索引
@@ -103,5 +103,5 @@ npm run format:check
 | `idoc/api-reference.md` | Apifox 导出的接口参考（机器生成） |
 | `idoc/assignments.md` | 阶段闸门与进度看板 |
 | `idoc/checklist.md` | 验收总表、回归旅程、自评 |
-| `idoc/stage-s0` ~ `stage-s7` | 各阶段任务书与复盘 |
+| `idoc/stage-s0` ~ `stage-s8` | 各阶段任务书与复盘 |
 | `idoc/notes/` | flex 布局 / scroll-view 调试笔记 |

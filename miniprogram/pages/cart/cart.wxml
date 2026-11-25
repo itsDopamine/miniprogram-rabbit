@@ -23,7 +23,7 @@
         bindtap="onToggleItem"
       ></view>
 
-      <image class="item__pic" src="{{item.picture}}" mode="aspectFill" />
+      <image class="item__pic" src="{{item.picture}}" mode="aspectFill" lazy-load="{{true}}" />
 
       <view class="item__info">
         <view class="item__head">

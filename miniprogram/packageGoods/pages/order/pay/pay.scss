@@ -1,0 +1,137 @@
+/** pages/order/pay/pay.scss */
+@import '../../../../global.scss';
+
+page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: $bg-page;
+}
+
+.body {
+  flex: 1;
+  height: 0;
+  // 给固定底栏留出空间
+  padding-bottom: 220rpx;
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+}
+
+.state__text {
+  color: $text-secondary;
+  font-size: $font-base;
+}
+
+.state__btn {
+  margin-top: $gap-base;
+  padding: $gap-sm $gap-lg;
+  border: 1px solid $brand-color;
+  border-radius: $radius-round;
+  color: $brand-color;
+  font-size: $font-sm;
+}
+
+.amount {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $gap-xl 0;
+  background-color: $bg-card;
+}
+
+.amount__label {
+  color: $text-regular;
+  font-size: $font-base;
+}
+
+.amount__num {
+  margin-top: $gap-sm;
+  display: flex;
+  align-items: baseline;
+  color: $brand-color;
+}
+
+.amount__symbol {
+  font-size: $font-md;
+}
+
+.amount__value {
+  font-size: 64rpx;
+  font-weight: 500;
+}
+
+.amount__tip {
+  margin-top: $gap-sm;
+  color: $text-secondary;
+  font-size: $font-sm;
+
+  &--expired {
+    color: $brand-color;
+  }
+}
+
+.card {
+  margin-top: $gap-base;
+  padding: 0 $gap-lg;
+  background-color: $bg-card;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  padding: $gap-base 0;
+  font-size: $font-sm;
+
+  @include hairline(bottom);
+}
+
+.row__label {
+  width: 160rpx;
+  flex-shrink: 0;
+  color: $text-secondary;
+}
+
+.row__value {
+  flex: 1;
+  color: $text-primary;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $gap-base $gap-lg calc(#{$gap-base} + env(safe-area-inset-bottom));
+  background-color: $bg-card;
+  text-align: center;
+
+  @include hairline(top);
+}
+
+.bar__btn {
+  height: 88rpx;
+  border-radius: $radius-round;
+  background-color: $brand-color;
+  color: #fff;
+  font-size: $font-md;
+  line-height: 88rpx;
+
+  &--disabled {
+    opacity: 0.5;
+  }
+}
+
+.bar__tip {
+  display: block;
+  margin-top: $gap-sm;
+  color: $text-placeholder;
+  font-size: $font-xs;
+}

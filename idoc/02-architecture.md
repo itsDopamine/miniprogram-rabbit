@@ -19,24 +19,22 @@ miniprogram/
 │  ├─ env.js                      # 域名 + TEST_USER（学习用测试账号）
 │  └─ constants.js                # 订单状态、配送时间、支付方式等枚举
 │
-├─ utils/                         # request / auth / cart / collect / sku / area / address / common
-├─ api/                           # 一域一文件：auth/cart/category/goods/home/member/order/pay/search
+├─ utils/                         # request / auth / cart / sku / common（主包共享）
+├─ api/                           # cart / category / home / member（主包共享）
 ├─ components/                    # navigation-bar / goods-card / sku-panel
-├─ data/areas.js                  # 生成文件（省市区 6 位 code），勿手改
+├─ packageGoods/                  # 13 个分包页面 + 分包专用模块
+│  ├─ api/                        # auth / goods / order / pay / search
+│  ├─ utils/                      # address / area / collect / debounce
+│  └─ data/areas.js               # 生成文件（省市区 6 位 code），勿手改
 │
-└─ pages/                         # 17 个页面，全部在主包（无 packageGoods 分包）
-   ├─ index/  category/  category/sub/  search/  cart/  member/
-   ├─ goods/detail/
-   ├─ login/  profile/  collect/
-   ├─ address/list/  address/edit/
-   └─ order/confirm/  order/pay/  order/list/  order/detail/  order/logistics/
+└─ pages/                         # 4 个 tabBar 页在主包
 ```
 
 **为什么这么分**
 
-- `app.json` 未配置 `subPackages`：S8 分包阶段尚未开始，17 页都在主包；`lazyCodeLoading: requiredComponents` 已开启。
+- `app.json` 已配置 `subPackages`：4 个 tabBar 页留主包，其余 13 页在 `packageGoods`；`lazyCodeLoading: requiredComponents` 已开启。
 - `api/` 与 `pages/` 分离，页面里不出现 URL 字符串；`config/` 与 `utils/` 分离：配置是常量，工具是有行为的函数。
-- `data/areas.js` 是生成数据，来源与 6 位 code 的原因见文件头注释。
+- `packageGoods/data/areas.js` 是生成数据，来源与 6 位 code 的原因见文件头注释；S8 后随 `utils/area.js` 一起移入分包。
 
 ---
 
@@ -115,7 +113,7 @@ request({ url, method = 'GET', data, auth = false, loading = false, silent = fal
 | `style` | `v2` | 新版组件样式 |
 | `lazyCodeLoading` | `requiredComponents` | 只注入用到的自定义组件 |
 | `navigationStyle` | `custom` | 顶部自绘，需处理胶囊安全区 |
-| 分包 | 未启用 | S8 才做；当前 17 页全部在主包，`app.json` 无 `subPackages` |
+| 分包 | 已启用 | 13 页在 `packageGoods`，4 个 tabBar 页在主包；待官方包体与真机回归 |
 | npm | `tdesign-miniprogram` | 必须「工具 → 构建 npm」，产物 `miniprogram_npm/` 不入库 |
 
 ---

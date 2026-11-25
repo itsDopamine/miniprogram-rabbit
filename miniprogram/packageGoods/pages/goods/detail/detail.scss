@@ -1,0 +1,278 @@
+/** pages/goods/detail/detail.scss */
+// 三级目录，global.scss 要多退一层。SKU 面板的样式在 components/sku-panel 里
+@import '../../../../global.scss';
+
+// 导航栏与滚动区上下分栏，导航栏不跟随内容滚走
+page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.body {
+  flex: 1;
+  height: 0; // flex 子项要有确定高度，scroll-view 才真正滚动
+  background-color: $bg-page;
+}
+
+.gallery {
+  height: 750rpx; // 750rpx 即屏宽，正方形
+  background-color: $bg-card;
+
+  &__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+// 信息区做成圆角卡片：左右留白 + 圆角与主图分开，但不压住主图
+.info {
+  display: flex;
+  flex-direction: column;
+  margin: $gap-sm $gap-base 0;
+  padding: $gap-base;
+  border-radius: $radius-base;
+  background-color: $bg-card;
+
+  &__price {
+    display: flex;
+    align-items: baseline;
+    color: $brand-color;
+  }
+
+  &__symbol {
+    font-size: $font-sm;
+  }
+
+  &__now {
+    font-size: $font-xl;
+    font-weight: 600;
+  }
+
+  &__old {
+    margin-left: $gap-sm;
+    color: $text-placeholder;
+    font-size: $font-sm;
+    text-decoration: line-through;
+  }
+
+  &__name {
+    margin-top: $gap-xs;
+    color: $text-primary;
+    font-size: $font-md;
+    font-weight: 600;
+  }
+
+  // 描述可能很长，两行截断保住首屏的信息密度
+  &__desc {
+    margin-top: $gap-xs;
+    color: $text-secondary;
+    font-size: $font-sm;
+    @include ellipsis-multi(2);
+  }
+}
+
+// 属性区同样做成圆角卡：除详情长图外，其余模块统一圆角 + 左右留白
+.props {
+  margin: $gap-sm $gap-base 0;
+  padding: 0 $gap-base;
+  border-radius: $radius-base;
+  background-color: $bg-card;
+
+  &__item {
+    display: flex;
+    padding: $gap-base 0;
+    border-bottom: 1rpx solid $border-color;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__name {
+    width: 160rpx;
+    flex: none;
+    color: $text-secondary;
+    font-size: $font-base;
+    @include ellipsis;
+  }
+
+  &__value {
+    flex: 1;
+    min-width: 0;
+    color: $text-primary;
+    font-size: $font-base;
+  }
+}
+
+.detail {
+  margin-top: $gap-sm;
+  padding-bottom: $gap-xl;
+  background-color: $bg-card;
+
+  &__title {
+    padding: $gap-base;
+    color: $text-primary;
+    font-size: $font-md;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  &__img {
+    display: block;
+    width: 100%;
+  }
+}
+
+/* ---------- 底部操作栏 ---------- */
+.bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: $gap-sm $gap-base calc(#{$gap-sm} + env(safe-area-inset-bottom));
+  background-color: $bg-card;
+  box-shadow: $shadow-float;
+}
+
+// 三个入口统一成「图标在上、文字在下」，否则一列有图一列没图，高低不齐
+.bar__entry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 96rpx;
+}
+
+// 图标是内联 SVG 蒙版：形状由 mask 提供，颜色由 background-color 决定
+// 不用 t-icon，因为 TDesign 的图标字体从 CDN 拉，首帧会渲染成乱码字形
+.bar__icon {
+  width: 40rpx;
+  height: 40rpx;
+  background-color: $text-regular;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+
+  &--on {
+    background-color: $brand-color;
+  }
+
+  &--service {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M4 14v-2a8 8 0 0 1 16 0v2'/%3E%3Crect x='2' y='13' width='4' height='6' rx='2'/%3E%3Crect x='18' y='13' width='4' height='6' rx='2'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  // 未收藏用空心爱心，填实会显得像已经选中了
+  &--heart {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23000' stroke-width='2' stroke-linejoin='round' d='M12 20.7S4.6 16 2.7 11.7A5.2 5.2 0 0 1 12 6.6a5.2 5.2 0 0 1 9.3 5.1C19.4 16 12 20.7 12 20.7z'/%3E%3C/svg%3E");
+  }
+
+  &--cart {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4h2.1l2.3 10.5a2 2 0 0 0 2 1.5h7.4a2 2 0 0 0 1.9-1.4L21 8H6'/%3E%3Ccircle cx='10' cy='19.5' r='1.5'/%3E%3Ccircle cx='17' cy='19.5' r='1.5'/%3E%3C/g%3E%3C/svg%3E");
+  }
+}
+
+// 已收藏：换成实心爱心，与未收藏的空心形成明确的状态差
+.bar__icon--heart.bar__icon--on {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 20.7S4.6 16 2.7 11.7A5.2 5.2 0 0 1 12 6.6a5.2 5.2 0 0 1 9.3 5.1C19.4 16 12 20.7 12 20.7z'/%3E%3C/svg%3E");
+}
+
+.bar__entry-text {
+  margin-top: 4rpx;
+  color: $text-regular;
+  font-size: $font-xs;
+}
+
+.bar__actions {
+  flex: 1;
+  display: flex;
+  margin-left: $gap-sm;
+}
+
+.bar__btn {
+  flex: 1;
+  height: 76rpx;
+  line-height: 76rpx;
+  border-radius: $radius-round;
+  color: #fff;
+  font-size: $font-base;
+  text-align: center;
+
+  // 加购是次要动作：描边款，两个实心按钮会互相抢注意力
+  // 用白底而不是淡粉底——品牌色字压在 #f5e6e6 上只有 3.81:1，白底是 4.62:1
+  &--cart {
+    border: 1rpx solid $brand-color;
+    color: $brand-color;
+    background-color: transparent;
+  }
+
+  &--buy {
+    margin-left: $gap-sm;
+    background-color: $brand-color;
+  }
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 200rpx $gap-xl;
+
+  &__text {
+    color: $text-secondary;
+    font-size: $font-base;
+  }
+
+  &__btn {
+    margin-top: $gap-base;
+    padding: $gap-sm $gap-lg;
+    border: 1rpx solid $brand-color;
+    border-radius: $radius-round;
+    color: $brand-color;
+    font-size: $font-base;
+  }
+}
+
+/* ---------- 骨架屏 ---------- */
+// 占位块样式在 global.scss 的 skeleton-block mixin 里
+@keyframes skeleton-sweep {
+  0% {
+    background-position: -150% 0;
+  }
+
+  100% {
+    background-position: 250% 0;
+  }
+}
+
+.skeleton {
+  &__gallery {
+    height: 750rpx;
+    @include skeleton-block;
+  }
+
+  &__info {
+    margin: $gap-sm $gap-base 0;
+    padding: $gap-base;
+    border-radius: $radius-base;
+    background-color: $bg-card;
+  }
+
+  &__price {
+    width: 200rpx;
+    height: 56rpx;
+    border-radius: $radius-sm;
+    @include skeleton-block;
+  }
+
+  &__line {
+    height: 28rpx;
+    margin-top: $gap-base;
+    border-radius: $radius-sm;
+    @include skeleton-block;
+
+    &--short {
+      width: 40%;
+    }
+  }
+}

@@ -3,20 +3,27 @@
     "pages/index/index",
     "pages/category/category",
     "pages/cart/cart",
-    "pages/member/member",
-    "pages/search/search",
-    "pages/goods/detail/detail",
-    "pages/login/login",
-    "pages/profile/profile",
-    "pages/address/list/list",
-    "pages/address/edit/edit",
-    "pages/order/confirm/confirm",
-    "pages/order/pay/pay",
-    "pages/order/list/list",
-    "pages/order/detail/detail",
-    "pages/order/logistics/logistics",
-    "pages/category/sub/sub",
-    "pages/collect/collect"
+    "pages/member/member"
+  ],
+  "subPackages": [
+    {
+      "root": "packageGoods",
+      "pages": [
+        "pages/goods/detail/detail",
+        "pages/search/search",
+        "pages/category/sub/sub",
+        "pages/collect/collect",
+        "pages/login/login",
+        "pages/profile/profile",
+        "pages/address/list/list",
+        "pages/address/edit/edit",
+        "pages/order/confirm/confirm",
+        "pages/order/pay/pay",
+        "pages/order/list/list",
+        "pages/order/detail/detail",
+        "pages/order/logistics/logistics"
+      ]
+    }
   ],
   "window": {
     "navigationBarTextStyle": "black",
