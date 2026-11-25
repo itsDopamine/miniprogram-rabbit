@@ -12,6 +12,7 @@
   scroll-with-animation
   refresher-enabled
   refresher-triggered="{{refreshing}}"
+  refresher-background="#FBF1F0"
   bindrefresherrefresh="onRefresh"
   bindscrolltolower="loadMoreGuess"
   lower-threshold="80"
@@ -73,13 +74,9 @@
           <text class="section__desc">新鲜出炉 品质靠谱</text>
         </view>
         <scroll-view class="fresh" scroll-x enable-flex>
-          <goods-card
-            wx:for="{{newGoods}}"
-            wx:key="id"
-            class="fresh__item"
-            goods="{{item}}"
-            bind:tap-card="onTapGoods"
-          />
+          <view class="fresh__item" wx:for="{{newGoods}}" wx:key="id">
+            <goods-card goods="{{item}}" bind:tap-card="onTapGoods" />
+          </view>
         </scroll-view>
       </view>
 
