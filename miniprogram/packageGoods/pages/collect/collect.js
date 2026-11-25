@@ -1,4 +1,4 @@
-import { readCollect, removeCollect } from '../../../utils/collect'
+import { readCollect, removeCollect } from '../../utils/collect'
 
 Page({
   data: {

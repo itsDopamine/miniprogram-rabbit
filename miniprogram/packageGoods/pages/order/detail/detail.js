@@ -1,4 +1,4 @@
-import { cancelOrder, confirmReceipt, deleteOrders, getOrderDetail } from '../../../../api/order'
+import { cancelOrder, confirmReceipt, deleteOrders, getOrderDetail } from '../../../api/order'
 
 import { toHttps } from '../../../../utils/common'
 

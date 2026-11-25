@@ -1,5 +1,5 @@
 import { deleteAddress, getAddressList, updateAddress } from '../../../../api/member'
-import { ensureSingleDefault } from '../../../../utils/address'
+import { ensureSingleDefault } from '../../../utils/address'
 
 Page({
   data: {

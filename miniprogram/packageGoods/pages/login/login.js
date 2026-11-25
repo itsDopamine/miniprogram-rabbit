@@ -1,4 +1,4 @@
-import { loginByPassword, loginByPhoneSimple, loginByWxMin } from '../../../api/auth'
+import { loginByPassword, loginByPhoneSimple, loginByWxMin } from '../../api/auth'
 import { TAB_PAGES } from '../../../config/constants'
 import { TEST_USER } from '../../../config/env'
 import { setToken, setUser } from '../../../utils/auth'

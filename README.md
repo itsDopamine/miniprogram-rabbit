@@ -36,11 +36,11 @@
 │   ├── global.scss           # 变量与 mixin；全局选择器在 app.scss
 │   ├── package.json          # 依赖 + lint/format 脚本（构建 npm 只认这里）
 │   ├── config/               # env.js（域名 + TEST_USER）、constants.js
-│   ├── utils/                # request/auth/cart/collect/sku/area/address/common
-│   ├── api/                  # 一域一文件：auth/cart/category/goods/home/member/order/pay/search
+│   ├── utils/                # request/auth/cart/sku/common（主包共享）
+│   ├── api/                  # cart/category/home/member（主包共享）
 │   ├── components/           # navigation-bar / goods-card / sku-panel
-│   ├── data/areas.js         # 生成的省市区数据（勿手改）
-│   └── pages/                # 17 个页面，全部在主包
+│   ├── packageGoods/         # 13 个分包页面 + 分包专用 api/ utils/ data/
+│   └── pages/                # 4 个 tabBar 页在主包
 ├── typings/ + tsconfig.json  # 为未来 TS 迁移保留；当前无 .ts 业务源码，不参与编译
 ├── project.config.json       # 开发者工具配置（AppID 是公开标识，不是密钥）
 └── .vscode/settings.json     # 保存即格式化 + ESLint 自动修复
@@ -57,7 +57,7 @@
    npm install --registry=https://registry.npmmirror.com
    ```
 
-   运行时依赖 3 个：`tdesign-miniprogram`、`lodash.debounce`、`tslib`（TDesign 编译产物依赖 tslib）；其余为 ESLint / Prettier 开发依赖。
+   运行时依赖 2 个：`tdesign-miniprogram`、`tslib`（TDesign 编译产物依赖 tslib）；搜索页防抖已改为分包本地实现，不再依赖 `lodash.debounce`。其余为 ESLint / Prettier 开发依赖。
 
 2. 用微信开发者工具导入**项目根目录**（不是 `miniprogram/`），AppID 见 `project.config.json`。
 

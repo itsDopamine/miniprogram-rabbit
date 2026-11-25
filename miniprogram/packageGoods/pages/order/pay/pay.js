@@ -1,5 +1,5 @@
-import { getOrderDetail } from '../../../../api/order'
-import { getWxPayParams, mockPay } from '../../../../api/pay'
+import { getOrderDetail } from '../../../api/order'
+import { getWxPayParams, mockPay } from '../../../api/pay'
 
 Page({
   data: {

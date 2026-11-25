@@ -1,5 +1,5 @@
-import debounce from 'lodash.debounce'
-import { getSearchTips, searchGoods } from '../../../api/search'
+import debounce from '../../utils/debounce'
+import { getSearchTips, searchGoods } from '../../api/search'
 import { toHttps } from '../../../utils/common'
 
 const HISTORY_KEY = 'search:history'

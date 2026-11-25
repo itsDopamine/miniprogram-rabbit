@@ -97,7 +97,7 @@ React 版 `src/constants/areas.js` 的注释说「省 2 位、市 4 位、区 6 
 | `110000` / `110100` / `110101` | `北京市 北京市 东城区` | 三级都解析出来了 ✓ |
 | `11` / `1101` / `110101` | `东城区` | 省、市两级丢失 ✗ |
 
-所以：**提交必须补零到 6 位**。而 `china-division` 的 `pca-code.json` 恰好是 2/4/6 位截断码，不能直接用——已生成 `miniprogram/data/areas.js`（省/市 code 补零到 6 位，31 省 3056 区县，约 110KB），页面通过 `utils/area.js` 取用。
+所以：**提交必须补零到 6 位**。而 `china-division` 的 `pca-code.json` 恰好是 2/4/6 位截断码，不能直接用——已生成省市区数据（省/市 code 补零到 6 位，31 省 3056 区县，约 110KB），页面通过 `utils/area.js` 取用；S8 后文件位于 `miniprogram/packageGoods/data/areas.js`。
 
 推论：账号里已有的历史地址可能仍是 2/4 位截断码（`fullLocation` 只剩区名）。编辑这类地址时**不要重算 code**，否则会把原地址覆盖成默认下标对应的北京东城——编辑页用 `areaPicked` 标记是否重新选过地区，没选过就不提交 `*Code`。
 
@@ -246,7 +246,7 @@ Storage 里只放 token（key 已在 `utils/auth.js` 统一为 `rabbit_token`）
 
 **实现记录（2026-11-24）**
 
-- 数据：`data/areas.js`（生成文件，code 补零到 6 位）+ `utils/area.js`（下标 ↔ code ↔ 文案，纯函数）。生成脚本跑完即删，文件头写明来源与「勿手改」
+- 数据：`packageGoods/data/areas.js`（生成文件，code 补零到 6 位；S8 前在 `miniprogram/data/`）+ `packageGoods/utils/area.js`（下标 ↔ code ↔ 文案，纯函数）。生成脚本跑完即删，文件头写明来源与「勿手改」
 - `picker mode="multiSelector"` 没有级联能力，要自己在 `bindcolumnchange` 里重算后两列：**省变了市和区都要归零，市变了区要归零**，否则下标越界或错位
 - 编辑老地址时用 `areaPicked` 标记「本次有没有重新选过地区」：没选过就不提交 `*Code`，避免用默认下标把 2/4 位截断码的老地址覆盖成「北京市 东城区」
 - 「默认地址唯一」：`utils/address.js` 的 `ensureSingleDefault(keepId)` 在设默认后重拉列表，把其它 `isDefault === 1` 的逐个改成 0。**服务端到底会不会自动置 0 没有验证过，前端兜底比赌服务端行为可靠**；代价是设默认时多 1 次列表请求

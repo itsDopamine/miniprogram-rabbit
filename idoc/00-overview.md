@@ -47,9 +47,9 @@
 ```
 f:/WeChatProjects/miniprogram-rabbit/
 ├── idoc/                 # 方案 + S0~S7 阶段任务书 + 作业看板 + 验收总表
-├── miniprogram/          # 小程序源码（17 个页面，全部在主包，无分包）
+├── miniprogram/          # 小程序源码（主包 4 个 tabBar 页，13 页在 packageGoods 分包）
 │   ├── package.json      # 依赖与 lint/format 脚本（构建 npm 只认这里）
-│   └── data/areas.js     # 由 china-division 生成的省市区数据（勿手改）
+│   └── packageGoods/     # 分包页面 + 分包专用 api/utils/data（含 areas.js）
 ├── typings/              # TS 类型声明（为未来迁移保留，当前不参与编译）
 ├── tsconfig.json         # 同上；当前无 .ts 业务源码
 ├── project.config.json   # 开发者工具项目配置（AppID 为公开标识）

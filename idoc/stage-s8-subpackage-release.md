@@ -45,10 +45,11 @@
 | B 工具产物 | `project.config.json`：`miniprogramRoot: "miniprogram/"`、`libVersion: "2.32.3"`、`ignoreUploadUnusedFiles: true`、`minified: true`（S8 开启代码压缩）、`skylineRenderEnable: false` | 本地 `project.config.json`（开发者工具配置，字段语义以工具界面为准） |
 | C 实测 2026-11-25 | `git status --short` 为空，最近提交 `70a468d`；`npm run lint` 与 `npm run format:check` 均通过 | 本地命令，Windows PowerShell / Node |
 | C 实测 2026-11-25 | 源码总量约 **2026.3 KB**（排除 `node_modules`）；其中 `miniprogram_npm/` **1574.2 KB**、`data/areas.js` **134.8 KB**、`pages/` **192.8 KB** | PowerShell `Get-ChildItem -Recurse -File` 累加 `Length`；未经过开发者工具的忽略未使用文件与压缩 |
+| C 实测 2026-11-25 后续 | 分包专用模块再搬迁后，源码口径主包 **1755.8 KB**、分包 **328.7 KB**；`areas.js` 已位于 `packageGoods/data/areas.js` | 同上命令复核 |
 | C 实测 2026-11-25 | 业务代码只引用一个 npm 组件：`tdesign-miniprogram/icon/icon`（`pages/login/login.json:4`），WXML 用到 `<t-icon>` 两处 | 本地 `Select-String` 扫描 `pages/**/*.json` 与 `*.wxml` |
 | C 实测 2026-11-25 | 上传弹窗显示「编译后代码包大小：**462.8 KB**」；底部「代码质量」面板提示「小程序表现良好，未发现代码质量问题」，分组为主包 / 代码压缩 / 代码块 / 无使用或无依赖文件 / 敏感信息 | 用户截图，2026-11-25 14:33；开发者工具版本未记录，基础库 `2.32.3`（`project.config.json`） |
 
-> **重要推论**：单纯把页面搬进分包**不会**自动缩小主包，因为 `miniprogram_npm/`、`data/areas.js`、`utils/`、`api/` 仍在主包。但开发者工具按「忽略未使用文件」打包后的官方数字只有 **462.8 KB**，远低于 2M，所以**不需要先裁剪 npm**，可以直接推进分包。你截图里的「代码质量」面板就是此版本的依赖分析入口，展开「主包」可看明细。
+> **重要推论**：单纯把页面搬进分包**不会**自动缩小主包，因为 `miniprogram_npm/` 和共享 `utils/`、`api/` 仍在主包。开发者工具按「忽略未使用文件」打包后的官方数字是 **462.8 KB**，远低于 2M，所以不需要先裁剪 npm。后续代码质量面板又把「只被分包使用」的 5 个 `api/*`、3 个 `utils/*` 与 `areas.js` 移入分包，并用本地防抖替代 `lodash.debounce`，主包源码进一步降到 1755.8 KB。截图里的「代码质量」面板就是依赖分析入口。
 
 ---
 
@@ -288,6 +289,8 @@ https://pcapi-xiaotuxian-front-devtest.itheima.net
 ### 10.1 上传前检查
 
 - [ ] 重新上传后主包 < 2M、总包 < 20M（分包前的 462.8 KB 已过期，待新截图）
+- [x] 代码质量面板「主包大小（不包含插件）应小于 1.5M」已通过（2026-11-25 15:49 截图）
+- [ ] 代码质量面板「主包未使用 JS」已修复，待重新构建 npm 并重新扫描确认
 - [x] 构建 npm 已完成；`miniprogram_npm/` 未入库但本机存在
 - [x] `npm run lint` / `npm run format:check` 通过（2026-11-25 最终复核）
 - [x] 小程序后台 `request` 合法域名已确认（见 §4.4）
@@ -325,7 +328,7 @@ https://pcapi-xiaotuxian-front-devtest.itheima.net
 | WXML/WXSS 报 `ENOENT` 找旧目录，但新目录文件齐全 | 开发者工具缓存了搬迁前的页面注册树 | 源码核对 `app.json` 与新目录后，清全部缓存并重新编译；仍不行就关闭项目重开，必要时先关「保存后自动热重载」 |
 | `page not found` | 跳转 URL 还是旧 `/pages/...` | 对照 §7.2 找漏改的绝对路径 |
 | `component not found` | `.json` 的 `usingComponents` 路径 | 页面搬动后不要改 `/components/...`；npm 组件则重新「构建 npm」 |
-| 上传提示主包 > 2M | `miniprogram_npm/` 与 `data/areas.js` | 分包页面不解决主包依赖；先做代码依赖分析，再决定裁剪 npm 或按需加载地区数据 |
+| 上传提示主包 > 2M | `miniprogram_npm/` 是主包大头 | 分包专用 `api/utils/data` 已迁出；仍超限再看代码依赖分析并裁剪 npm |
 | 体验版首屏全空、模拟器正常 | 手机端域名校验 | 后台配置 `request` 合法域名；工具「不校验」只对模拟器有效 |
 | 401 后跳登录白屏 | `utils/request.js` 的 `LOGIN_PAGE` 没改 | 改成 `/packageGoods/pages/login/login` |
 | 登录后回不到原页面 | `redirect` query 里还是旧路径 | 检查调用方传的 `redirect` 与 `login.js` 的 `TAB_PAGES` 判断 |
@@ -354,7 +357,7 @@ https://pcapi-xiaotuxian-front-devtest.itheima.net
 
 **G9 答辩 Q3：把 13 页搬进分包后，主包为什么可能还是接近 2M？**
 
-因为分包只搬页面四件套。共享的 `miniprogram_npm/`、`data/areas.js`、`utils/`、`api/`、主包组件仍在主包。本项目实测源码里 `miniprogram_npm` 约 1.57MB，是主包的大头；是否超限要看开发者工具按「忽略未使用文件」后的官方数字。
+因为分包只搬页面四件套。共享的 `miniprogram_npm/`、主包 `utils/`、`api/`、主包组件仍在主包。本项目实测源码里 `miniprogram_npm` 约 1.57MB，是主包的大头；只被分包使用的 `api/*`、`utils/*`、`data/areas.js` 后来已移入分包。是否超限要看开发者工具按「忽略未使用文件」后的官方数字。
 
 **G9 答辩 Q4：为什么体验版不能只靠开发者工具勾「不校验合法域名」？**
 
@@ -381,3 +384,5 @@ https://pcapi-xiaotuxian-front-devtest.itheima.net
 | 2026-11-25 | Step 2 订单域批次（代写）：`order/confirm` / `pay` / `list` / `detail` / `logistics` 五页整体搬入分包。`app.json` 主包只剩 4 个 tabBar 页，分包 13 页，合计 17 页；5 页 JS/SCSS 相对路径各加一级 `../`；12 处入口引用改到 `/packageGoods/pages/order/...`（购物车结算、我的订单、提交→支付、支付→详情、列表四入口、详情三入口）。旧目录清空、相对导入扫描无断链、`npm run format` 后 `lint` / `format:check` 通过。源码口径主包 1903.3 KB / 分包 123.6 KB。Step 2 完成。 |
 | 2026-11-25 | Step 4 性能收尾（代写）：`goods-card.wxml` 与 `cart.wxml` 的列表图片加 `lazy-load="{{true}}"`（影响首页/分类/搜索/收藏/二级分类/购物车，视觉不变）。`cart.js` 删除 `patchItem`，新增 `findIndex` / `applyPatch`，勾选、加减数量、输入回填改为 `list[i].xxx` 路径更新；payload 从 N 个商品对象降为 1 个路径字段 + 3 个汇总字段。全选仍整表更新。`lint` / `format:check` 通过；帧率/payload 截图留待开发者工具实测，未编造数字。 |
 | 2026-11-25 | Step 5 准备：最终复核 `MAIN=4 / SUB=13 / TOTAL=17`，源码口径主包 1903.8 KB、分包 123.6 KB，`lint` / `format:check` 通过；README / 路线图 / 架构 / 看板 / 验收表已同步为「S8 代码完成、待包体与真机证据」。上传与真机回归需用户在开发者工具与公众平台操作，未代做。 |
+| 2026-11-25 15:49 | 用户截图显示代码质量「主包大小 < 1.5M」已通过，但「主包内不应存在主包未使用的 JS」未通过，列出 5 个 `api/*`、3 个 `utils/*` 与 `miniprogram_npm/lodash.debounce`。核查确认这 8 个文件只被分包页引用，已整体移入 `packageGoods/api/` 与 `packageGoods/utils/` 并改内部引用；搜索页防抖改为分包本地 `utils/debounce.js`，`package.json` 移除 `lodash.debounce`。全项目相对导入扫描无断链，`lint` / `format:check` 通过。需重新「构建 npm」清除旧产物后重扫代码质量。 |
+| 2026-11-25 | 重新构建 npm 后重扫，代码质量列出的未使用 JS 只剩 `data/areas.js`。确认它只被 `packageGoods/utils/area.js` 引用，已移入 `packageGoods/data/areas.js` 并改 import；Prettier 格式化该生成文件后 `lint` / `format:check` 通过。源码口径主包 1755.8 KB、分包 328.7 KB。README / 00-overview / 02-architecture / stage-s5 / stage-s8 的相关路径已同步。待用户再次「重新扫描」确认清零。 |

@@ -1,4 +1,4 @@
-import { request } from '../utils/request'
+import { request } from '../../utils/request'
 
 /**
  * 真实微信支付：拿支付参数交给 wx.requestPayment

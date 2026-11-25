@@ -1,4 +1,4 @@
-import { getOrderLogistics, mockConsignment } from '../../../../api/order'
+import { getOrderLogistics, mockConsignment } from '../../../api/order'
 import { toHttps } from '../../../../utils/common'
 
 // 待发货没有物流，页面只展示「模拟发货」入口

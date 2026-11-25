@@ -1,6 +1,6 @@
-import { getGoodsDetail } from '../../../../api/goods'
+import { getGoodsDetail } from '../../../api/goods'
 import { addGoodsToCart } from '../../../../utils/cart'
-import { isCollected, toggleCollect } from '../../../../utils/collect'
+import { isCollected, toggleCollect } from '../../../utils/collect'
 import { toHttps } from '../../../../utils/common'
 
 Page({

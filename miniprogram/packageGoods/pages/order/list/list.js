@@ -1,4 +1,4 @@
-import { cancelOrder, confirmReceipt, deleteOrders, getOrderList } from '../../../../api/order'
+import { cancelOrder, confirmReceipt, deleteOrders, getOrderList } from '../../../api/order'
 import { toHttps } from '../../../../utils/common'
 
 // orderState 0 表示全部，其余与接口枚举一致

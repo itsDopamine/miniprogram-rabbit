@@ -1,7 +1,7 @@
 /**
  * utils/address.js —— 地址的业务约束
  */
-import { getAddressList, updateAddress } from '../api/member'
+import { getAddressList, updateAddress } from '../../api/member'
 
 /**
  * 保证「默认地址唯一」

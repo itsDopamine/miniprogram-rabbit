@@ -1,6 +1,6 @@
 import { addAddress, getAddressDetail, updateAddress } from '../../../../api/member'
-import { ensureSingleDefault } from '../../../../utils/address'
-import { formatArea, getCodes, getColumns, getIndexes } from '../../../../utils/area'
+import { ensureSingleDefault } from '../../../utils/address'
+import { formatArea, getCodes, getColumns, getIndexes } from '../../../utils/area'
 
 Page({
   data: {

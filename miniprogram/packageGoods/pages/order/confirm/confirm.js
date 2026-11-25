@@ -1,4 +1,4 @@
-import { getPreOrder, getPreOrderNow, getRepurchaseOrder, submitOrder } from '../../../../api/order'
+import { getPreOrder, getPreOrderNow, getRepurchaseOrder, submitOrder } from '../../../api/order'
 import { toHttps } from '../../../../utils/common'
 
 // 与接口枚举一一对应：deliveryTimeType 1/2/3，payType 1/2

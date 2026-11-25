@@ -1,4 +1,4 @@
-import { request } from '../utils/request'
+import { request } from '../../utils/request'
 
 /**
  * 结算页数据（购物车结算）
