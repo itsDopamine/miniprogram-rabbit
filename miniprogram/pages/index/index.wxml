@@ -1,3 +1,6 @@
+<!-- 骨架屏由开发者工具生成，是整页绝对定位模板，只能挂在页面根节点 -->
+<import src="index.skeleton.wxml" />
+
 <!-- 背景色必须与 global.scss 的 $brand-color-soft 一致，否则顶部出现硬接缝 -->
 <navigation-bar title="小兔鲜儿" back="{{false}}" color="black" background="#FBF1F0"></navigation-bar>
 
@@ -20,19 +23,9 @@
     <!-- 显隐哨兵：它的高度就是"滚过多少才出按钮"的阈值 -->
     <view class="page__sentinel" id="back-top-sentinel"></view>
 
-    <!-- 首屏骨架：只在还没有任何数据时显示，下拉刷新不会闪 -->
-    <view class="skeleton" wx:if="{{loading && !banners.length}}">
-      <view class="skeleton__banner"></view>
-      <view class="skeleton__row">
-        <view class="skeleton__cell" wx:for="{{[1, 2, 3, 4, 5]}}" wx:key="*this"></view>
-      </view>
-      <view class="skeleton__goods">
-        <view class="skeleton__card" wx:for="{{[1, 2, 3, 4]}}" wx:key="*this"></view>
-      </view>
-    </view>
-
+    <!-- 首屏骨架在页面根节点（见文件末尾），这里只管错误态与内容 -->
     <!-- 错误态：已有数据时只 toast，不把页面换掉 -->
-    <view class="state" wx:elif="{{error && !banners.length}}">
+    <view class="state" wx:if="{{error && !banners.length}}">
       <text class="state__text">{{error}}</text>
       <view class="state__btn" bindtap="onRetry">重新加载</view>
     </view>
@@ -176,3 +169,6 @@
 <view class="back-top" wx:if="{{showBackTop}}" bindtap="onBackTop">
   <view class="back-top__arrow"></view>
 </view>
+
+<!-- 首屏骨架：只在还没有任何数据时显示，放在最后才能盖住下面的真实内容 -->
+<template is="skeleton" wx:if="{{loading && !banners.length}}" />

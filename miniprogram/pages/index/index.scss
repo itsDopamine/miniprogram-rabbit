@@ -1,6 +1,8 @@
 /** pages/index/index.scss */
 // 显式引入全局变量：路径相对本文件，pages/xxx/xxx.scss 都是两级
 @import '../../global.scss';
+// 开发者工具生成的骨架屏样式（.sk-*），模板在 index.skeleton.wxml
+@import './index.skeleton.scss';
 
 // 导航栏与滚动区上下分栏：下拉刷新只动下面的滚动区，标题不动
 page {
@@ -298,52 +300,126 @@ page {
 }
 
 /* ---------- 骨架屏 ---------- */
-// 占位块样式在 global.scss 的 skeleton-block mixin 里
-@keyframes skeleton-sweep {
-  0% {
-    background-position: -150% 0;
+// 生成样式在文件顶部通过 @import './index.skeleton.scss' 引入，此处只做覆盖与补全
+// 生成模板是整页绝对定位，底色透明：不铺底的话后面的真实内容会透出来
+.sk-container {
+  // 模板内的滚动区复用了页面的 .page（flex: 1 + height: 0），
+  // 这里必须是 flex 容器，否则 height: 0 生效，整块骨架被裁成全白
+  display: flex;
+  flex-direction: column;
+  background-color: $bg-page;
+
+  // 工具把组件内部节点也画进了模板，但组件样式是隔离的，这些带前缀的 class 拿不到布局
+  // 这里按 navigation-bar / goods-card 的真实布局补最小必要尺寸，其余交给生成样式
+  .bar--nav {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
   }
 
-  100% {
-    background-position: 250% 0;
-  }
-}
-
-.skeleton {
-  padding: $gap-base;
-
-  &__banner {
-    height: 300rpx;
-    border-radius: $radius-base;
-    @include skeleton-block;
-  }
-
-  &__row {
+  .bar--nav__inner {
+    position: relative;
     display: flex;
-    justify-content: space-between;
-    margin-top: $gap-lg;
+    align-items: center;
+    padding: 0 $gap-base;
+    box-sizing: border-box;
   }
 
-  &__cell {
-    width: 80rpx;
-    height: 80rpx;
-    border-radius: 50%;
-    @include skeleton-block;
-  }
-
-  &__goods {
+  // 生成模板给标题设了 left/right 各 94px，占位条会铺满整个容器变成一根长灰棍
+  // 收窄成居中的短条才像"标题"，inline style 只能用 !important 盖掉
+  // 生成样式的 background-repeat 是 repeat-y，不改成 no-repeat 会纵向平铺出好几条
+  .bar--nav__title {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50% !important;
+    right: auto !important;
+    width: 160rpx;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    margin-top: $gap-lg;
+    align-items: center;
+    justify-content: center;
+    font-size: 34rpx;
+    font-weight: 600;
+    background-size: 100% 40rpx !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    transform: translateX(-50%);
   }
 
-  &__card {
-    width: 48%;
-    height: 300rpx;
-    margin-bottom: $gap-sm;
+  .bar--nav__right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+    margin-left: auto;
+  }
+
+  .card--goods-card {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     border-radius: $radius-base;
-    @include skeleton-block;
+    background-color: $bg-card;
+  }
+
+  .card--goods-card__cover {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+  }
+
+  .card--goods-card__pic {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .card--goods-card__info {
+    display: flex;
+    flex-direction: column;
+    padding: $gap-sm;
+  }
+
+  .card--goods-card__name {
+    font-size: $font-base;
+    @include ellipsis;
+  }
+
+  .card--goods-card__price {
+    display: flex;
+    align-items: baseline;
+    margin-top: $gap-xs;
+  }
+
+  .card--goods-card__currency {
+    font-size: $font-sm;
+  }
+
+  .card--goods-card__int {
+    font-size: $font-lg;
+    font-weight: 600;
+  }
+
+  .card--goods-card__dec {
+    font-size: $font-sm;
+  }
+
+  // 分区标题前的短横是真实元素，骨架里会按品牌红渲染，整片灰里跳一抹红
+  .section__rule {
+    background-color: #e3e3e3 !important;
+  }
+
+  // 生成样式给标题和副标题同一种灰，主次分不出来；标题压深一档
+  .section__title {
+    background-image: linear-gradient(
+      transparent 14.2857%,
+      #d9d9d9 0%,
+      #d9d9d9 85.7143%,
+      transparent 0%
+    ) !important;
   }
 }
 
