@@ -313,6 +313,7 @@ https://pcapi-xiaotuxian-front-devtest.itheima.net
 | 401 后跳登录白屏 | `utils/request.js` 的 `LOGIN_PAGE` 没改 | 改成 `/packageGoods/pages/login/login` |
 | 登录后回不到原页面 | `redirect` query 里还是旧路径 | 检查调用方传的 `redirect` 与 `login.js` 的 `TAB_PAGES` 判断 |
 | SCSS 变量失效 / 编译报找不到 `global.scss` | 页面多了一层 `packageGoods/`，`@import` 少算一级 | 每个已搬页面的 `@import` 加一个 `../` |
+| 旧目录还剩一个 `.js` 文件 | 先改了 JS 再拖其它三个文件，Git 显示「新增 + 修改」而不是「重命名」 | 确认 `app.json` 与所有跳转都不再指向旧路径后，删掉旧目录残留文件 |
 | 分包页引用另一个分包页失败 | 跨分包同步引用 | 本项目用一个分包规避；不要拆成多个分包 |
 
 ---
@@ -355,3 +356,4 @@ https://pcapi-xiaotuxian-front-devtest.itheima.net
 | --- | --- |
 | 2026-11-25 | 任务书建立。基线：`git status` 干净、`lint` / `format:check` 通过、17 页全主包、源码约 2026.3KB（其中 npm 产物 1574.2KB）。确认业务只用了 `t-icon` 一个 TDesign 组件；单纯搬页面不会缩小主包，需以开发者工具代码依赖分析为准。体验版走 dev 域名，合法域名必须在后台配置。 |
 | 2026-11-25 14:33 | 你已上传代码，弹窗显示「编译后代码包大小 462.8 KB」，底部「代码质量」面板无代码质量问题；后台 `request 合法域名` 也已确认。结论：官方包体远低于 2M，不必先裁剪 npm；此版本的依赖分析入口在「代码质量」标签，展开「主包」看明细。Step 0 完成。 |
+| 2026-11-25 | Step 1 搬迁后核验：`app.json` 已从主包移除详情页并注册 `packageGoods`，5 处跳转全部改成 `/packageGoods/pages/goods/detail/detail`，`detail.scss` 已加一级 `../`。发现旧目录 `pages/goods/detail/` 残留一个 `detail.js`（只有它，另外三个文件已被 Git 识别为重命名），且无任何引用，需删除。 |

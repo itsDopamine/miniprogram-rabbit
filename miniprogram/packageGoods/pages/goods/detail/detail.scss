@@ -1,6 +1,6 @@
 /** pages/goods/detail/detail.scss */
 // 三级目录，global.scss 要多退一层。SKU 面板的样式在 components/sku-panel 里
-@import '../../../global.scss';
+@import '../../../../global.scss';
 
 // 导航栏与滚动区上下分栏，导航栏不跟随内容滚走
 page {

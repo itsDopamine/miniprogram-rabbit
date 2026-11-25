@@ -182,7 +182,7 @@ Page({
   },
 
   onTapGoods(e) {
-    wx.navigateTo({ url: `/pages/goods/detail/detail?id=${e.detail.id}` })
+    wx.navigateTo({ url: `/packageGoods/pages/goods/detail/detail?id=${e.detail.id}` })
   },
 
   // 二级分类标题 → 二级分类页（只带 id，页面自己反查所属一级）

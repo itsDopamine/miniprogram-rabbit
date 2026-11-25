@@ -70,7 +70,7 @@ Page({
   },
 
   onTapGoods(e) {
-    wx.navigateTo({ url: `/pages/goods/detail/detail?id=${e.detail.id}` })
+    wx.navigateTo({ url: `/packageGoods/pages/goods/detail/detail?id=${e.detail.id}` })
   },
 
   onRetry() {

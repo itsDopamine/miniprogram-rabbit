@@ -16,7 +16,7 @@ Page({
   },
 
   onTapGoods(e) {
-    wx.navigateTo({ url: `/pages/goods/detail/detail?id=${e.currentTarget.dataset.id}` })
+    wx.navigateTo({ url: `/packageGoods/pages/goods/detail/detail?id=${e.currentTarget.dataset.id}` })
   },
 
   onRemove(e) {

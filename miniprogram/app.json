@@ -5,7 +5,6 @@
     "pages/cart/cart",
     "pages/member/member",
     "pages/search/search",
-    "pages/goods/detail/detail",
     "pages/login/login",
     "pages/profile/profile",
     "pages/address/list/list",
@@ -17,6 +16,14 @@
     "pages/order/logistics/logistics",
     "pages/category/sub/sub",
     "pages/collect/collect"
+  ],
+  "subPackages": [
+    {
+      "root": "packageGoods",
+      "pages": [
+        "pages/goods/detail/detail"
+      ]
+    }
   ],
   "window": {
     "navigationBarTextStyle": "black",
