@@ -8,3 +8,11 @@ export const SOURCE_CLIENT = 'miniapp'
 const { envVersion } = wx.getAccountInfoSync().miniProgram
 
 export const BASE_URL = envVersion === 'release' ? BASE_URL_PROD : BASE_URL_DEV
+
+// 联调测试账号（来源：Apifox 会员登录分组）
+// mobile 用于一键登录 /login/wxMin/simple，account + password 用于 /login
+export const TEST_USER = {
+  account: '13123456789',
+  password: '123456',
+  mobile: '13123456789'
+}

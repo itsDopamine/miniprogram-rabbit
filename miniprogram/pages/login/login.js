@@ -1,5 +1,6 @@
 import { loginByPassword, loginByPhoneSimple, loginByWxMin } from '../../api/auth'
 import { TAB_PAGES } from '../../config/constants'
+import { TEST_USER } from '../../config/env'
 import { setToken, setUser } from '../../utils/auth'
 import { mergeLocalCart } from '../../utils/cart'
 
@@ -9,7 +10,8 @@ Page({
     redirect: '',
     loading: false,
     // 协议勾选：三条登录路径都要先过这一关
-    agreed: false
+    agreed: false,
+    testHint: `${TEST_USER.account} / ${TEST_USER.password}`
   },
 
   onLoad(options) {
@@ -104,8 +106,8 @@ Page({
 
       wx.showModal({
         title: '无法获取手机号',
-        content:
-          '当前小程序主体不支持手机号快速验证（或基础库只返回 code，需后端用 code 换手机号）。可改用手机号模拟登录。',
+        content: '当前小程序主体不支持手机号快速验证（或基础库只返回 code，需后端用 code 换手机号）。可改用测试账号直接登录。',
+        // confirmText 上限 4 个字，写全称会被截断
         confirmText: '模拟登录',
         success: (res) => {
           if (res.confirm) this.onPhoneSimple()
@@ -132,37 +134,23 @@ Page({
   },
 
   /**
-   * 手机号模拟登录：走 /login/wxMin/simple
-   * 实测可用（2026-11-24），只适合开发联调——服务端不校验手机号真实性
+   * 测试账号模拟登录：账号取自 config/env.js 的 TEST_USER，不再弹窗手输
+   * 走 /login/wxMin/simple，实测可用（2026-11-24）——服务端不校验手机号真实性
    */
-  onPhoneSimple() {
+  async onPhoneSimple() {
+    if (this.data.loading) return
     if (!this.ensureAgreed()) return
 
-    wx.showModal({
-      title: '手机号模拟登录',
-      editable: true,
-      placeholderText: '输入 11 位手机号',
-      success: async (res) => {
-        if (!res.confirm) return
+    this.setData({ loading: true })
 
-        const phone = (res.content || '').trim()
-        if (!/^1\d{10}$/.test(phone)) {
-          wx.showToast({ title: '请输入 11 位手机号', icon: 'none' })
-          return
-        }
-
-        this.setData({ loading: true })
-
-        try {
-          const result = await loginByPhoneSimple(phone)
-          await this.afterLogin(result)
-        } catch (err) {
-          console.log('[login] 手机号模拟登录失败', err)
-        } finally {
-          this.setData({ loading: false })
-        }
-      }
-    })
+    try {
+      const result = await loginByPhoneSimple(TEST_USER.mobile)
+      await this.afterLogin(result)
+    } catch (err) {
+      console.log('[login] 测试账号登录失败', err)
+    } finally {
+      this.setData({ loading: false })
+    }
   },
 
   /* ---------- 账号密码登录 ---------- */

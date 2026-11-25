@@ -74,5 +74,6 @@
     <text class="agreement__text">已阅读并同意《用户协议》与《隐私政策》</text>
   </view>
 
-  <text class="tip">测试账号 13123456789 / 密码 123456</text>
+  <!-- 账号来自 config/env.js 的 TEST_USER，避免和代码里的测试号各写一份 -->
+  <!-- <text class="tip">测试账号 {{testHint}}</text> -->
 </view>
