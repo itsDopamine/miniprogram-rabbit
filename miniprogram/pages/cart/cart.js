@@ -31,7 +31,7 @@ Page({
       // 失效商品沉到最后，不参与全选与合计
       list.sort((a, b) => Number(!a.isEffective) - Number(!b.isEffective))
       this.retried = false
-      this.setData({ ...this.withSummary(list), loading: false })
+      this.setData({ ...this.withSummary(list), list, loading: false })
     } catch (e) {
       console.log('[cart]', e)
       // 401 时 token 已被 request.js 清掉，重跑一次自然落到本地数据。只允许重试一次
@@ -46,12 +46,12 @@ Page({
 
   /* ---------- 列表原地更新 ---------- */
 
-  findItem(skuId) {
-    return this.data.list.find((i) => i.skuId === skuId)
+  findIndex(skuId) {
+    return this.data.list.findIndex((i) => i.skuId === skuId)
   },
 
-  patchItem(skuId, patch) {
-    return this.data.list.map((i) => (i.skuId === skuId ? { ...i, ...patch } : i))
+  findItem(skuId) {
+    return this.data.list[this.findIndex(skuId)]
   },
 
   // 列表变了就把全选态与合计一起算好，避免多处重复
@@ -62,11 +62,25 @@ Page({
     const totalPrice = selected.reduce((sum, i) => sum + i.nowPrice * i.count, 0)
 
     return {
-      list,
       isAllSelected: valid.length > 0 && selected.length === valid.length,
       totalCount: selected.reduce((sum, i) => sum + i.count, 0),
       totalPrice: totalPrice.toFixed(2)
     }
+  },
+
+  // 单条变更用路径更新，setData 数据量不随购物车长度增长
+  applyPatch(skuId, patch) {
+    const index = this.findIndex(skuId)
+    if (index < 0) return
+
+    const list = this.data.list.slice()
+    list[index] = { ...list[index], ...patch }
+
+    const paths = {}
+    Object.keys(patch).forEach((key) => {
+      paths[`list[${index}].${key}`] = patch[key]
+    })
+    this.setData({ ...paths, ...this.withSummary(list) })
   },
 
   /* ---------- 交互 ---------- */
@@ -77,7 +91,7 @@ Page({
 
     // 先改界面再发请求：勾选是高频操作，等接口回来再变会明显卡顿
     const next = !item.selected
-    this.setData(this.withSummary(this.patchItem(item.skuId, { selected: next })))
+    this.applyPatch(item.skuId, { selected: next })
 
     try {
       await updateCartSelected(item.skuId, next)
@@ -91,7 +105,7 @@ Page({
     const next = !this.data.isAllSelected
     const list = this.data.list.map((i) => (i.isEffective ? { ...i, selected: next } : i))
 
-    this.setData(this.withSummary(list))
+    this.setData({ ...this.withSummary(list), list })
 
     try {
       await updateAllSelected(next)
@@ -122,7 +136,7 @@ Page({
   },
 
   changeCount(skuId, count) {
-    this.setData(this.withSummary(this.patchItem(skuId, { count })))
+    this.applyPatch(skuId, { count })
     this.scheduleCountSync(skuId, count)
   },
 
@@ -199,8 +213,10 @@ Page({
 
     // input 不是严格受控：data 里的值没变就不会重绘，输了 0 或空会一直显示错的值
     // 先置空再回填，强制它跟随 data
-    this.setData({ list: this.patchItem(skuId, { count: '' }) }, () => {
-      this.setData(this.withSummary(this.patchItem(skuId, { count })))
+    const index = this.findIndex(skuId)
+    if (index < 0) return
+    this.setData({ [`list[${index}].count`]: '' }, () => {
+      this.applyPatch(skuId, { count })
     })
 
     // 界面已经更新过，这里只补请求

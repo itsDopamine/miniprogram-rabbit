@@ -149,4 +149,4 @@ f:/WeChatProjects/miniprogram-rabbit/
 4. **每阶段结束前过作业闸门**：`assignments.md` 里该阶段必做作业全部完成、答辩 3 问能脱稿回答，才可进入下一阶段。
 5. 每阶段完成后回 `checklist.md` 勾选对应区块。
 
-> 阶段编号统一用 **S0–S8**（与代码提交信息一致）。当前已建任务书 `stage-s0`…`stage-s8`；S8（分包与上线测试准备）的任务书是 `stage-s8-subpackage-release.md`，代码尚未开始。`S0` 对应「阶段 1」。
+> 阶段编号统一用 **S0–S8**（与代码提交信息一致）。当前已建任务书 `stage-s0`…`stage-s8`；S8（分包与性能收尾）的任务书是 `stage-s8-subpackage-release.md`，代码已完成，待体验版真机回归。`S0` 对应「阶段 1」。

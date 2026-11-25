@@ -245,28 +245,41 @@ https://pcapi-xiaotuxian-front-devtest.itheima.net
 
 ## 9. Step 4 · 性能收尾
 
-### 9.1 图片懒加载
+### 9.1 图片懒加载（已完成）
 
 官方 `lazy-load` 只对 `page` / `scroll-view` 下的 `image` 有效（A 级，见 §3）。本项目长列表都在 `scroll-view` 里，符合条件。
 
-做法：在 `goods-card` 等长列表图片上加 `lazy-load="{{true}}"`，保留 `mode` 与固定宽高。因为 `goods-card` 是主包共享组件，会影响首页 / 分类 / 搜索 / 收藏 / 二级分类全部列表，改完要逐页扫一眼。
+实现记录（2026-11-25）：
 
-### 9.2 `setData` 最小变更
+- `components/goods-card/goods-card.wxml:16`：`<image>` 加 `lazy-load="{{true}}"`，保留 `mode="aspectFill"` 与固定宽高。
+- `pages/cart/cart.wxml:26`：购物车列表图片同样开启。
+- **影响面**：`goods-card` 是主包共享组件，首页 / 分类 / 搜索 / 收藏 / 二级分类全部商品列表都受影响；视觉不变，只是屏外图片延迟到上下三屏范围内才加载。
 
-先检查两处高频路径：
+### 9.2 `setData` 最小变更（已完成）
 
-- `pages/cart/cart.js`：改数量 / 勾选时是否把整个 `list` 重新 `setData`；单条变更优先用路径 `list[{{index}}].selected` 形式。
-- `pages/order/list/list.js`：切 tab / 触底加载是否整表覆盖；切 tab 本就该清空重拉，但触底追加应只追加新页。
+实现记录（2026-11-25）：
 
-**不要为了优化去重构 SKU 算法或请求层**；本阶段只做「能测出前后差异」的改动。
+- `pages/cart/cart.js` 删除 `patchItem`，新增 `findIndex` 与 `applyPatch`。
+- 勾选单品、加减数量、输入框置空回填，全部从「整表替换 `list`」改为路径更新 `list[i].selected` / `list[i].count`。
+- 全选仍整表更新（所有条目都变），但 `withSummary` 不再返回 `list`，由调用方显式写入，避免把汇总计算和整表更新绑在一起。
+- `pages/order/list/list.js` 的触底追加本阶段**未动**，避免改动面过大；它只在追加页时覆盖列表，不属于高频点击路径。
 
-### 9.3 基线记录格式
+**payload 结构对比**（N 为购物车条数）：
+
+| 操作 | 优化前 | 优化后 |
+| --- | --- | --- |
+| 勾选 1 项 | `list`（N 个完整商品对象）+ 3 个汇总字段 | `list[i].selected` 1 个路径字段 + 3 个汇总字段 |
+| 改 1 项数量 | 同上 | `list[i].count` 1 个路径字段 + 3 个汇总字段 |
+
+数据量从「随 N 线性增长」变成「与 N 无关」。
+
+### 9.3 基线记录
 
 | 场景 | 优化前 | 优化后 | 记录方式 |
 | --- | --- | --- | --- |
-| 首页长列表滚动 | | | 开发者工具 Trace / 帧率 |
-| 购物车勾选 1 项 | | | `setData` payload 截图 |
-| 主包体积 | | | 代码依赖分析截图 |
+| 首页长列表滚动 | 未测；此前所有图片一起进加载队列 | 已开启 `lazy-load`，只加载上下三屏范围 | 待用开发者工具 Trace / 帧率补，**不编造数据** |
+| 购物车勾选 / 改数量 1 项 | `setData` 含整个 `list`（N 个对象） | 1 个路径字段 + 3 个汇总字段 | 结构对比如上，待 `setData` payload 截图 |
+| 主包体积 | 分包前上传弹窗 462.8 KB | 13 页已进分包，待重新上传读数 | 上传弹窗截图 |
 
 ---
 
@@ -274,10 +287,10 @@ https://pcapi-xiaotuxian-front-devtest.itheima.net
 
 ### 10.1 上传前检查
 
-- [ ] 开发者工具「代码依赖分析」主包 < 2M，总包 < 20M
-- [ ] 构建 npm 已完成；`miniprogram_npm/` 未入库但本机存在
-- [ ] `npm run lint` / `npm run format:check` 通过
-- [ ] 小程序后台已配置 `request` 合法域名（见 §4.4）
+- [ ] 重新上传后主包 < 2M、总包 < 20M（分包前的 462.8 KB 已过期，待新截图）
+- [x] 构建 npm 已完成；`miniprogram_npm/` 未入库但本机存在
+- [x] `npm run lint` / `npm run format:check` 通过（2026-11-25 最终复核）
+- [x] 小程序后台 `request` 合法域名已确认（见 §4.4）
 - [ ] 体验者已在公众平台添加
 - [ ] 已知限制已告知测试者：搜索 `/search/all` 可能 500、真实支付走模拟、头像上传成功路径未验
 
@@ -366,3 +379,5 @@ https://pcapi-xiaotuxian-front-devtest.itheima.net
 | 2026-11-25 | 编译实测暴露漏项：搜索页报 `module 'packageGoods/api/search.js' is not defined`。原因是**JS 相对导入也少一级**（只改了 SCSS）。修复 `search.js` 两处、`sub.js` 两处、`collect.js` 一处相对导入，各加一级 `../`；写脚本扫描 `packageGoods/**/*.js` 所有相对导入，确认全部可解析。`lint` / `format:check` 通过。此坑已补进 §4.3 / §7.2 / §12。 |
 | 2026-11-25 | Step 2 用户域批次（代写）：`login` / `profile` / `address/list` / `address/edit` 四页整体搬入分包，`app.json` 主包 9 页、分包 8 页、合计 17 页。同步 4 页 JS/SCSS 相对路径 + 7 处入口引用（含 `utils/request.js` 的 `LOGIN_PAGE`、401 回跳、结算换地址）。旧目录清空、相对导入扫描无断链、`lint` / `format:check` 通过。源码口径主包 1951.9 KB / 分包 74.8 KB，主包比搬迁前减少约 35.7 KB。 |
 | 2026-11-25 | Step 2 订单域批次（代写）：`order/confirm` / `pay` / `list` / `detail` / `logistics` 五页整体搬入分包。`app.json` 主包只剩 4 个 tabBar 页，分包 13 页，合计 17 页；5 页 JS/SCSS 相对路径各加一级 `../`；12 处入口引用改到 `/packageGoods/pages/order/...`（购物车结算、我的订单、提交→支付、支付→详情、列表四入口、详情三入口）。旧目录清空、相对导入扫描无断链、`npm run format` 后 `lint` / `format:check` 通过。源码口径主包 1903.3 KB / 分包 123.6 KB。Step 2 完成。 |
+| 2026-11-25 | Step 4 性能收尾（代写）：`goods-card.wxml` 与 `cart.wxml` 的列表图片加 `lazy-load="{{true}}"`（影响首页/分类/搜索/收藏/二级分类/购物车，视觉不变）。`cart.js` 删除 `patchItem`，新增 `findIndex` / `applyPatch`，勾选、加减数量、输入回填改为 `list[i].xxx` 路径更新；payload 从 N 个商品对象降为 1 个路径字段 + 3 个汇总字段。全选仍整表更新。`lint` / `format:check` 通过；帧率/payload 截图留待开发者工具实测，未编造数字。 |
+| 2026-11-25 | Step 5 准备：最终复核 `MAIN=4 / SUB=13 / TOTAL=17`，源码口径主包 1903.8 KB、分包 123.6 KB，`lint` / `format:check` 通过；README / 路线图 / 架构 / 看板 / 验收表已同步为「S8 代码完成、待包体与真机证据」。上传与真机回归需用户在开发者工具与公众平台操作，未代做。 |

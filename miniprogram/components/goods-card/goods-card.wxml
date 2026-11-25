@@ -13,7 +13,7 @@ module.exports = { norm: norm };
 
 <view class="goods-card goods-card--{{layout}}" hover-class="goods-card--active" bindtap="onTap">
   <view class="goods-card__cover">
-    <image class="goods-card__pic" src="{{goods.picture}}" mode="aspectFill" />
+    <image class="goods-card__pic" src="{{goods.picture}}" mode="aspectFill" lazy-load="{{true}}" />
   </view>
 
   <view class="goods-card__info">

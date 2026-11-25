@@ -9,7 +9,7 @@
 ## 当前状态
 
 - S0–S7 的页面与链路代码均已落地：首页、分类/二级分类/搜索、商品详情 + SKU、登录/个人中心/地址/收藏、购物车、结算/支付/订单/物流，共 **17 个页面**。
-- **S8（分包与上线测试准备）任务书已建，代码未开始**：任务书见 `idoc/stage-s8-subpackage-release.md`；`app.json` 仍无 `subPackages`，17 页都在主包。
+- **S8（分包与性能收尾）代码已完成**：17 页中 13 页已迁入 `packageGoods` 分包，主包只剩 4 个 tabBar 页；图片懒加载与购物车 `setData` 路径更新已落地。待重新上传体验版并做真机回归，任务书见 `idoc/stage-s8-subpackage-release.md`。
 - 闸门答辩没有逐条留证据：`idoc/assignments.md` / `idoc/checklist.md` 的 ☑ 只表示**代码已落地**，不等于答辩或真机回归已通过。
 - 已知受限项：搜索结果接口 `/search/all` 曾返回 500（代码走 error 态）；真实微信支付受 appid 白名单与 openid 限制，当前先试真实、失败降级模拟；头像上传受服务端 OSS 限制，成功路径未验证。
 
@@ -24,7 +24,7 @@
 | UI | [TDesign Miniprogram](https://tdesign.tencent.com/miniprogram/overview) |
 | 请求 | 自建 `utils/request.js`：统一头、token 注入、401 去重、abort、三态 |
 | 导航 | 自定义 `navigation-bar`；页面统一 flex 骨架，头部不进滚动容器 |
-| 分包 | 未启用（`lazyCodeLoading: requiredComponents` 已开；S8 任务书已建） |
+| 分包 | 已启用：13 页在 `packageGoods`，4 个 tabBar 页在主包；`lazyCodeLoading: requiredComponents` |
 
 ## 目录结构
 
@@ -87,7 +87,7 @@ npm run format:check
 ## 合并前须知
 
 - 仓库里出现的两个 `wx` 开头的 AppID 是**公开标识**（一个来自 Apifox 文档，一个来自 `project.config.json`），不是 AppSecret；仓库内没有 AppSecret 或 API Key。GitHub 密钥扫描若报「Tencent WeChat API App ID」，按误报关掉即可。
-- 未做真机完整回归与分包体积检查（S8）；合主干后若要继续，从 `idoc/stage-s8-subpackage-release.md` 开始。
+- S8 分包与性能优化代码已完成，但**未做重新上传后的包体确认与真机完整回归**；继续从 `idoc/stage-s8-subpackage-release.md` Step 5 开始。
 - 页面骨架约定见 `idoc/02-architecture.md` §8：新页面必须是 `page` flex 纵列 + 头部分栏 + `scroll-view` 内容区，不要靠 sticky 解决头部固定。
 
 ## 文档索引
