@@ -11,8 +11,6 @@ page {
 .body {
   flex: 1;
   height: 0;
-  // 给固定底栏留出空间
-  padding-bottom: 200rpx;
 }
 
 .state {
@@ -222,10 +220,7 @@ page {
 }
 
 .bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  flex: none;
   display: flex;
   align-items: center;
   padding: $gap-sm $gap-lg calc(#{$gap-sm} + env(safe-area-inset-bottom));

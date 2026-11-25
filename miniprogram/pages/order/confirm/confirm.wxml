@@ -100,14 +100,15 @@
       </view>
     </view>
 
-    <view class="bar">
-      <view class="bar__price">
-        <text class="bar__label">应付</text>
-        <text class="bar__num">¥{{summary.totalPayPrice}}</text>
-      </view>
-      <view class="bar__btn {{submitting ? 'bar__btn--disabled' : ''}}" bindtap="onSubmit">
-        {{submitting ? '提交中…' : '提交订单'}}
-      </view>
-    </view>
   </block>
 </scroll-view>
+
+<view class="bar" wx:if="{{!loading && !error}}">
+  <view class="bar__price">
+    <text class="bar__label">应付</text>
+    <text class="bar__num">¥{{summary.totalPayPrice}}</text>
+  </view>
+  <view class="bar__btn {{submitting ? 'bar__btn--disabled' : ''}}" bindtap="onSubmit">
+    {{submitting ? '提交中…' : '提交订单'}}
+  </view>
+</view>
