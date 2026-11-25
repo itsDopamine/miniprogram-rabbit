@@ -1,5 +1,5 @@
 {
-  "description": "小兔鲜商城小程序（原生 JS + WebView）",
+  "description": "项目配置文件",
   "miniprogramRoot": "miniprogram/",
   "compileType": "miniprogram",
   "setting": {
