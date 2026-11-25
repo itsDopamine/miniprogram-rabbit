@@ -42,7 +42,7 @@
 | A 官方 | `image` 的 `lazy-load` 默认 `false`，在即将进入上下三屏时加载；仅对 `page` / `scroll-view` 下的 `image` 有效；基础库 1.5.0 起支持 | 微信开放文档《image 组件》<https://developers.weixin.qq.com/miniprogram/dev/component/image.html> |
 | A 官方 | `setData` 应控制频率、只传渲染相关字段、避免整棵大对象 / 大数组、后台页面不再 `setData`、局部字段用路径更新 | 微信开放文档《合理使用数据更新方法》<https://developers.weixin.qq.com/miniprogram/dev/framework/performance/tips/runtime_setData.html> |
 | A 官方 | `wx.request` 域名需在小程序管理后台配置 `request` 合法域名；工具勾选「不校验合法域名」只对开发者工具有效，体验版 / 正式版仍校验 | 微信开放文档《网络》<https://developers.weixin.qq.com/miniprogram/dev/framework/ability/network.html> |
-| B 工具产物 | `project.config.json`：`miniprogramRoot: "miniprogram/"`、`libVersion: "2.32.3"`、`ignoreUploadUnusedFiles: true`、`minified: false`、`skylineRenderEnable: false` | 本地 `project.config.json`（开发者工具配置，字段语义以工具界面为准） |
+| B 工具产物 | `project.config.json`：`miniprogramRoot: "miniprogram/"`、`libVersion: "2.32.3"`、`ignoreUploadUnusedFiles: true`、`minified: true`（S8 开启代码压缩）、`skylineRenderEnable: false` | 本地 `project.config.json`（开发者工具配置，字段语义以工具界面为准） |
 | C 实测 2026-11-25 | `git status --short` 为空，最近提交 `70a468d`；`npm run lint` 与 `npm run format:check` 均通过 | 本地命令，Windows PowerShell / Node |
 | C 实测 2026-11-25 | 源码总量约 **2026.3 KB**（排除 `node_modules`）；其中 `miniprogram_npm/` **1574.2 KB**、`data/areas.js` **134.8 KB**、`pages/` **192.8 KB** | PowerShell `Get-ChildItem -Recurse -File` 累加 `Length`；未经过开发者工具的忽略未使用文件与压缩 |
 | C 实测 2026-11-25 | 业务代码只引用一个 npm 组件：`tdesign-miniprogram/icon/icon`（`pages/login/login.json:4`），WXML 用到 `<t-icon>` 两处 | 本地 `Select-String` 扫描 `pages/**/*.json` 与 `*.wxml` |
@@ -81,7 +81,8 @@
 
 - 跳到这些页面的 URL 必须改成 `/packageGoods/pages/...`；
 - 这些页面自己的 `.json` 里 `usingComponents` **不用改**，因为主包组件仍在 `/components/...`；
-- `.scss` 的 `@import` **一定要加一级 `../`**：页面搬到 `packageGoods/` 后离 `miniprogram/` 根多了一层。比如 `detail.scss` 从 `../../../global.scss` 改为 `../../../../global.scss`；`login.scss` 从 `../../global.scss` 改为 `../../../global.scss`。
+- `.js` 里的相对 `import` / `require` **也要加一级 `../`**：`../../api/search` → `../../../api/search`，否则会报 `module 'packageGoods/api/search.js' is not defined`。
+- `.scss` 的 `@import` **同样加一级 `../`**：页面搬到 `packageGoods/` 后离 `miniprogram/` 根多了一层。比如 `detail.scss` 从 `../../../global.scss` 改为 `../../../../global.scss`；`login.scss` 从 `../../global.scss` 改为 `../../../global.scss`。
 
 最容易漏的是 **`utils/request.js` 里的 `LOGIN_PAGE`**：它在主包，但登录页在分包，401 时要跳过去，常量必须同步。
 
@@ -202,6 +203,7 @@ https://pcapi-xiaotuxian-front-devtest.itheima.net
 | `pages/login/login.js` 的 `redirectTo` 动态目标 | 目标可能是订单 / 地址等分包页，必须已带 `packageGoods` 前缀；`TAB_PAGES` 四个值不变 |
 | 各页 JS 的 `wx.navigateTo/redirectTo/switchTab` | 按 §7.1 新路径逐个替换；`switchTab` 的 4 个 tabBar 目标不动 |
 | `components/navigation-bar/navigation-bar.js:44` | 首页仍在主包，`/pages/index/index` 不动 |
+| 每个已搬页面的 `.js` | 相对 `import` / `require` 统一加一级 `../`，才能指回 `miniprogram/api`、`miniprogram/utils` |
 | 每个已搬页面的 `.scss` | `@import` 统一加一级 `../`，才能指回 `miniprogram/global.scss` |
 
 ### 7.3 不改的点（别顺手改坏）
@@ -306,6 +308,8 @@ https://pcapi-xiaotuxian-front-devtest.itheima.net
 
 | 现象 | 先查什么 | 处理 |
 | --- | --- | --- |
+| 渲染层 `undefined is not iterable` / `Array.from(undefined)` | 热重载残留，或某个 `wx:for` 绑定了未初始化的字段 | 批量搬目录后先「工具 → 清除缓存 → 全部清除」重编译；若稳定复现，记下页面，给该字段初始值 `[]` 或加 `wx:if` |
+| WXML/WXSS 报 `ENOENT` 找旧目录，但新目录文件齐全 | 开发者工具缓存了搬迁前的页面注册树 | 源码核对 `app.json` 与新目录后，清全部缓存并重新编译；仍不行就关闭项目重开，必要时先关「保存后自动热重载」 |
 | `page not found` | 跳转 URL 还是旧 `/pages/...` | 对照 §7.2 找漏改的绝对路径 |
 | `component not found` | `.json` 的 `usingComponents` 路径 | 页面搬动后不要改 `/components/...`；npm 组件则重新「构建 npm」 |
 | 上传提示主包 > 2M | `miniprogram_npm/` 与 `data/areas.js` | 分包页面不解决主包依赖；先做代码依赖分析，再决定裁剪 npm 或按需加载地区数据 |
@@ -313,6 +317,7 @@ https://pcapi-xiaotuxian-front-devtest.itheima.net
 | 401 后跳登录白屏 | `utils/request.js` 的 `LOGIN_PAGE` 没改 | 改成 `/packageGoods/pages/login/login` |
 | 登录后回不到原页面 | `redirect` query 里还是旧路径 | 检查调用方传的 `redirect` 与 `login.js` 的 `TAB_PAGES` 判断 |
 | SCSS 变量失效 / 编译报找不到 `global.scss` | 页面多了一层 `packageGoods/`，`@import` 少算一级 | 每个已搬页面的 `@import` 加一个 `../` |
+| `module 'packageGoods/api/xxx.js' is not defined` | 分包页 JS 的相对 `import` 少算一级，指到了分包内的假目录 | 每个已搬页面的相对导入加一个 `../`；用脚本扫一遍所有 `from '../'` |
 | 旧目录还剩一个 `.js` 文件 | 先改了 JS 再拖其它三个文件，Git 显示「新增 + 修改」而不是「重命名」 | 确认 `app.json` 与所有跳转都不再指向旧路径后，删掉旧目录残留文件 |
 | 分包页引用另一个分包页失败 | 跨分包同步引用 | 本项目用一个分包规避；不要拆成多个分包 |
 
@@ -356,4 +361,8 @@ https://pcapi-xiaotuxian-front-devtest.itheima.net
 | --- | --- |
 | 2026-11-25 | 任务书建立。基线：`git status` 干净、`lint` / `format:check` 通过、17 页全主包、源码约 2026.3KB（其中 npm 产物 1574.2KB）。确认业务只用了 `t-icon` 一个 TDesign 组件；单纯搬页面不会缩小主包，需以开发者工具代码依赖分析为准。体验版走 dev 域名，合法域名必须在后台配置。 |
 | 2026-11-25 14:33 | 你已上传代码，弹窗显示「编译后代码包大小 462.8 KB」，底部「代码质量」面板无代码质量问题；后台 `request 合法域名` 也已确认。结论：官方包体远低于 2M，不必先裁剪 npm；此版本的依赖分析入口在「代码质量」标签，展开「主包」看明细。Step 0 完成。 |
-| 2026-11-25 | Step 1 搬迁后核验：`app.json` 已从主包移除详情页并注册 `packageGoods`，5 处跳转全部改成 `/packageGoods/pages/goods/detail/detail`，`detail.scss` 已加一级 `../`。发现旧目录 `pages/goods/detail/` 残留一个 `detail.js`（只有它，另外三个文件已被 Git 识别为重命名），且无任何引用，需删除。 |
+| 2026-11-25 | Step 1 搬迁后核验：`app.json` 已从主包移除详情页并注册 `packageGoods`，5 处跳转全部改成 `/packageGoods/pages/goods/detail/detail`，`detail.scss` 已加一级 `../`。发现旧目录残留一个 `detail.js`（另外三个文件已被 Git 识别为重命名），已删除。用户提交 `cb0459d`；随后补跑 `npm run format` 修复 3 处格式问题，`lint` / `format:check` 通过。Step 1 完成。 |
+| 2026-11-25 | Step 2 商品域批次（代写）：`search` / `category/sub` / `collect` 三页四件套整体搬入 `packageGoods`，`app.json` 主包剩 13 页、分包共 4 页；3 个 SCSS 各加一级 `../`；分类页搜索入口、二级分类入口与「我的」收藏入口改到分包路径。旧目录已空，`lint` / `format:check` 通过。剩用户域 4 页 + 订单域 5 页。 |
+| 2026-11-25 | 编译实测暴露漏项：搜索页报 `module 'packageGoods/api/search.js' is not defined`。原因是**JS 相对导入也少一级**（只改了 SCSS）。修复 `search.js` 两处、`sub.js` 两处、`collect.js` 一处相对导入，各加一级 `../`；写脚本扫描 `packageGoods/**/*.js` 所有相对导入，确认全部可解析。`lint` / `format:check` 通过。此坑已补进 §4.3 / §7.2 / §12。 |
+| 2026-11-25 | Step 2 用户域批次（代写）：`login` / `profile` / `address/list` / `address/edit` 四页整体搬入分包，`app.json` 主包 9 页、分包 8 页、合计 17 页。同步 4 页 JS/SCSS 相对路径 + 7 处入口引用（含 `utils/request.js` 的 `LOGIN_PAGE`、401 回跳、结算换地址）。旧目录清空、相对导入扫描无断链、`lint` / `format:check` 通过。源码口径主包 1951.9 KB / 分包 74.8 KB，主包比搬迁前减少约 35.7 KB。 |
+| 2026-11-25 | Step 2 订单域批次（代写）：`order/confirm` / `pay` / `list` / `detail` / `logistics` 五页整体搬入分包。`app.json` 主包只剩 4 个 tabBar 页，分包 13 页，合计 17 页；5 页 JS/SCSS 相对路径各加一级 `../`；12 处入口引用改到 `/packageGoods/pages/order/...`（购物车结算、我的订单、提交→支付、支付→详情、列表四入口、详情三入口）。旧目录清空、相对导入扫描无断链、`npm run format` 后 `lint` / `format:check` 通过。源码口径主包 1903.3 KB / 分包 123.6 KB。Step 2 完成。 |

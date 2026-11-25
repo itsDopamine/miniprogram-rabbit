@@ -238,12 +238,12 @@ Page({
     // 结算必须登录：这是业务规则，不是技术限制
     if (!getToken()) {
       wx.navigateTo({
-        url: '/pages/login/login?redirect=' + encodeURIComponent('/pages/cart/cart')
+        url: '/packageGoods/pages/login/login?redirect=' + encodeURIComponent('/pages/cart/cart')
       })
       return
     }
 
-    wx.navigateTo({ url: '/pages/order/confirm/confirm' })
+    wx.navigateTo({ url: '/packageGoods/pages/order/confirm/confirm' })
   },
 
   onGoHome() {

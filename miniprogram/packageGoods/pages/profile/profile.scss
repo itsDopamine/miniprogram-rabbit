@@ -1,0 +1,98 @@
+/** pages/profile/profile.scss */
+@import '../../../global.scss';
+
+page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: $bg-page;
+}
+
+.body {
+  flex: 1;
+  height: 0;
+  // 给固定底栏留出空间，滚到底时最后一行不会被压住
+  padding-bottom: 200rpx;
+}
+
+.group {
+  background-color: $bg-card;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  min-height: 100rpx;
+  padding: 0 $gap-lg;
+
+  @include hairline(bottom);
+}
+
+.row__label {
+  width: 140rpx;
+  color: $text-primary;
+  font-size: $font-base;
+}
+
+.row__input {
+  flex: 1;
+  color: $text-primary;
+  font-size: $font-base;
+}
+
+.row__ph {
+  color: $text-placeholder;
+}
+
+.row__value {
+  color: $text-primary;
+  font-size: $font-base;
+
+  &--empty {
+    color: $text-placeholder;
+  }
+}
+
+.row__picker {
+  flex: 1;
+}
+
+// 去掉 button 默认样式，只留点击区
+.row__avatar-btn {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  line-height: 1;
+
+  &::after {
+    border: none;
+  }
+}
+
+.row__avatar {
+  margin: $gap-sm 0;
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: $radius-round;
+  background-color: $brand-color-light;
+}
+
+.save {
+  position: fixed;
+  left: $gap-lg;
+  right: $gap-lg;
+  // 非 tabBar 页自己让开底部安全区，否则被 iPhone 的横条压住
+  bottom: calc(#{$gap-base} + env(safe-area-inset-bottom));
+  height: 88rpx;
+  border-radius: $radius-round;
+  background-color: $brand-color;
+  color: #fff;
+  font-size: $font-md;
+  line-height: 88rpx;
+  text-align: center;
+
+  &--disabled {
+    opacity: 0.6;
+  }
+}

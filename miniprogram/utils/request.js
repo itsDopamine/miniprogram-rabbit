@@ -8,7 +8,7 @@ import { clearAuth, getToken, getUser, setToken } from './auth'
 /** 业务成功码。实测接口返回字符串 '1'，React 版按 0 判断是错的 */
 const SUCCESS_CODE = '1'
 
-const LOGIN_PAGE = '/pages/login/login'
+const LOGIN_PAGE = '/packageGoods/pages/login/login'
 
 let loadingCount = 0
 let redirecting = false

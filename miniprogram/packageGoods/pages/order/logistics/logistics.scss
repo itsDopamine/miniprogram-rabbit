@@ -1,0 +1,143 @@
+/** pages/order/logistics/logistics.scss */
+@import '../../../../global.scss';
+
+page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: $bg-page;
+}
+
+.body {
+  flex: 1;
+  height: 0; // flex 子项要有确定高度，scroll-view 才真正滚动
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx $gap-xl;
+}
+
+.state__text {
+  color: $text-secondary;
+  font-size: $font-base;
+}
+
+.state__btn {
+  margin-top: $gap-base;
+  padding: $gap-sm $gap-lg;
+  border: 1rpx solid $brand-color;
+  border-radius: $radius-round;
+  color: $brand-color;
+  font-size: $font-base;
+
+  &--disabled {
+    opacity: 0.5;
+  }
+}
+
+.state__tip {
+  margin-top: $gap-sm;
+  color: $text-placeholder;
+  font-size: $font-xs;
+  text-align: center;
+}
+
+.goods {
+  display: flex;
+  align-items: center;
+  padding: $gap-base $gap-lg;
+  background-color: $bg-card;
+}
+
+.goods__img {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: $radius-sm;
+  background-color: $bg-page;
+}
+
+.goods__info {
+  margin-left: $gap-base;
+}
+
+.goods__name {
+  display: block;
+  color: $text-primary;
+  font-size: $font-base;
+}
+
+.goods__count {
+  display: block;
+  margin-top: $gap-xs;
+  color: $text-secondary;
+  font-size: $font-sm;
+}
+
+.timeline {
+  margin-top: $gap-base;
+  padding: $gap-base $gap-lg $gap-base 0;
+  background-color: $bg-card;
+}
+
+.node {
+  position: relative;
+  display: flex;
+  padding-bottom: $gap-lg;
+  // 竖线：贯穿到下一个节点，最后一个不画
+  &::before {
+    content: '';
+    position: absolute;
+    left: 46rpx;
+    top: 24rpx;
+    bottom: 0;
+    width: 1rpx;
+    background-color: $border-color;
+  }
+
+  &:last-child::before {
+    display: none;
+  }
+}
+
+.node__dot {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 16rpx;
+  height: 16rpx;
+  margin: 12rpx 24rpx 0 38rpx;
+  border-radius: 50%;
+  background-color: $border-color;
+
+  // 最新一条高亮
+  .node--on & {
+    background-color: $brand-color;
+  }
+}
+
+.node__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.node__text {
+  display: block;
+  color: $text-regular;
+  font-size: $font-sm;
+  line-height: 1.6;
+
+  .node--on & {
+    color: $text-primary;
+  }
+}
+
+.node__time {
+  display: block;
+  margin-top: $gap-xs;
+  color: $text-placeholder;
+  font-size: $font-xs;
+}
