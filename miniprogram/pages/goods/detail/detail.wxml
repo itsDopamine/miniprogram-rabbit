@@ -1,0 +1,102 @@
+<navigation-bar title="商品详情" background="#FFFFFF" />
+
+<scroll-view class="body" scroll-y>
+  <!-- 骨架屏：主图 + 信息占位，高度贴近真实内容，避免加载完跳版 -->
+  <view class="skeleton" wx:if="{{loading}}">
+    <view class="skeleton__gallery"></view>
+    <view class="skeleton__info">
+      <view class="skeleton__price"></view>
+      <view class="skeleton__line"></view>
+      <view class="skeleton__line skeleton__line--short"></view>
+    </view>
+  </view>
+
+  <view class="state" wx:elif="{{error}}">
+    <text class="state__text">{{error}}</text>
+    <view class="state__btn" wx:if="{{id}}" bindtap="onRetry">重新加载</view>
+  </view>
+
+  <block wx:else>
+    <!-- swiper 的高度不会被子元素撑开，正方形靠 rpx 固定 -->
+    <swiper
+      class="gallery"
+      indicator-dots
+      indicator-color="rgba(255, 255, 255, 0.5)"
+      indicator-active-color="#cf4444"
+    >
+      <swiper-item wx:for="{{mainPictures}}" wx:key="*this">
+        <image
+          class="gallery__img"
+          src="{{item}}"
+          mode="aspectFill"
+          data-index="{{index}}"
+          bindtap="onPreviewMain"
+        />
+      </swiper-item>
+    </swiper>
+
+    <view class="info">
+      <view class="info__price">
+        <text class="info__symbol">¥</text>
+        <text class="info__now">{{price}}</text>
+        <!-- 实测有商品 oldPrice 与 price 相同，同价时不摆划线价 -->
+        <text class="info__old" wx:if="{{oldPrice && oldPrice !== price}}">¥{{oldPrice}}</text>
+      </view>
+      <text class="info__name">{{name}}</text>
+      <text class="info__desc" wx:if="{{desc}}">{{desc}}</text>
+    </view>
+
+    <view class="props" wx:if="{{properties.length}}">
+      <view class="props__item" wx:for="{{properties}}" wx:key="name">
+        <text class="props__name">{{item.name}}</text>
+        <text class="props__value">{{item.value}}</text>
+      </view>
+    </view>
+
+    <view class="detail" wx:if="{{detailPictures.length}}">
+      <view class="detail__title">商品详情</view>
+      <!-- widthFix：长图高度由宽度推算，不写死比例 -->
+      <image
+        class="detail__img"
+        wx:for="{{detailPictures}}"
+        wx:key="*this"
+        src="{{item}}"
+        mode="widthFix"
+        data-index="{{index}}"
+        bindtap="onPreviewDetail"
+      />
+    </view>
+  </block>
+</scroll-view>
+
+<!-- 操作栏在滚动容器外，跟着页面固定，不随内容滚走 -->
+<view class="bar" wx:if="{{!loading && !error}}">
+  <view class="bar__entry" bindtap="onTapService">
+    <view class="bar__icon bar__icon--service"></view>
+    <text class="bar__entry-text">客服</text>
+  </view>
+  <view class="bar__entry" bindtap="onTapCollect">
+    <view class="bar__icon bar__icon--heart {{collected ? 'bar__icon--on' : ''}}"></view>
+    <text class="bar__entry-text">{{collected ? '已收藏' : '收藏'}}</text>
+  </view>
+  <view class="bar__entry" bindtap="onTapCart">
+    <view class="bar__icon bar__icon--cart"></view>
+    <text class="bar__entry-text">购物车</text>
+  </view>
+  <view class="bar__actions">
+    <view class="bar__btn bar__btn--cart" bindtap="onOpenSku">加入购物车</view>
+    <view class="bar__btn bar__btn--buy" bindtap="onOpenSku">立即购买</view>
+  </view>
+</view>
+
+<!-- 选中态、禁用态、数量都由组件自己管，页面只关心「开合」和「确定」 -->
+<sku-panel
+  id="skuPanel"
+  visible="{{skuVisible}}"
+  specs="{{specs}}"
+  skus="{{skus}}"
+  price="{{price}}"
+  picture="{{mainPictures[0] || ''}}"
+  bind:visible-change="onSkuVisibleChange"
+  bind:confirm="onSkuConfirm"
+/>

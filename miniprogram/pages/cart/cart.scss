@@ -1,0 +1,274 @@
+/** pages/cart/cart.scss */
+@import '../../global.scss';
+
+// 导航栏固定、列表滚动、结算栏钉底
+page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.body {
+  flex: 1;
+  height: 0; // flex 子项要有确定高度，scroll-view 才真正滚动
+  padding: $gap-sm;
+  background-color: $bg-page;
+}
+
+/* ---------- 列表项 ---------- */
+.item {
+  display: flex;
+  align-items: center;
+  padding: $gap-base;
+  margin-bottom: $gap-sm;
+  border-radius: $radius-base;
+  background-color: $bg-card;
+
+  &--invalid {
+    .item__pic,
+    .item__name,
+    .item__attrs,
+    .item__price {
+      opacity: 0.4;
+    }
+  }
+}
+
+.item__pic {
+  flex: none;
+  width: 180rpx;
+  height: 180rpx;
+  margin: 0 $gap-base;
+  border-radius: $radius-base;
+  background-color: $bg-page;
+}
+
+.item__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.item__head {
+  display: flex;
+  align-items: flex-start;
+}
+
+.item__name {
+  flex: 1;
+  min-width: 0;
+  color: $text-primary;
+  font-size: $font-base;
+  @include ellipsis-multi(2);
+}
+
+// 自绘叉号：图标字体要等远程字体，首帧会渲染成乱码
+.item__del {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48rpx;
+  height: 48rpx;
+  margin-left: $gap-xs;
+}
+
+.item__del-icon {
+  position: relative;
+  width: 24rpx;
+  height: 24rpx;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 2rpx;
+    background-color: $text-secondary;
+  }
+
+  &::before {
+    transform: rotate(45deg);
+  }
+
+  &::after {
+    transform: rotate(-45deg);
+  }
+}
+
+.item__attrs {
+  margin-top: $gap-xs;
+  color: $text-secondary;
+  font-size: $font-xs;
+  @include ellipsis;
+}
+
+.item__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: $gap-sm;
+}
+
+.item__price {
+  color: $brand-color;
+  font-size: $font-md;
+  font-weight: 600;
+}
+
+.item__invalid-text {
+  color: $text-placeholder;
+  font-size: $font-xs;
+}
+
+/* ---------- 勾选圆点 ---------- */
+.check {
+  flex: none;
+  position: relative;
+  width: 40rpx;
+  height: 40rpx;
+  border: 2rpx solid $border-color;
+  border-radius: 50%;
+  background-color: $bg-card;
+
+  &--on {
+    border-color: $brand-color;
+    background-color: $brand-color;
+
+    // 对勾用两条边框旋转 45 度拼出来
+    &::after {
+      content: '';
+      position: absolute;
+      top: 6rpx;
+      left: 12rpx;
+      width: 10rpx;
+      height: 18rpx;
+      border-right: 3rpx solid #fff;
+      border-bottom: 3rpx solid #fff;
+      transform: rotate(45deg);
+    }
+  }
+
+  // 失效商品不可选
+  &--off {
+    background-color: $bg-page;
+  }
+}
+
+/* ---------- 数量步进器 ---------- */
+.stepper {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border-radius: $radius-sm;
+  background-color: $bg-page;
+
+  &__btn {
+    width: 56rpx;
+    height: 52rpx;
+    line-height: 52rpx;
+    color: $text-primary;
+    font-size: $font-md;
+    text-align: center;
+
+    &--off {
+      color: $text-placeholder;
+    }
+  }
+
+  // input 默认有自带宽度和内边距，不重置会把步进器撑开
+  &__input {
+    width: 72rpx;
+    height: 52rpx;
+    padding: 0;
+    color: $text-primary;
+    font-size: $font-sm;
+    text-align: center;
+  }
+}
+
+.tips {
+  padding: $gap-lg 0 $gap-xl;
+  color: $text-placeholder;
+  font-size: $font-sm;
+  text-align: center;
+}
+
+/* ---------- 结算栏 ---------- */
+// tabBar 页面不补安全区：底部 tabBar 已经占掉了，再加会多出一条空白
+.bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: $gap-sm $gap-base;
+  background-color: $bg-card;
+  box-shadow: $shadow-float;
+}
+
+.bar__all {
+  display: flex;
+  align-items: center;
+}
+
+.bar__all-text {
+  margin-left: $gap-sm;
+  color: $text-regular;
+  font-size: $font-sm;
+}
+
+.bar__sum {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  margin-right: $gap-base;
+}
+
+.bar__label {
+  color: $text-regular;
+  font-size: $font-sm;
+}
+
+.bar__price {
+  color: $brand-color;
+  font-size: $font-lg;
+  font-weight: 600;
+}
+
+.bar__btn {
+  flex: none;
+  height: 72rpx;
+  padding: 0 $gap-lg;
+  line-height: 72rpx;
+  border-radius: $radius-round;
+  background-color: $brand-color;
+  color: #fff;
+  font-size: $font-base;
+  text-align: center;
+}
+
+/* ---------- 状态占位 ---------- */
+.state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  &__text {
+    color: $text-secondary;
+    font-size: $font-base;
+  }
+
+  &__btn {
+    margin-top: $gap-base;
+    padding: $gap-sm $gap-lg;
+    border: 1rpx solid $brand-color;
+    border-radius: $radius-round;
+    color: $brand-color;
+    font-size: $font-base;
+  }
+}

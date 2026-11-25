@@ -1,0 +1,15 @@
+<view class="nav" style="padding-top: {{statusBarHeight}}px; background: {{background}};">
+  <view class="nav__inner" style="height: {{navHeight}}px;">
+    <view wx:if="{{canBack}}" class="nav__back" hover-class="nav__back--active" bindtap="onBack">
+      <view class="nav__back-icon" style="border-color: {{color}};"></view>
+    </view>
+
+    <view class="nav__title" style="left: {{rightWidth}}px; right: {{rightWidth}}px; color: {{color}};">
+      {{title}}
+    </view>
+
+    <view class="nav__right" style="width: {{rightWidth}}px;">
+      <slot name="right"></slot>
+    </view>
+  </view>
+</view>

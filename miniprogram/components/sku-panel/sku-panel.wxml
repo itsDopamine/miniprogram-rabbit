@@ -1,0 +1,66 @@
+<!-- 遮罩与面板都 fixed 定位，不参与父容器的 flex 流 -->
+<view class="mask {{visible ? 'mask--show' : ''}}" bindtap="onClose" catchtouchmove="noop"></view>
+
+<view class="sku {{visible ? 'sku--show' : ''}}">
+  <view class="sku__head">
+    <image class="sku__pic" src="{{skuPicture}}" mode="aspectFill" />
+    <view class="sku__meta">
+      <view class="sku__price">
+        <text class="sku__symbol">¥</text>
+        <text class="sku__num">{{skuPrice}}</text>
+      </view>
+      <text class="sku__stock" wx:if="{{skuStock}}">库存 {{skuStock}}</text>
+      <text class="sku__tip">{{selectedText || '请选择规格'}}</text>
+    </view>
+    <view class="sku__close" bindtap="onClose">
+      <view class="sku__close-icon"></view>
+    </view>
+  </view>
+
+  <!-- scroll-view 必须有高度上限才能滚，内容少时由内容撑开 -->
+  <scroll-view class="sku__body" scroll-y>
+    <view
+      class="sku__group"
+      wx:for="{{specs}}"
+      wx:key="name"
+      wx:for-item="spec"
+      wx:for-index="specIndex"
+    >
+      <text class="sku__group-name">{{spec.name}}</text>
+      <view class="sku__values">
+        <view
+          class="sku__value {{selected[specIndex] === value.name ? 'sku__value--active' : ''}} {{disabled[specIndex][valueIndex] ? 'sku__value--disabled' : ''}}"
+          wx:for="{{spec.values}}"
+          wx:for-item="value"
+          wx:for-index="valueIndex"
+          wx:key="name"
+          data-spec-index="{{specIndex}}"
+          data-value-name="{{value.name}}"
+          bindtap="onTapSpec"
+        >
+          {{value.name}}
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="sku__count">
+    <text class="sku__count-label">购买数量</text>
+    <view class="stepper">
+      <view class="stepper__btn {{count <= 1 ? 'stepper__btn--off' : ''}}" bindtap="onMinus">-</view>
+      <input
+        class="stepper__input"
+        type="number"
+        value="{{count}}"
+        bindinput="onCountInput"
+        bindblur="onCountBlur"
+        bindconfirm="onCountBlur"
+      />
+      <view class="stepper__btn {{count >= maxCount ? 'stepper__btn--off' : ''}}" bindtap="onPlus">+</view>
+    </view>
+  </view>
+
+  <view class="sku__footer">
+    <view class="sku__confirm" bindtap="onConfirm">确定</view>
+  </view>
+</view>

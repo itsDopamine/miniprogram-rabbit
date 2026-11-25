@@ -1,0 +1,178 @@
+/** pages/category/category.scss */
+@import '../../global.scss';
+
+// 导航栏与两栏区上下分栏，两栏各自内部滚动
+page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+// 导航栏在这里是 flex 分栏头，本来就不参与滚动；块级化与吸顶由 app.scss 统一处理，
+// 这里只固定住不被压缩
+navigation-bar {
+  flex: none;
+}
+
+// 搜索入口：只是个假输入框，点进搜索页才真正输入
+.search-entry {
+  flex: none;
+  padding: $gap-sm $gap-base;
+  background-color: $bg-card;
+
+  &__box {
+    display: flex;
+    align-items: center;
+    height: 68rpx;
+    padding: 0 $gap-base;
+    border-radius: $radius-round;
+    background-color: $bg-page;
+  }
+
+  // 圆 + 一条斜线拼成放大镜，省掉图标字体
+  &__icon {
+    position: relative;
+    flex: none;
+    width: 24rpx;
+    height: 24rpx;
+    margin-right: $gap-xs;
+    border: 3rpx solid $text-placeholder;
+    border-radius: 50%;
+
+    &::after {
+      content: '';
+      position: absolute;
+      right: -8rpx;
+      bottom: -5rpx;
+      width: 12rpx;
+      height: 3rpx;
+      background-color: $text-placeholder;
+      transform: rotate(45deg);
+    }
+  }
+
+  &__text {
+    color: $text-placeholder;
+    font-size: $font-base;
+  }
+}
+
+.page {
+  flex: 1;
+  // 少了这两句，子元素的「最小内容尺寸」会把容器撑开，scroll-view 滚不动且横向溢出
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+}
+
+.category {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+
+  &__left {
+    flex: none;
+    width: 180rpx;
+    height: 100%;
+    background-color: $bg-page;
+  }
+
+  &__nav {
+    padding: 26rpx $gap-sm;
+    color: $text-regular;
+    font-size: $font-base;
+    text-align: center;
+
+    &--active {
+      background-color: $bg-card;
+      color: $brand-color;
+      font-weight: 600;
+    }
+  }
+
+  &__right {
+    flex: 1;
+    min-width: 0; // 不加这条，内容宽度会把 scroll-view 撑到屏幕外
+    height: 100%;
+    background-color: $bg-card;
+  }
+}
+
+.block {
+  // 吸顶在 scroll-view 里成立的前提：祖先链上没有 overflow 裁剪，且自身有 top
+  &__title {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: $gap-sm $gap-base;
+    background-color: $bg-card;
+    color: $text-primary;
+    font-size: $font-md;
+    font-weight: 600;
+    // 原生滚动与吸顶是两套渲染，不同步时标题会跟着滚一小段。单独提层后由合成器统一处理
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  // 可点：进二级分类页
+  &__sub-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $gap-sm $gap-base $gap-xs;
+    color: $text-regular;
+    font-size: $font-base;
+  }
+
+  &__sub-arrow {
+    color: $text-placeholder;
+    font-size: $font-md;
+  }
+
+  &__goods {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0 $gap-base $gap-xs;
+  }
+
+  // 不用 space-between：它会把剩余宽度均分到元素之间，最后一行不足 3 个时空隙会跑到中间
+  // 31% × 3 + 3.4% × 2 = 99.8%，留 0.2% 余量吸收像素舍入，否则可能被挤到下一行
+  &__goods-item {
+    flex: 0 0 31%;
+    margin: 0 3.4% $gap-sm 0;
+    min-width: 0;
+
+    &:nth-child(3n) {
+      margin-right: 0;
+    }
+  }
+
+  &__empty {
+    padding: 0 $gap-base $gap-sm;
+    color: $text-placeholder;
+    font-size: $font-sm;
+  }
+}
+
+.state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx $gap-xl;
+
+  &__text {
+    color: $text-secondary;
+    font-size: $font-base;
+  }
+
+  &__btn {
+    margin-top: $gap-base;
+    padding: $gap-sm $gap-lg;
+    border: 1rpx solid $brand-color;
+    border-radius: $radius-round;
+    color: $brand-color;
+    font-size: $font-base;
+  }
+}

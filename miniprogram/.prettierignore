@@ -1,0 +1,13 @@
+# 只作用于 miniprogram/ 内的源码
+node_modules/
+miniprogram_npm/
+package-lock.json
+
+# WXML 没有可靠解析器，强行走 html 解析会把标签改坏
+**/*.wxml
+
+# 生成的数据文件：一行一条记录，格式化会把它拆成上万行且看不出差异
+data/areas.js
+
+# 开发者工具生成的骨架屏样式，重新生成会覆盖手工格式化
+pages/index/index.skeleton.scss

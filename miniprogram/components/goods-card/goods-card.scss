@@ -1,0 +1,83 @@
+@import '../../global.scss';
+
+.goods-card {
+  // 组件默认样式隔离，app.scss 的 box-sizing 重置进不来，这里自己写
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: $radius-base;
+  background-color: $bg-card;
+}
+
+.goods-card--active {
+  opacity: 0.8;
+}
+
+// 正方形封面：padding-top 百分比按宽度算，比写死高度更耐列数变化
+.goods-card__cover {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+}
+
+.goods-card__pic {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.goods-card__info {
+  display: flex;
+  flex-direction: column;
+  padding: $gap-sm;
+}
+
+.goods-card__name {
+  color: $text-primary;
+  font-size: $font-base;
+  @include ellipsis;
+}
+
+// 三档字重排价格：符号小、整数大、小数回落，数字等宽避免变价时抖动
+.goods-card__price {
+  display: flex;
+  align-items: baseline;
+  margin-top: $gap-xs;
+  color: $brand-color;
+  font-variant-numeric: tabular-nums;
+}
+
+.goods-card__currency {
+  margin-right: 2rpx;
+  font-size: $font-sm;
+}
+
+.goods-card__int {
+  font-size: $font-lg;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.goods-card__dec {
+  font-size: $font-sm;
+}
+
+/* ---------- 横向布局 ---------- */
+.goods-card--row {
+  flex-direction: row;
+  align-items: center;
+
+  .goods-card__cover {
+    flex: none;
+    width: 180rpx;
+    padding-top: 180rpx;
+  }
+
+  .goods-card__info {
+    flex: 1;
+    overflow: hidden;
+  }
+}

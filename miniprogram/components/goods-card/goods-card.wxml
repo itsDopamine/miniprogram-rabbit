@@ -1,0 +1,23 @@
+<!-- 价格拆分：¥ 小、整数大、小数小。用 WXS 现算，避免每个页面都预计算一遍 -->
+<wxs module="fmt">
+var norm = function (v) {
+  var s = '' + (v === null || v === undefined || v === '' ? 0 : v);
+  var dot = s.indexOf('.');
+  var dec = dot < 0 ? '' : s.slice(dot + 1);
+  if (dec.length === 0) { dec = '00'; }
+  if (dec.length === 1) { dec = dec + '0'; }
+  return { int: dot < 0 ? s : s.slice(0, dot), dec: dec };
+};
+module.exports = { norm: norm };
+</wxs>
+
+<view class="goods-card goods-card--{{layout}}" hover-class="goods-card--active" bindtap="onTap">
+  <view class="goods-card__cover">
+    <image class="goods-card__pic" src="{{goods.picture}}" mode="aspectFill" />
+  </view>
+
+  <view class="goods-card__info">
+    <text class="goods-card__name">{{goods.name}}</text>
+    <view class="goods-card__price"><text class="goods-card__currency">¥</text><text class="goods-card__int">{{fmt.norm(goods.price).int}}</text><text class="goods-card__dec">.{{fmt.norm(goods.price).dec}}</text></view>
+  </view>
+</view>

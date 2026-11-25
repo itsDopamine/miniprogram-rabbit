@@ -1,0 +1,492 @@
+/** pages/index/index.scss */
+// 显式引入全局变量：路径相对本文件，pages/xxx/xxx.scss 都是两级
+@import '../../global.scss';
+// 开发者工具生成的骨架屏样式（.sk-*），模板在 index.skeleton.wxml
+@import './index.skeleton.scss';
+
+// 导航栏与滚动区上下分栏：下拉刷新只动下面的滚动区，标题不动
+// 全局 page 不再是确定高度，这里要靠 height:100% 撑住，下方 .page 的 flex:1 才有参照
+page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.page {
+  flex: 1;
+  height: 0; // flex 子项必须有确定高度，scroll-view 才能真正滚动
+  background-color: $bg-page;
+
+  // 绝对定位的哨兵需要随内容滚动的定位祖先，才能被交叉检测到移出视口
+  &__body {
+    position: relative;
+  }
+
+  // 跳转锚点：0 高度不占位，仅给 scroll-into-view 一个可命中的坐标
+  &__top {
+    height: 0;
+  }
+
+  // 高度即阈值：400rpx ≈ 滚过轮播才出按钮；1px 宽避免盖住 banner 的手势
+  &__sentinel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 400rpx;
+  }
+}
+
+/* ---------- 头部氛围区 ---------- */
+// 品牌淡底向下渐隐到页面底色，承担首屏的氛围而不是铺满全屏
+.hero {
+  padding: 0 $gap-base 72rpx;
+  background-image: linear-gradient(
+    180deg,
+    $brand-color-soft 0%,
+    $brand-color-soft 55%,
+    $bg-page 100%
+  );
+}
+
+// swiper 是容器组件，高度不会被子元素撑开，必须显式给
+.banner {
+  height: 300rpx;
+  overflow: hidden;
+  border-radius: $radius-base;
+  background-color: $bg-card;
+
+  &__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* ---------- 分类宫格 ---------- */
+// 负边距压住 hero 底部：白卡浮在淡色渐隐上，靠层次代替阴影
+.categories {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  margin: -48rpx $gap-base 0;
+  padding: $gap-lg 0 $gap-xs;
+  border-radius: $radius-base;
+  background-color: $bg-card;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 20%;
+    padding-bottom: $gap-base;
+  }
+
+  &__icon {
+    width: 80rpx;
+    height: 80rpx;
+  }
+
+  &__name {
+    margin-top: $gap-xs;
+    color: $text-regular;
+    font-size: $font-sm;
+  }
+}
+
+.categories__item--active {
+  opacity: 0.6;
+}
+
+/* ---------- 模块卡片 ---------- */
+// 白卡 + 24rpx 侧边距，与通栏的楼层形成两种间距节奏
+.section {
+  margin: $gap-base $gap-base 0;
+  padding: $gap-base $gap-base 0;
+  border-radius: $radius-base;
+  background-color: $bg-card;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    margin-bottom: $gap-base;
+  }
+
+  // 品牌色短横：与登录页标题短横同一套语汇
+  &__rule {
+    flex: none;
+    width: 40rpx;
+    height: 8rpx;
+    margin-right: $gap-sm;
+    border-radius: $radius-sm;
+    background-color: $brand-color;
+  }
+
+  &__title {
+    color: $text-primary;
+    font-size: $font-lg;
+    font-weight: 600;
+  }
+
+  &__desc {
+    margin-left: $gap-sm;
+    color: $text-secondary;
+    font-size: $font-sm;
+  }
+}
+
+/* ---------- 新鲜好物：横滑 ---------- */
+.fresh {
+  display: flex;
+  padding-bottom: $gap-base;
+
+  &__item {
+    flex: none;
+    width: 300rpx;
+    margin-right: $gap-sm;
+  }
+}
+
+// 横滑容器不要出现滚动条
+.fresh::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* ---------- 猜你喜欢：两列 ---------- */
+.guess {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding-bottom: $gap-base;
+
+  &__item {
+    width: 48%;
+    margin-bottom: $gap-sm;
+  }
+}
+
+/* ---------- 热门推荐 ---------- */
+.panels {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding-bottom: $gap-base;
+
+  // 浅灰底块：品牌淡红在白卡上偏脏，改用页面背景色
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 48%;
+    margin-bottom: $gap-sm;
+    padding: $gap-sm;
+    border-radius: $radius-base;
+    background-color: $bg-page;
+  }
+
+  &__pic {
+    width: 100%;
+    height: 200rpx;
+    border-radius: $radius-sm;
+  }
+
+  &__title {
+    margin-top: $gap-xs;
+    color: $text-primary;
+    font-size: $font-base;
+  }
+
+  &__alt {
+    color: $text-secondary;
+    font-size: $font-sm;
+  }
+}
+
+/* ---------- 分类楼层 ---------- */
+// 与上面的 section 统一成圆角卡：通栏时商品卡会贴到屏幕边缘，看着挤
+.floor {
+  margin: $gap-sm $gap-base 0;
+  padding: $gap-base $gap-base $gap-sm;
+  border-radius: $radius-base;
+  background-color: $bg-card;
+
+  // 编号 + 标题同一行：四层楼长得完全一样，编号是唯一能把它们区分开的记号
+  &__title-row {
+    display: flex;
+    align-items: baseline;
+  }
+
+  &__index {
+    margin-right: $gap-xs;
+    color: $brand-color;
+    font-size: $font-sm;
+    font-weight: 600;
+    letter-spacing: 1rpx;
+  }
+
+  // 标题吃掉中间的空间，把促销推到最右，右半边就不会空着
+  &__name {
+    flex: 1;
+    margin-right: $gap-sm;
+    color: $text-primary;
+    font-size: $font-lg;
+    font-weight: 600;
+    @include ellipsis;
+  }
+
+  // 促销信息用品牌色：灰色小字读不出"在打折"
+  &__sale {
+    flex: none;
+    max-width: 45%; // 促销文案过长时截断，不能把标题挤没
+    color: $brand-color;
+    font-size: $font-sm;
+    @include ellipsis;
+  }
+
+  &__tag-wrap {
+    position: relative;
+    margin-top: $gap-sm;
+
+    // 右边缘渐隐：横滑容器本身没有"还有内容"的视觉提示
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 48rpx;
+      background-image: linear-gradient(90deg, rgba(255, 255, 255, 0), $bg-card 70%);
+      pointer-events: none;
+    }
+  }
+
+  &__tags {
+    white-space: nowrap;
+  }
+
+  // 去掉胶囊底：7 个灰药丸排在一起像一排按钮，会盖过商品本身
+  // 字色用 regular 而不是 secondary——#999 在 20rpx 上只有 2.85:1，读不清
+  &__tag {
+    display: inline-block;
+    color: $text-regular;
+    font-size: $font-xs;
+
+    // 分隔点用伪元素，最后一项不带，避免出现尾随的点
+    &:not(:last-child)::after {
+      content: '·';
+      margin: 0 $gap-sm;
+      color: $text-placeholder;
+    }
+  }
+
+  &__goods {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: $gap-base;
+  }
+
+  // 接口每层固定 8 个商品，4 列正好两行
+  &__goods-item {
+    width: 24%;
+    margin-bottom: $gap-sm;
+  }
+}
+
+.floor__tags::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* ---------- 骨架屏 ---------- */
+// 生成样式在文件顶部通过 @import './index.skeleton.scss' 引入，此处只做覆盖与补全
+// 生成模板是整页绝对定位，底色透明：不铺底的话后面的真实内容会透出来
+.sk-container {
+  // 模板内的滚动区复用了页面的 .page（flex: 1 + height: 0），
+  // 这里必须是 flex 容器，否则 height: 0 生效，整块骨架被裁成全白
+  display: flex;
+  flex-direction: column;
+  background-color: $bg-page;
+
+  // 工具把组件内部节点也画进了模板，但组件样式是隔离的，这些带前缀的 class 拿不到布局
+  // 这里按 navigation-bar / goods-card 的真实布局补最小必要尺寸，其余交给生成样式
+  .bar--nav {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .bar--nav__inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 $gap-base;
+    box-sizing: border-box;
+  }
+
+  // 生成模板给标题设了 left/right 各 94px，占位条会铺满整个容器变成一根长灰棍
+  // 收窄成居中的短条才像"标题"，inline style 只能用 !important 盖掉
+  // 生成样式的 background-repeat 是 repeat-y，不改成 no-repeat 会纵向平铺出好几条
+  .bar--nav__title {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50% !important;
+    right: auto !important;
+    width: 160rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34rpx;
+    font-weight: 600;
+    background-size: 100% 40rpx !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    transform: translateX(-50%);
+  }
+
+  .bar--nav__right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+    margin-left: auto;
+  }
+
+  .card--goods-card {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: $radius-base;
+    background-color: $bg-card;
+  }
+
+  .card--goods-card__cover {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+  }
+
+  .card--goods-card__pic {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .card--goods-card__info {
+    display: flex;
+    flex-direction: column;
+    padding: $gap-sm;
+  }
+
+  .card--goods-card__name {
+    font-size: $font-base;
+    @include ellipsis;
+  }
+
+  .card--goods-card__price {
+    display: flex;
+    align-items: baseline;
+    margin-top: $gap-xs;
+  }
+
+  .card--goods-card__currency {
+    font-size: $font-sm;
+  }
+
+  .card--goods-card__int {
+    font-size: $font-lg;
+    font-weight: 600;
+  }
+
+  .card--goods-card__dec {
+    font-size: $font-sm;
+  }
+
+  // 分区标题前的短横是真实元素，骨架里会按品牌红渲染，整片灰里跳一抹红
+  .section__rule {
+    background-color: #e3e3e3 !important;
+  }
+
+  // 生成样式给标题和副标题同一种灰，主次分不出来；标题压深一档
+  .section__title {
+    background-image: linear-gradient(
+      transparent 14.2857%,
+      #d9d9d9 0%,
+      #d9d9d9 85.7143%,
+      transparent 0%
+    ) !important;
+  }
+}
+
+/* ---------- 空态 / 错误态 ---------- */
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 200rpx $gap-xl;
+
+  &__text {
+    color: $text-secondary;
+    font-size: $font-base;
+  }
+
+  &__btn {
+    margin-top: $gap-base;
+    padding: $gap-sm $gap-lg;
+    border: 1rpx solid $brand-color;
+    border-radius: $radius-round;
+    color: $brand-color;
+    font-size: $font-base;
+  }
+}
+
+// 内容一次全渲染，这里只是列表结束的提示，不带加载逻辑
+.more {
+  padding: $gap-lg 0 $gap-xl;
+  color: $text-placeholder;
+  font-size: $font-sm;
+  text-align: center;
+}
+
+.more::before,
+.more::after {
+  content: '';
+  display: inline-block;
+  width: 40rpx;
+  height: 1rpx;
+  margin: 0 $gap-sm;
+  vertical-align: middle;
+  background-color: $border-color;
+}
+
+// 自绘箭头，不用图标字体：字体要等 CDN 下载，首帧会先渲染成乱码字形
+.back-top {
+  position: fixed;
+  right: $gap-lg;
+  bottom: calc(#{$gap-lg} + env(safe-area-inset-bottom));
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.45);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.12);
+
+  &__arrow {
+    width: 20rpx;
+    height: 20rpx;
+    margin-top: 6rpx; // 直角旋转后视觉重心偏上，下移一点才是居中
+    border-top: 4rpx solid #fff;
+    border-left: 4rpx solid #fff;
+    transform: rotate(45deg);
+  }
+}

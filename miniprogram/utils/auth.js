@@ -1,71 +1,54 @@
-// utils/auth.js —— 登录态判断、跳登录、登录后回跳
-const { getToken } = require('./storage')
+/** utils/auth.js —— 登录态存取，Storage key 只在这里出现 */
 
-const LOGIN_PAGE = '/pages/login/index'
+const TOKEN_KEY = 'rabbit_token'
+const USER_KEY = 'rabbit_user'
 
-// tabBar 页面必须用 switchTab 打开，不能 redirectTo / reLaunch
-const TAB_PAGES = [
-  '/pages/home/index',
-  '/pages/category/index',
-  '/pages/cart/index',
-  '/pages/member/index',
-]
-
-function isLoggedIn() {
-  return Boolean(getToken())
-}
-
-function getCurrentRoute() {
-  const pages = getCurrentPages()
-  const current = pages[pages.length - 1]
-  return current ? `/${current.route}` : ''
-}
-
-function isTabBarPage(path) {
-  const purePath = String(path || '').split('?')[0]
-  return TAB_PAGES.indexOf(purePath) !== -1
+/**
+ * 读取 token
+ * @returns {string} 未登录返回空串，调用方可直接当布尔用
+ */
+export function getToken() {
+  return wx.getStorageSync(TOKEN_KEY) || ''
 }
 
 /**
- * 跳登录页，并带上来源页，登录成功后回跳
- * @param {string} [redirectPath] 来源页；不传则取当前页
+ * 写入 token
+ * @param {string} token
  */
-function goLogin(redirectPath) {
-  const current = getCurrentRoute()
-  if (current.indexOf(LOGIN_PAGE) === 0) return
+export function setToken(token) {
+  wx.setStorageSync(TOKEN_KEY, token || '')
+}
 
-  const redirect = redirectPath || current
-  wx.reLaunch({
-    url: `${LOGIN_PAGE}?redirect=${encodeURIComponent(redirect || '')}`,
-  })
+/** 清除 token（401 失效、主动退出登录） */
+export function clearToken() {
+  wx.removeStorageSync(TOKEN_KEY)
 }
 
 /**
- * 登录成功后的回跳：tabBar 页用 switchTab，其余用 redirectTo
- * @param {string} redirectPath 来源页（可带 query）
+ * 读取登录用户的最小信息
+ * token 续期要用 account + id（PUT /login/refresh 的入参），只存 token 就续不了
+ * @returns {{id: string, account: string}|null}
  */
-function redirectAfterLogin(redirectPath) {
-  if (!redirectPath) {
-    wx.switchTab({ url: '/pages/home/index' })
-    return
-  }
-
-  const path = redirectPath.charAt(0) === '/' ? redirectPath : `/${redirectPath}`
-
-  if (isTabBarPage(path)) {
-    wx.switchTab({ url: path.split('?')[0] })
-    return
-  }
-
-  wx.redirectTo({ url: path })
+export function getUser() {
+  return wx.getStorageSync(USER_KEY) || null
 }
 
-module.exports = {
-  LOGIN_PAGE,
-  TAB_PAGES,
-  isLoggedIn,
-  getCurrentRoute,
-  isTabBarPage,
-  goLogin,
-  redirectAfterLogin,
+/**
+ * 登录成功 / 刷新资料成功后写入
+ * @param {{id: string, account: string}} user
+ */
+export function setUser(user) {
+  if (!user || !user.id || !user.account) return
+  wx.setStorageSync(USER_KEY, { id: String(user.id), account: user.account })
+}
+
+/** 清除用户信息 */
+export function clearUser() {
+  wx.removeStorageSync(USER_KEY)
+}
+
+/** token 与用户信息一起清：只清一半会让续期逻辑拿着残缺数据空转 */
+export function clearAuth() {
+  clearToken()
+  clearUser()
 }

@@ -1,10 +1,22 @@
 {
   "pages": [
-    "pages/home/index",
-    "pages/category/index",
-    "pages/cart/index",
-    "pages/member/index",
-    "pages/login/index"
+    "pages/index/index",
+    "pages/category/category",
+    "pages/cart/cart",
+    "pages/member/member",
+    "pages/search/search",
+    "pages/goods/detail/detail",
+    "pages/login/login",
+    "pages/profile/profile",
+    "pages/address/list/list",
+    "pages/address/edit/edit",
+    "pages/order/confirm/confirm",
+    "pages/order/pay/pay",
+    "pages/order/list/list",
+    "pages/order/detail/detail",
+    "pages/order/logistics/logistics",
+    "pages/category/sub/sub",
+    "pages/collect/collect"
   ],
   "window": {
     "navigationBarTitleText": "小兔鲜",
@@ -14,30 +26,29 @@
     "backgroundTextStyle": "dark"
   },
   "tabBar": {
-    "color": "#666666",
-    "selectedColor": "#27ba9b",
+    "color": "#999999",
+    "selectedColor": "#cf4444",
     "backgroundColor": "#ffffff",
     "borderStyle": "black",
     "list": [
       {
-        "pagePath": "pages/home/index",
+        "pagePath": "pages/index/index",
         "text": "首页"
       },
       {
-        "pagePath": "pages/category/index",
+        "pagePath": "pages/category/category",
         "text": "分类"
       },
       {
-        "pagePath": "pages/cart/index",
+        "pagePath": "pages/cart/cart",
         "text": "购物车"
       },
       {
-        "pagePath": "pages/member/index",
+        "pagePath": "pages/member/member",
         "text": "我的"
       }
     ]
   },
-  "renderer": "webview",
   "style": "v2",
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents"

@@ -1,0 +1,264 @@
+/** pages/order/confirm/confirm.scss */
+@import '../../../global.scss';
+
+page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: $bg-page;
+}
+
+.body {
+  flex: 1;
+  height: 0;
+  // 给固定底栏留出空间
+  padding-bottom: 200rpx;
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+}
+
+.state__text {
+  color: $text-secondary;
+  font-size: $font-base;
+}
+
+.state__btn {
+  margin-top: $gap-base;
+  padding: $gap-sm $gap-lg;
+  border: 1px solid $brand-color;
+  border-radius: $radius-round;
+  color: $brand-color;
+  font-size: $font-sm;
+}
+
+.address {
+  display: flex;
+  align-items: center;
+  padding: $gap-base $gap-lg;
+  background-color: $bg-card;
+}
+
+.address__main {
+  flex: 1;
+}
+
+.address__head {
+  display: flex;
+  align-items: center;
+}
+
+.address__receiver {
+  color: $text-primary;
+  font-size: $font-md;
+}
+
+.address__contact {
+  margin-left: $gap-sm;
+  color: $text-regular;
+  font-size: $font-sm;
+}
+
+.address__detail {
+  display: block;
+  margin-top: $gap-xs;
+  color: $text-regular;
+  font-size: $font-sm;
+  line-height: 1.5;
+}
+
+.address__empty {
+  color: $text-placeholder;
+  font-size: $font-base;
+}
+
+.address__arrow {
+  margin-left: $gap-sm;
+  color: $text-placeholder;
+  font-size: $font-md;
+}
+
+.card {
+  margin-top: $gap-base;
+  padding: 0 $gap-lg;
+  background-color: $bg-card;
+}
+
+.goods {
+  display: flex;
+  padding: $gap-base 0;
+
+  @include hairline(bottom);
+}
+
+.goods__img {
+  width: 160rpx;
+  height: 160rpx;
+  flex-shrink: 0;
+  border-radius: $radius-sm;
+  background-color: $bg-page;
+}
+
+.goods__info {
+  flex: 1;
+  margin-left: $gap-base;
+  display: flex;
+  flex-direction: column;
+}
+
+.goods__name {
+  color: $text-primary;
+  font-size: $font-base;
+
+  @include ellipsis-multi(2);
+}
+
+.goods__attrs {
+  margin-top: $gap-xs;
+  color: $text-secondary;
+  font-size: $font-xs;
+}
+
+.goods__foot {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.goods__price {
+  color: $brand-color;
+  font-size: $font-md;
+}
+
+.goods__count {
+  color: $text-secondary;
+  font-size: $font-sm;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  padding: $gap-base 0;
+
+  @include hairline(bottom);
+
+  &--message {
+    align-items: flex-start;
+  }
+}
+
+.option__label {
+  width: 160rpx;
+  flex-shrink: 0;
+  color: $text-primary;
+  font-size: $font-base;
+}
+
+.option__items {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.chip {
+  margin-right: $gap-sm;
+  padding: 0 $gap-base;
+  border: 1px solid $border-color;
+  border-radius: $radius-round;
+  color: $text-regular;
+  font-size: $font-sm;
+  line-height: 56rpx;
+
+  &--on {
+    border-color: $brand-color;
+    background-color: $brand-color-light;
+    color: $brand-color;
+  }
+}
+
+.option__input {
+  flex: 1;
+  color: $text-primary;
+  font-size: $font-base;
+}
+
+.option__ph {
+  color: $text-placeholder;
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $gap-base 0;
+  color: $text-regular;
+  font-size: $font-sm;
+
+  @include hairline(bottom);
+
+  &--total {
+    color: $text-primary;
+  }
+}
+
+.line__value {
+  color: $text-primary;
+  font-size: $font-sm;
+
+  &--minus {
+    color: $brand-color;
+  }
+
+  &--total {
+    color: $brand-color;
+    font-size: $font-md;
+  }
+}
+
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: $gap-sm $gap-lg calc(#{$gap-sm} + env(safe-area-inset-bottom));
+  background-color: $bg-card;
+
+  @include hairline(top);
+}
+
+.bar__price {
+  flex: 1;
+}
+
+.bar__label {
+  color: $text-regular;
+  font-size: $font-sm;
+}
+
+.bar__num {
+  margin-left: $gap-xs;
+  color: $brand-color;
+  font-size: $font-lg;
+}
+
+.bar__btn {
+  padding: 0 $gap-xl;
+  height: 80rpx;
+  border-radius: $radius-round;
+  background-color: $brand-color;
+  color: #fff;
+  font-size: $font-md;
+  line-height: 80rpx;
+
+  &--disabled {
+    opacity: 0.6;
+  }
+}

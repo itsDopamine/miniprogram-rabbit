@@ -1,0 +1,137 @@
+<!--
+此文件为开发者工具生成，生成时间: 2026/11/25 09:47:17
+使用方法：
+在 F:\WeChatProjects\miniprogram-rabbit\miniprogram\pages\index\index.wxml 引入模板
+
+```
+<import src="index.skeleton.wxml"/>
+<template is="skeleton" wx:if="{{loading}}" />
+```
+
+在 F:\WeChatProjects\miniprogram-rabbit\miniprogram\pages\index\index.wxss 中引入样式
+```
+@import "./index.skeleton.wxss";
+```
+
+更多详细信息可以参考文档：https://developers.weixin.qq.com/miniprogram/dev/devtools/skeleton.html
+-->
+<template name="skeleton">
+  <view class="sk-container">
+    <view is="components/navigation-bar/navigation-bar">
+      <view class="nav bar--nav" style="padding-top: 54px; background: #FBF1F0;">
+        <view class="nav__inner bar--nav__inner" style="height: 40px;">
+          <view class="nav__title bar--nav__title sk-transparent sk-text-14-2857-375 sk-text" style="left: 94px; right: 94px; color: black;">
+            小兔鲜儿
+          </view>
+          <view class="nav__right bar--nav__right" style="width: 94px;"></view>
+        </view>
+      </view>
+    </view>
+    <scroll-view refresher-enabled="true" scroll-with-animation="true" scroll-y="true" class="page" lower-threshold="80" scroll-into-view="true" enable-back-to-top="true">
+      <view class="page__top" id="page-top"></view>
+      <view class="page__body">
+        <view class="page__sentinel" id="back-top-sentinel"></view>
+        <view class="hero sk-image">
+          <swiper autoplay="false" circular="true" indicator-dots="true" class="banner" indicator-active-color="#ffffff" indicator-color="rgba(255, 255, 255, 0.4)" interval="3000" current="0"></swiper>
+        </view>
+        <view class="categories">
+          <view class="categories__item" data-id="1005000" hover-class="categories__item--active" hover-stay-time="60">
+            <image class="categories__icon sk-image" mode="aspectFit"></image>
+            <text class="categories__name sk-transparent sk-text-14-2857-331 sk-text">居家</text>
+          </view>
+          <view class="categories__item" data-id="1005002" hover-class="categories__item--active" hover-stay-time="60">
+            <image class="categories__icon sk-image" mode="aspectFit"></image>
+            <text class="categories__name sk-transparent sk-text-14-2857-31 sk-text">锦鲤</text>
+          </view>
+          <view class="categories__item" data-id="1010000" hover-class="categories__item--active" hover-stay-time="60">
+            <image class="categories__icon sk-image" mode="aspectFit"></image>
+            <text class="categories__name sk-transparent sk-text-14-2857-754 sk-text">服饰</text>
+          </view>
+          <view class="categories__item" data-id="1011000" hover-class="categories__item--active" hover-stay-time="60">
+            <image class="categories__icon sk-image" mode="aspectFit"></image>
+            <text class="categories__name sk-transparent sk-text-14-2857-449 sk-text">母婴</text>
+          </view>
+          <view class="categories__item" data-id="1013001" hover-class="categories__item--active" hover-stay-time="60">
+            <image class="categories__icon sk-image" mode="aspectFit"></image>
+            <text class="categories__name sk-transparent sk-text-14-2857-738 sk-text">个护</text>
+          </view>
+          <view class="categories__item" data-id="1019000" hover-class="categories__item--active" hover-stay-time="60">
+            <image class="categories__icon sk-image" mode="aspectFit"></image>
+            <text class="categories__name sk-transparent sk-text-14-2857-434 sk-text">严选</text>
+          </view>
+          <view class="categories__item" data-id="1043000" hover-class="categories__item--active" hover-stay-time="60">
+            <image class="categories__icon sk-image" mode="aspectFit"></image>
+            <text class="categories__name sk-transparent sk-text-14-2857-168 sk-text">数码</text>
+          </view>
+          <view class="categories__item" data-id="109243029" hover-class="categories__item--active" hover-stay-time="60">
+            <image class="categories__icon sk-image" mode="aspectFit"></image>
+            <text class="categories__name sk-transparent sk-text-14-2857-930 sk-text">运动</text>
+          </view>
+          <view class="categories__item" data-id="19999999" hover-class="categories__item--active" hover-stay-time="60">
+            <image class="categories__icon sk-image" mode="aspectFit"></image>
+            <text class="categories__name sk-transparent sk-text-14-2857-926 sk-text">杂项</text>
+          </view>
+          <view class="categories__item" data-id="999999" hover-class="categories__item--active" hover-stay-time="60">
+            <image class="categories__icon sk-image" mode="aspectFit"></image>
+            <text class="categories__name sk-transparent sk-text-14-2857-78 sk-text">品牌</text>
+          </view>
+        </view>
+        <view class="section">
+          <view class="section__header">
+            <view class="section__rule"></view>
+            <text class="section__title sk-transparent sk-text-14-2857-970 sk-text">新鲜好物</text>
+            <text class="section__desc sk-transparent sk-text-14-2857-506 sk-text">新鲜出炉 品质靠谱</text>
+          </view>
+          <scroll-view enable-flex="true" scroll-x="true" class="fresh">
+            <view is="components/goods-card/goods-card" class="fresh__item">
+              <view class="card--goods-card card--goods-card--grid" hover-class="goods-card--active">
+                <view class="card--goods-card__cover">
+                  <image class="card--goods-card__pic sk-image" mode="aspectFill"></image>
+                </view>
+                <view class="card--goods-card__info">
+                  <text class="card--goods-card__name sk-transparent sk-text-14-2857-188 sk-text">钻石陶瓷涂层多用锅18cm 小奶锅</text>
+                  <view class="card--goods-card__price">
+                    <text class="card--goods-card__currency sk-transparent sk-opacity">¥</text>
+                    <text class="card--goods-card__int sk-transparent sk-text-4-5455-512 sk-text">149</text>
+                    <text class="card--goods-card__dec sk-transparent sk-text-14-2857-957 sk-text">.00</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+            <view is="components/goods-card/goods-card" class="fresh__item">
+              <view class="card--goods-card card--goods-card--grid" hover-class="goods-card--active">
+                <view class="card--goods-card__cover">
+                  <image class="card--goods-card__pic sk-image" mode="aspectFill"></image>
+                </view>
+                <view class="card--goods-card__info">
+                  <text class="card--goods-card__name sk-transparent sk-text-14-2857-195 sk-text">伊海诗冬日出行多功能防风保暖围脖</text>
+                  <view class="card--goods-card__price">
+                    <text class="card--goods-card__currency sk-transparent sk-opacity">¥</text>
+                    <text class="card--goods-card__int sk-transparent sk-text-4-5455-97 sk-text">35</text>
+                    <text class="card--goods-card__dec sk-transparent sk-text-14-2857-952 sk-text">.00</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+            <view is="components/goods-card/goods-card" class="fresh__item">
+              <view class="card--goods-card card--goods-card--grid" hover-class="goods-card--active">
+                <view class="card--goods-card__cover">
+                  <image class="card--goods-card__pic sk-image" mode="aspectFill"></image>
+                </view>
+                <view class="card--goods-card__info">
+                  <text class="card--goods-card__name sk-transparent sk-text-14-2857-125 sk-text">探险者黑胶防晒防雨遮阳伞户外钓鱼伞</text>
+                  <view class="card--goods-card__price">
+                    <text class="card--goods-card__currency sk-transparent sk-opacity">¥</text>
+                    <text class="card--goods-card__int sk-transparent sk-text-4-5455-786 sk-text">169</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </scroll-view>
+        </view>
+        <view class="section"></view>
+        <view class="floor"></view>
+      </view>
+    </scroll-view>
+  </view>
+</template>

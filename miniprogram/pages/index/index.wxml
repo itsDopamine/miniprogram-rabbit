@@ -1,0 +1,174 @@
+<!-- 骨架屏由开发者工具生成，是整页绝对定位模板，只能挂在页面根节点 -->
+<import src="index.skeleton.wxml" />
+
+<!-- 背景色必须与 global.scss 的 $brand-color-soft 一致，否则顶部出现硬接缝 -->
+<navigation-bar title="小兔鲜儿" back="{{false}}" color="black" background="#FBF1F0"></navigation-bar>
+
+<!-- 导航栏留在滚动容器外，下拉刷新才不会连标题一起拖走 -->
+<scroll-view
+  class="page"
+  scroll-y
+  scroll-into-view="{{intoView}}"
+  scroll-with-animation
+  refresher-enabled
+  refresher-triggered="{{refreshing}}"
+  bindrefresherrefresh="onRefresh"
+  bindscrolltolower="loadMoreGuess"
+  lower-threshold="80"
+>
+  <!-- 跳转锚点：scroll-into-view 只认 scroll-view 内的元素 id，0 高度不占位 -->
+  <view class="page__top" id="page-top"></view>
+
+  <view class="page__body">
+    <!-- 显隐哨兵：它的高度就是"滚过多少才出按钮"的阈值 -->
+    <view class="page__sentinel" id="back-top-sentinel"></view>
+
+    <!-- 首屏骨架在页面根节点（见文件末尾），这里只管错误态与内容 -->
+    <!-- 错误态：已有数据时只 toast，不把页面换掉 -->
+    <view class="state" wx:if="{{error && !banners.length}}">
+      <text class="state__text">{{error}}</text>
+      <view class="state__btn" bindtap="onRetry">重新加载</view>
+    </view>
+
+    <block wx:else>
+      <!-- 头部氛围区：品牌淡底向下渐隐，banner 做成圆角卡片浮在上面 -->
+      <view class="hero">
+        <swiper
+          class="banner"
+          indicator-dots
+          circular
+          autoplay
+          interval="3000"
+          indicator-color="rgba(255, 255, 255, 0.4)"
+          indicator-active-color="#ffffff"
+        >
+          <!-- hrefUrl 实测是分类 id，为空时不响应点击 -->
+          <swiper-item wx:for="{{banners}}" wx:key="id" bindtap="onTapBanner" data-href="{{item.hrefUrl}}">
+            <image class="banner__img" src="{{item.imgUrl}}" mode="aspectFill" />
+          </swiper-item>
+        </swiper>
+      </view>
+
+      <!-- 分类宫格：一行 5 个，负边距上浮压住 hero 底部 -->
+      <view class="categories">
+        <view
+          class="categories__item"
+          wx:for="{{categories}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onTapCategory"
+          hover-class="categories__item--active"
+          hover-stay-time="60"
+        >
+          <image class="categories__icon" src="{{item.icon}}" mode="aspectFit" />
+          <text class="categories__name">{{item.name}}</text>
+        </view>
+      </view>
+
+      <!-- 新鲜好物：横滑，一屏露出两卡半，暗示还有内容 -->
+      <view class="section">
+        <view class="section__header">
+          <view class="section__rule"></view>
+          <text class="section__title">新鲜好物</text>
+          <text class="section__desc">新鲜出炉 品质靠谱</text>
+        </view>
+        <scroll-view class="fresh" scroll-x enable-flex>
+          <goods-card
+            wx:for="{{newGoods}}"
+            wx:key="id"
+            class="fresh__item"
+            goods="{{item}}"
+            bind:tap-card="onTapGoods"
+          />
+        </scroll-view>
+      </view>
+
+      <!-- 热门推荐：两列入口卡片 -->
+      <view class="section">
+        <view class="section__header">
+          <view class="section__rule"></view>
+          <text class="section__title">热门推荐</text>
+          <text class="section__desc">大家都在买</text>
+        </view>
+        <view class="panels">
+          <view
+            class="panels__item"
+            wx:for="{{hotPanels}}"
+            wx:key="id"
+            data-target="{{item.target}}"
+            bindtap="onTapPanel"
+          >
+            <image class="panels__pic" src="{{item.pictures[0]}}" mode="aspectFit" />
+            <text class="panels__title">{{item.title}}</text>
+            <text class="panels__alt">{{item.alt}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 分类楼层：接口无分页参数，一次返回 4 层全量渲染 -->
+      <view class="floor" wx:for="{{floors}}" wx:key="id">
+        <!-- 不用接口的楼层图：它是随机裁切的小方块，和楼层主题无关
+             促销信息并入标题行靠右，右侧不留空，也不用加假入口 -->
+        <view class="floor__title-row">
+          <text class="floor__index">0{{index + 1}}</text>
+          <text class="floor__name">{{item.name}}</text>
+          <text class="floor__sale">{{item.saleInfo}}</text>
+        </view>
+
+        <!-- 分类标签单行横滑：7 个铺两行会剩一个孤行，横滑既不留孤行也不占两行高度 -->
+        <view class="floor__tag-wrap">
+          <scroll-view class="floor__tags" scroll-x>
+            <text class="floor__tag" wx:for="{{item.children}}" wx:for-item="tag" wx:key="id">{{tag.name}}</text>
+          </scroll-view>
+        </view>
+
+        <view class="floor__goods">
+          <goods-card
+            wx:for="{{item.goods}}"
+            wx:for-item="goods"
+            wx:key="id"
+            class="floor__goods-item"
+            goods="{{goods}}"
+            bind:tap-card="onTapGoods"
+          />
+        </view>
+      </view>
+
+      <!-- 猜你喜欢：接口是真分页（page/pageSize），两列复用 goods-card -->
+      <view class="section">
+        <view class="section__header">
+          <view class="section__rule"></view>
+          <text class="section__title">猜你喜欢</text>
+          <text class="section__desc">根据你的喜好推荐</text>
+        </view>
+        <view class="guess">
+          <goods-card
+            wx:for="{{guessLikes}}"
+            wx:key="id"
+            class="guess__item"
+            goods="{{item}}"
+            bind:tap-card="onTapGoods"
+          />
+        </view>
+      </view>
+
+      <!-- 空态 -->
+      <view class="state" wx:if="{{!floors.length}}">
+        <text class="state__text">暂无推荐内容</text>
+      </view>
+
+      <!-- 提示反映猜你喜欢的真实加载状态 -->
+      <view class="more" wx:if="{{guessLikes.length}}">
+        {{guessLoading ? '加载中…' : guessHasMore ? '上拉加载更多' : '没有更多了'}}
+      </view>
+    </block>
+  </view>
+</scroll-view>
+
+<!-- 自绘箭头：TDesign 图标是远程字体，首帧会用系统字体兜底渲染成乱码字符 -->
+<view class="back-top" wx:if="{{showBackTop}}" bindtap="onBackTop">
+  <view class="back-top__arrow"></view>
+</view>
+
+<!-- 首屏骨架：只在还没有任何数据时显示，放在最后才能盖住下面的真实内容 -->
+<template is="skeleton" wx:if="{{loading && !banners.length}}" />

@@ -1,0 +1,88 @@
+<navigation-bar title="购物车" back="{{false}}" background="#FFFFFF" />
+
+<view class="state" wx:if="{{loading}}">
+  <text class="state__text">加载中…</text>
+</view>
+
+<view class="state" wx:elif="{{error}}">
+  <text class="state__text">{{error}}</text>
+  <view class="state__btn" bindtap="onRetry">重新加载</view>
+</view>
+
+<view class="state" wx:elif="{{!list.length}}">
+  <text class="state__text">购物车还是空的</text>
+  <view class="state__btn" bindtap="onGoHome">去逛逛</view>
+</view>
+
+<block wx:else>
+  <scroll-view class="body" scroll-y>
+    <view class="item {{item.isEffective ? '' : 'item--invalid'}}" wx:for="{{list}}" wx:key="skuId">
+      <view
+        class="check {{item.selected ? 'check--on' : ''}} {{item.isEffective ? '' : 'check--off'}}"
+        data-sku-id="{{item.skuId}}"
+        bindtap="onToggleItem"
+      ></view>
+
+      <image class="item__pic" src="{{item.picture}}" mode="aspectFill" />
+
+      <view class="item__info">
+        <view class="item__head">
+          <text class="item__name">{{item.name}}</text>
+          <view class="item__del" data-sku-id="{{item.skuId}}" bindtap="onRemove">
+            <view class="item__del-icon"></view>
+          </view>
+        </view>
+
+        <text class="item__attrs" wx:if="{{item.attrsText}}">{{item.attrsText}}</text>
+
+        <view class="item__bottom">
+          <text class="item__price">¥{{item.priceText}}</text>
+
+          <view class="stepper" wx:if="{{item.isEffective}}">
+            <view
+              class="stepper__btn {{item.count <= 1 ? 'stepper__btn--off' : ''}}"
+              data-sku-id="{{item.skuId}}"
+              bindtap="onMinus"
+            >
+              -
+            </view>
+            <input
+              class="stepper__input"
+              type="number"
+              value="{{item.count}}"
+              data-sku-id="{{item.skuId}}"
+              bindinput="onCountInput"
+              bindblur="onCountBlur"
+              bindconfirm="onCountBlur"
+            />
+            <view
+              class="stepper__btn {{item.count >= item.stock ? 'stepper__btn--off' : ''}}"
+              data-sku-id="{{item.skuId}}"
+              bindtap="onPlus"
+            >
+              +
+            </view>
+          </view>
+
+          <text class="item__invalid-text" wx:else>已失效</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="tips">共 {{list.length}} 件商品</view>
+  </scroll-view>
+
+  <view class="bar">
+    <view class="bar__all" bindtap="onToggleAll">
+      <view class="check {{isAllSelected ? 'check--on' : ''}}"></view>
+      <text class="bar__all-text">全选</text>
+    </view>
+
+    <view class="bar__sum">
+      <text class="bar__label">合计：</text>
+      <text class="bar__price">¥{{totalPrice}}</text>
+    </view>
+
+    <view class="bar__btn" bindtap="onCheckout">结算({{totalCount}})</view>
+  </view>
+</block>

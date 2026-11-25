@@ -1,0 +1,66 @@
+<navigation-bar title="个人资料" background="#FFFFFF" />
+
+<scroll-view class="body" scroll-y>
+  <view class="group">
+    <view class="row">
+      <text class="row__label">头像</text>
+      <button class="row__avatar-btn" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+        <image class="row__avatar" src="{{profile.avatar}}" mode="aspectFill" />
+      </button>
+    </view>
+
+    <view class="row">
+      <text class="row__label">昵称</text>
+      <!-- type="nickname" 才会弹微信昵称快捷填写（基础库 2.21.2+） -->
+      <input
+        class="row__input"
+        type="nickname"
+        value="{{profile.nickname}}"
+        placeholder="请输入昵称"
+        placeholder-class="row__ph"
+        data-field="nickname"
+        bindinput="onInput"
+        bindblur="onInput"
+      />
+    </view>
+
+    <view class="row">
+      <text class="row__label">性别</text>
+      <picker class="row__picker" range="{{genders}}" value="{{genderIndex}}" bindchange="onGenderChange">
+        <view class="row__value">{{genders[genderIndex]}}</view>
+      </picker>
+    </view>
+
+    <view class="row">
+      <text class="row__label">生日</text>
+      <picker
+        class="row__picker"
+        mode="date"
+        value="{{profile.birthday}}"
+        start="1930-01-01"
+        bindchange="onBirthdayChange"
+      >
+        <view class="row__value {{profile.birthday ? '' : 'row__value--empty'}}">
+          {{profile.birthday || '请选择'}}
+        </view>
+      </picker>
+    </view>
+
+    <view class="row">
+      <text class="row__label">职业</text>
+      <input
+        class="row__input"
+        value="{{profile.profession}}"
+        placeholder="请输入职业"
+        placeholder-class="row__ph"
+        data-field="profession"
+        bindinput="onInput"
+        bindblur="onInput"
+      />
+    </view>
+  </view>
+</scroll-view>
+
+<view class="save {{saving ? 'save--disabled' : ''}}" bindtap="onSave">
+  {{saving ? '保存中…' : '保存'}}
+</view>

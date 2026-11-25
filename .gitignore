@@ -8,6 +8,9 @@ project.private.config.json
 # 临时资料（接口样例等，联调后清理）
 idoc/tmp/
 
+# IDE 过程数据（本地保留，不入库）
+.codebuddy/
+
 # 系统与日志
 .DS_Store
 Thumbs.db

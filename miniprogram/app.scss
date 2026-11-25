@@ -1,105 +1,35 @@
-/* app.scss —— 全局样式与设计变量 */
+/**app.scss —— 全局样式（作用于所有页面）*/
+// 说明：这里故意不写 SCSS 变量，避免 global.scss 注入配置有问题时整个项目编译失败。
+// S0-3 会单独验证「变量在页面里可直接使用」这件事。
 
-page {
-  /* 颜色变量：后续页面统一用 var(--xtx-*) */
-  --xtx-primary: #27ba9b;
-  --xtx-primary-light: #e8f8f3;
-  --xtx-price: #cf4444;
-  --xtx-text: #333333;
-  --xtx-text-secondary: #666666;
-  --xtx-text-light: #999999;
-  --xtx-border: #eeeeee;
-  --xtx-bg: #f5f5f5;
-  --xtx-card: #ffffff;
-
-  background-color: var(--xtx-bg);
-  color: var(--xtx-text);
-  font-size: 28rpx;
-  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  line-height: 1.5;
-}
-
+/* 全局盒模型重置
+   WebView 渲染下默认是 content-box，width 不含 padding/border，
+   会让「宽度 100% + 内边距」的容器溢出，统一改成 border-box 最省心 */
 view,
 text,
-image,
 button,
 input,
 textarea,
+image,
 scroll-view,
 swiper,
 swiper-item {
   box-sizing: border-box;
 }
 
-image {
-  display: block;
-}
-
-/* 去掉 button 默认边框与内边距差异 */
-button {
-  padding: 0;
-  margin: 0;
-  font-size: 28rpx;
-  line-height: 1.5;
-  background-color: transparent;
-}
-
-button::after {
-  border: none;
-}
-
-/* 通用页面容器 */
-.page {
+page {
+  // 全局不钉死高度：骨架页自己写 height:100%，其余页面内容自然撑开
   min-height: 100vh;
-  padding: 24rpx;
+  background-color: #f7f7f8;
+  color: #1a1a1a;
+  font-size: 28rpx;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* 通用状态占位（loading / error / empty） */
-.state {
-  padding: 48rpx 24rpx;
-  border-radius: 16rpx;
-  background-color: var(--xtx-card);
-  color: var(--xtx-text-light);
-  text-align: center;
-}
-
-.state--error {
-  color: var(--xtx-price);
-}
-
-/* 通用卡片 */
-.card {
-  padding: 32rpx;
-  border-radius: 16rpx;
-  background-color: var(--xtx-card);
-}
-
-/* 阶段占位页的通用样式（S0-S1 用完即可删） */
-.placeholder-title {
-  font-size: 36rpx;
-  font-weight: 600;
-}
-
-.placeholder-desc {
-  margin-top: 16rpx;
-  font-size: 26rpx;
-  color: var(--xtx-text-secondary);
-  line-height: 1.8;
-}
-
-.placeholder-btn {
-  height: 88rpx;
-  margin-top: 40rpx;
-  border-radius: 12rpx;
-  background-color: var(--xtx-primary);
-  color: #ffffff;
-  line-height: 88rpx;
-  text-align: center;
-}
-
-.placeholder-btn--ghost {
-  margin-top: 20rpx;
-  border: 1px solid var(--xtx-border);
-  background-color: var(--xtx-card);
-  color: var(--xtx-text-secondary);
+/* 页面统一骨架：page 做 flex 纵列，导航栏是分栏头，内容区用 scroll-view。
+   头部不在滚动容器里，结构上就不可能被滚走；宿主节点默认行内元素，需块级化 */
+navigation-bar {
+  display: block;
+  flex: none;
 }

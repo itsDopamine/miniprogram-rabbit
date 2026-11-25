@@ -1,0 +1,145 @@
+/** pages/address/list/list.scss */
+@import '../../../global.scss';
+
+page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: $bg-page;
+}
+
+.body {
+  flex: 1;
+  height: 0;
+  // 给固定底部按钮留出空间
+  padding-bottom: 180rpx;
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+}
+
+.state__text {
+  color: $text-secondary;
+  font-size: $font-base;
+}
+
+.state__btn {
+  margin-top: $gap-base;
+  padding: $gap-sm $gap-lg;
+  border: 1px solid $brand-color;
+  border-radius: $radius-round;
+  color: $brand-color;
+  font-size: $font-sm;
+}
+
+.card {
+  margin: $gap-base $gap-lg 0;
+  padding: $gap-base;
+  border-radius: $radius-base;
+  background-color: $bg-card;
+}
+
+.card__head {
+  display: flex;
+  align-items: center;
+}
+
+.card__receiver {
+  color: $text-primary;
+  font-size: $font-md;
+}
+
+.card__contact {
+  margin-left: $gap-sm;
+  color: $text-regular;
+  font-size: $font-sm;
+}
+
+.card__tag {
+  margin-left: $gap-sm;
+  padding: 0 $gap-xs;
+  border-radius: $radius-sm;
+  background-color: $brand-color-light;
+  color: $brand-color;
+  font-size: $font-xs;
+  line-height: 32rpx;
+}
+
+.card__address {
+  display: block;
+  margin-top: $gap-sm;
+  color: $text-regular;
+  font-size: $font-sm;
+  line-height: 1.6;
+}
+
+.card__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: $gap-sm;
+  padding-top: $gap-sm;
+
+  @include hairline(top);
+}
+
+.card__check {
+  display: flex;
+  align-items: center;
+}
+
+.card__check-text {
+  margin-left: $gap-xs;
+  color: $text-secondary;
+  font-size: $font-sm;
+}
+
+.radio {
+  width: 32rpx;
+  height: 32rpx;
+  border: 1px solid $text-placeholder;
+  border-radius: $radius-round;
+
+  &--on {
+    border-color: $brand-color;
+    background-color: $brand-color;
+  }
+}
+
+.card__ops {
+  display: flex;
+}
+
+.card__op {
+  margin-left: $gap-lg;
+  color: $text-regular;
+  font-size: $font-sm;
+
+  &--danger {
+    color: $brand-color;
+  }
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $gap-base $gap-lg calc(#{$gap-base} + env(safe-area-inset-bottom));
+  background-color: $bg-card;
+}
+
+.footer__btn {
+  height: 88rpx;
+  border-radius: $radius-round;
+  background-color: $brand-color;
+  color: #fff;
+  font-size: $font-md;
+  line-height: 88rpx;
+  text-align: center;
+}

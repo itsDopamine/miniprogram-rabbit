@@ -1,0 +1,113 @@
+<navigation-bar title="确认订单" background="#FFFFFF" />
+
+<scroll-view class="body" scroll-y>
+  <view class="state" wx:if="{{loading}}">
+    <text class="state__text">加载中…</text>
+  </view>
+
+  <view class="state" wx:elif="{{error}}">
+    <text class="state__text">{{error}}</text>
+    <view class="state__btn" bindtap="onRetry">重新加载</view>
+  </view>
+
+  <block wx:else>
+    <view class="address" bindtap="onChooseAddress">
+      <block wx:if="{{address}}">
+        <view class="address__main">
+          <view class="address__head">
+            <text class="address__receiver">{{address.receiver}}</text>
+            <text class="address__contact">{{address.contact}}</text>
+          </view>
+          <text class="address__detail">{{address.fullLocation}} {{address.address}}</text>
+        </view>
+      </block>
+      <view class="address__main" wx:else>
+        <text class="address__empty">请选择收货地址</text>
+      </view>
+      <text class="address__arrow">›</text>
+    </view>
+
+    <view class="card">
+      <view class="goods" wx:for="{{goods}}" wx:key="skuId">
+        <image class="goods__img" src="{{item.picture}}" mode="aspectFill" />
+        <view class="goods__info">
+          <text class="goods__name">{{item.name}}</text>
+          <text class="goods__attrs">{{item.attrsText}}</text>
+          <view class="goods__foot">
+            <text class="goods__price">¥{{item.payPriceText}}</text>
+            <text class="goods__count">×{{item.count}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="option">
+        <text class="option__label">配送时间</text>
+        <view class="option__items">
+          <view
+            class="chip {{deliveryTimeType === item.value ? 'chip--on' : ''}}"
+            wx:for="{{deliveryOptions}}"
+            wx:key="value"
+            data-value="{{item.value}}"
+            bindtap="onSelectDelivery"
+          >{{item.label}}</view>
+        </view>
+      </view>
+
+      <view class="option">
+        <text class="option__label">支付方式</text>
+        <view class="option__items">
+          <view
+            class="chip {{payType === item.value ? 'chip--on' : ''}}"
+            wx:for="{{payOptions}}"
+            wx:key="value"
+            data-value="{{item.value}}"
+            bindtap="onSelectPay"
+          >{{item.label}}</view>
+        </view>
+      </view>
+
+      <view class="option option--message">
+        <text class="option__label">买家留言</text>
+        <input
+          class="option__input"
+          value="{{buyerMessage}}"
+          placeholder="选填，给商家留言"
+          placeholder-class="option__ph"
+          maxlength="50"
+          bindinput="onMessageInput"
+        />
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="line">
+        <text class="line__label">商品金额</text>
+        <text class="line__value">¥{{summary.totalPrice}}</text>
+      </view>
+      <view class="line">
+        <text class="line__label">运费</text>
+        <text class="line__value">¥{{summary.postFee}}</text>
+      </view>
+      <view class="line" wx:if="{{summary.discountPrice !== '0.00'}}">
+        <text class="line__label">优惠</text>
+        <text class="line__value line__value--minus">-¥{{summary.discountPrice}}</text>
+      </view>
+      <view class="line line--total">
+        <text class="line__label">应付</text>
+        <text class="line__value line__value--total">¥{{summary.totalPayPrice}}</text>
+      </view>
+    </view>
+
+    <view class="bar">
+      <view class="bar__price">
+        <text class="bar__label">应付</text>
+        <text class="bar__num">¥{{summary.totalPayPrice}}</text>
+      </view>
+      <view class="bar__btn {{submitting ? 'bar__btn--disabled' : ''}}" bindtap="onSubmit">
+        {{submitting ? '提交中…' : '提交订单'}}
+      </view>
+    </view>
+  </block>
+</scroll-view>

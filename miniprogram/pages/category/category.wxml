@@ -1,0 +1,63 @@
+<navigation-bar title="分类" back="{{false}}" />
+
+<!-- 只做入口，真正输入在搜索页 -->
+<view class="search-entry" bindtap="onTapSearch">
+  <view class="search-entry__box">
+    <view class="search-entry__icon"></view>
+    <text class="search-entry__text">搜索商品</text>
+  </view>
+</view>
+
+<view class="page">
+  <view class="state" wx:if="{{loading}}">
+    <text class="state__text">加载中…</text>
+  </view>
+
+  <view class="state" wx:elif="{{error}}">
+    <text class="state__text">{{error}}</text>
+    <view class="state__btn" bindtap="onRetry">重新加载</view>
+  </view>
+
+  <view class="category" wx:else>
+    <!-- 左侧只放一级分类名，独立滚动 -->
+    <scroll-view class="category__left" scroll-y>
+      <view
+        wx:for="{{categories}}"
+        wx:key="id"
+        data-index="{{index}}"
+        class="category__nav {{index === activeIndex ? 'category__nav--active' : ''}}"
+        bindtap="onTapNav"
+      >
+        {{item.name}}
+      </view>
+    </scroll-view>
+
+    <!-- 用 scroll-top 定位：数值每次都不同，不会出现「先清空再赋值」的弹跳 -->
+    <!-- 不加 scroll-with-animation：平滑滚动在长距离时会被后续指令反复重启，连点表现为上下抽动 -->
+    <scroll-view class="category__right" scroll-y scroll-top="{{scrollTop}}" bindscroll="onRightScroll">
+      <!-- 内层循环必须改名，否则 item 会覆盖外层的 -->
+      <view wx:for="{{categories}}" wx:key="id" wx:for-item="cat" class="block">
+        <view class="block__title">{{cat.name}}</view>
+
+        <view wx:for="{{cat.children}}" wx:key="id" wx:for-item="child">
+          <view class="block__sub-title" data-id="{{child.id}}" catchtap="onTapSub">
+            <text class="block__sub-text">{{child.name}}</text>
+            <text class="block__sub-arrow">›</text>
+          </view>
+
+          <view class="block__goods" wx:if="{{child.goods.length}}">
+            <goods-card
+              wx:for="{{child.goods}}"
+              wx:key="id"
+              wx:for-item="goods"
+              class="block__goods-item"
+              goods="{{goods}}"
+              bind:tap-card="onTapGoods"
+            />
+          </view>
+          <view class="block__empty" wx:else>暂无商品</view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>

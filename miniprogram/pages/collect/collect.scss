@@ -1,0 +1,93 @@
+/** pages/collect/collect.scss */
+@import '../../global.scss';
+
+page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: $bg-page;
+}
+
+.body {
+  flex: 1;
+  height: 0; // flex 子项要有确定高度，scroll-view 才真正滚动
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx $gap-xl;
+}
+
+.state__text {
+  color: $text-secondary;
+  font-size: $font-base;
+}
+
+.state__btn {
+  margin-top: $gap-base;
+  padding: $gap-sm $gap-lg;
+  border: 1rpx solid $brand-color;
+  border-radius: $radius-round;
+  color: $brand-color;
+  font-size: $font-base;
+}
+
+.list {
+  padding: $gap-base $gap-base 0;
+}
+
+.item {
+  display: flex;
+  margin-bottom: $gap-base;
+  padding: $gap-base;
+  border-radius: $radius-base;
+  background-color: $bg-card;
+}
+
+.item__pic {
+  width: 180rpx;
+  height: 180rpx;
+  flex-shrink: 0;
+  border-radius: $radius-sm;
+  background-color: $bg-page;
+}
+
+.item__info {
+  flex: 1;
+  min-width: 0;
+  margin-left: $gap-base;
+  display: flex;
+  flex-direction: column;
+}
+
+.item__name {
+  color: $text-primary;
+  font-size: $font-base;
+
+  @include ellipsis-multi(2);
+}
+
+.item__foot {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.item__price {
+  color: $brand-color;
+  font-size: $font-md;
+}
+
+.item__remove {
+  padding: 0 $gap-base;
+  height: 56rpx;
+  border: 1rpx solid $border-color;
+  border-radius: $radius-round;
+  color: $text-regular;
+  font-size: $font-xs;
+  line-height: 54rpx;
+}
