@@ -40,7 +40,9 @@ Page({
     try {
       const list = await getAddressList()
       // 默认地址置顶：接口返回顺序不含默认信息
-      const sorted = (list || []).slice().sort((a, b) => Number(b.isDefault === 1) - Number(a.isDefault === 1))
+      const sorted = (list || [])
+        .slice()
+        .sort((a, b) => Number(b.isDefault === 1) - Number(a.isDefault === 1))
       this.setData({ list: sorted, loading: false })
     } catch (err) {
       console.log('[address-list]', err)

@@ -90,7 +90,7 @@
 | `HomeBanner` / `HomeCategory` / `HomeNew` / `HomeHot` / `HomeProduct` / `HomePanel` | `components/goods-card`、`components/panel-title` + 页面内区块 | 小程序组件开销更大，能内联就内联 |
 | `GoodsItem` | `components/goods-card` | 2 列/3 列复用同一组件 |
 | `ImageView`（大图预览） | 直接 `wx.previewImage` | 无需自研 |
-| `SkuSelector` + `power-set.js` | `packageGoods/pages/detail/components/sku-panel/` | 幂集算法可直接搬，弹层用 `t-popup` |
+| `SkuSelector` + `power-set.js` | `components/sku-panel/` + `utils/sku.js` | 幂集算法可直接搬，弹层用 `t-popup` |
 | `CountInput` | `t-stepper`（TDesign） | 先评估内置组件，不满足再自研 |
 | `CartItemRow` | 购物车页内联 + `t-swipe-cell`（左滑删除） | — |
 | `CancelOrderModal` | `t-dialog` | — |

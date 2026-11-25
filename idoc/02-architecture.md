@@ -8,60 +8,35 @@
 
 ```
 miniprogram/
-├─ app.js                     # App()：globalData、onLaunch（恢复 token）
-├─ app.json                   # 全局：pages / window / tabBar / subPackages
-├─ app.scss                   # 全局样式：盒模型重置、page 底色与基础字号
-├─ global.scss                # SCSS 公共文件（只放变量与 mixin，禁止写选择器）
+├─ app.js / app.json / app.scss   # App、页面注册、全局样式
+├─ global.scss                    # 变量与 mixin（不写选择器，选择器在 app.scss）
 ├─ sitemap.json
-├─ package.json               # 依赖清单（必须在 miniprogramRoot 内，否则构建 npm 找不到）
-├─ node_modules/              # 构建 npm 的输入，gitignore
-├─ miniprogram_npm/           # 构建产物，gitignore
+├─ package.json / package-lock.json
+├─ node_modules/                  # 构建 npm 的输入，gitignore
+├─ miniprogram_npm/               # 构建产物，gitignore
 │
 ├─ config/
-│  ├─ env.js                  # 唯一域名入口：dev / prod
-│  └─ constants.js            # 订单状态、配送时间、支付方式等枚举
+│  ├─ env.js                      # 域名 + TEST_USER（学习用测试账号）
+│  └─ constants.js                # 订单状态、配送时间、支付方式等枚举
 │
-├─ utils/
-│  ├─ request.js              # wx.request 封装（拦截、错误、401）
-│  ├─ auth.js                 # token 存取 / 清除 / 登录跳转
-│  ├─ storage.js              # 统一 storage key 与读写（带 JSON 容错）
-│  └─ format.js               # 价格、时间、数量格式化
+├─ utils/                         # request / auth / cart / collect / sku / area / address / common
+├─ api/                           # 一域一文件：auth/cart/category/goods/home/member/order/pay/search
+├─ components/                    # navigation-bar / goods-card / sku-panel
+├─ data/areas.js                  # 生成文件（省市区 6 位 code），勿手改
 │
-├─ api/                       # 一域一文件，只声明「路径 + 入参 + 返回」
-│  ├─ home.js  category.js  goods.js  search.js
-│  ├─ user.js  address.js   cart.js   order.js  pay.js
-│
-├─ components/                # 跨页复用的自有组件
-│  ├─ navigation-bar/         # 自定义导航栏（已有，S2 改造）
-│  └─ goods-card/             # 商品卡（S2 新建）
-│
-├─ pages/                     # 主包：4 个 tabBar 页
-│  ├─ index/                  # 首页
-│  ├─ category/               # 分类
-│  ├─ cart/                   # 购物车
-│  └─ member/                 # 我的
-│
-└─ packageGoods/              # 分包：非 tab 页
-   └─ pages/
-      ├─ detail/              # 商品详情 + sku-panel 组件
-      ├─ search/              # 搜索
-      ├─ sub-category/        # 二级分类商品列表
-      ├─ login/               # 登录
-      ├─ profile/             # 个人资料
-      ├─ address/             # 地址列表
-      ├─ address-edit/        # 地址编辑
-      ├─ checkout/            # 结算
-      ├─ pay/                 # 支付
-      ├─ order-list/          # 订单列表
-      └─ order-detail/        # 订单详情
+└─ pages/                         # 17 个页面，全部在主包（无 packageGoods 分包）
+   ├─ index/  category/  category/sub/  search/  cart/  member/
+   ├─ goods/detail/
+   ├─ login/  profile/  collect/
+   ├─ address/list/  address/edit/
+   └─ order/confirm/  order/pay/  order/list/  order/detail/  order/logistics/
 ```
 
 **为什么这么分**
 
-- `tabBar` 页面**必须**在主包，否则无法切换 tab；
-- 其余页面进 `packageGoods`，主包体积可控（分包上限 2MB / 总包 20MB）；
-- `api/` 与 `pages/` 分离，页面里不出现 URL 字符串；
-- `config/` 与 `utils/` 分离：配置是常量，工具是有行为的函数。
+- `app.json` 未配置 `subPackages`：S8 分包阶段尚未开始，17 页都在主包；`lazyCodeLoading: requiredComponents` 已开启。
+- `api/` 与 `pages/` 分离，页面里不出现 URL 字符串；`config/` 与 `utils/` 分离：配置是常量，工具是有行为的函数。
+- `data/areas.js` 是生成数据，来源与 6 位 code 的原因见文件头注释。
 
 ---
 
@@ -140,7 +115,7 @@ request({ url, method = 'GET', data, auth = false, loading = false, silent = fal
 | `style` | `v2` | 新版组件样式 |
 | `lazyCodeLoading` | `requiredComponents` | 只注入用到的自定义组件 |
 | `navigationStyle` | `custom` | 顶部自绘，需处理胶囊安全区 |
-| 分包 | `packageGoods` | S8 正式配置并搬迁 |
+| 分包 | 未启用 | S8 才做；当前 17 页全部在主包，`app.json` 无 `subPackages` |
 | npm | `tdesign-miniprogram` | 必须「工具 → 构建 npm」，产物 `miniprogram_npm/` 不入库 |
 
 ---
@@ -153,7 +128,7 @@ request({ url, method = 'GET', data, auth = false, loading = false, silent = fal
 | 2 | 数据结构用 `@typedef` 集中写在 `api/*.js` 顶部 | 每个 `api/x.js` 直接改名 `x.ts` |
 | 3 | 不用 `enum` / `interface` / 泛型，改用 `Object.freeze({})` | 无语法级返工 |
 | 4 | 一页四件套命名统一，组件目录名 = 组件名 | 只需批量改后缀 |
-| 5 | 别名 `@/` 由 `jsconfig.json` 的 `paths` 提供 | 迁 TS 时 `tsconfig.json` 复用同一份 |
+| 5 | 暂不使用路径别名，全部相对引用 | 迁 TS 时可在 `tsconfig.json` 加 `paths` |
 
 > 允许出现「`@param {string} id`」这类注释，不允许 `// @ts-ignore`。
 
@@ -163,14 +138,14 @@ request({ url, method = 'GET', data, auth = false, loading = false, silent = fal
 
 | 项 | 规范 | 示例 |
 | --- | --- | --- |
-| 页面目录 | 小写连字符 | `order-detail/` |
+| 页面目录 | 小写连字符，按业务分组 | `order/detail/` |
 | 组件 | 小写连字符，`usingComponents` 的 key 同名 | `goods-card` |
 | JS 变量/函数 | 小驼峰 | `cartList`、`fetchCart` |
 | 常量 | 全大写下划线 | `ORDER_STATE` |
 | WXML 类名 | BEM-lite：`block__element--modifier` | `goods-card__price--origin` |
 | 单位 | 一律 `rpx`，边框可用 `1px` + `scaleY(.5)` | `margin: 24rpx` |
 | 颜色/字号 | 走 `global.scss` 变量 | `color: $brand-color` |
-| 变量引入 | **每个 scss 顶部显式 `@import`**（本机工具的自动注入未生效） | `pages/*/` 与 `components/*/` 用 `@import '../../global.scss';`，`packageGoods/pages/*/` 用 `@import '../../../global.scss';` |
+| 变量引入 | **每个 scss 顶部显式 `@import`**（本机工具的自动注入未生效） | `pages/*/` 与 `components/*/` 用 `@import '../../global.scss';`，二级页面（如 `pages/order/list/`）用 `@import '../../../global.scss';` |
 | 注释 | **精简**：只写「为什么」和「来源」，不写「是什么」，不逐行解释 API | `// 401 去重：并发请求只跳一次` 而不是 `// 判断是否 401` |
 | 样式隔离 | 自研组件默认 `isolated`；需覆盖 TDesign 用 `custom-style` 或 CSS 变量 | `--td-brand-color` |
 

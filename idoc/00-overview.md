@@ -46,22 +46,24 @@
 
 ```
 f:/WeChatProjects/miniprogram-rabbit/
-├── idoc/                 # 方案 + 9 份阶段任务书 + 作业看板 + 验收总表（你在读的这套）
-├── miniprogram/          # 小程序源码（骨架已就绪，业务按阶段填写）
-├── typings/              # TS 类型提示（不参与编译，留给未来迁移）
-├── package.json          # 依赖声明（tdesign-miniprogram 已装）
-├── project.config.json   # 开发者工具项目配置
-└── tsconfig.json         # 编辑器提示用，保留不动
+├── idoc/                 # 方案 + S0~S7 阶段任务书 + 作业看板 + 验收总表
+├── miniprogram/          # 小程序源码（17 个页面，全部在主包，无分包）
+│   ├── package.json      # 依赖与 lint/format 脚本（构建 npm 只认这里）
+│   └── data/areas.js     # 由 china-division 生成的省市区数据（勿手改）
+├── typings/              # TS 类型声明（为未来迁移保留，当前不参与编译）
+├── tsconfig.json         # 同上；当前无 .ts 业务源码
+├── project.config.json   # 开发者工具项目配置（AppID 为公开标识）
+└── README.md             # 运行入口与已知限制
 ```
 
-**依赖装但 npm 构建要做。** `tdesign-miniprogram` 已进 `package.json`，但小程序不能直接读 `node_modules`，必须在开发者工具里执行 **工具 → 构建 npm**，产物落在 `miniprogram/miniprogram_npm/`（已加入 `.gitignore`）。
+**依赖装但 npm 构建要做。** `miniprogram/package.json` 含 `tdesign-miniprogram`、`lodash.debounce`、`tslib` 三个运行时依赖；小程序不能直接读 `node_modules`，必须在开发者工具里执行 **工具 → 构建 npm**，产物落在 `miniprogram/miniprogram_npm/`（已加入 `.gitignore`）。
 
 ---
 
 ## 4. 两条红线
 
 1. **React 版只读**：`F:/Web/react-rabbit` 一行都不改，它是你的标准答案。
-2. **不在骨架里预写业务**：`pages/` 里现在是占位页，真实实现由你在对应阶段完成。抄现成代码学不会小程序，这是本项目唯一「反效率」的设计。
+2. **先讲后写**：阶段任务书按「学习目标 → 前置知识 → Step → 验收」推进；新加页面先走 `02-architecture.md` 的页面骨架约定，再补业务。
 
 ---
 
@@ -76,7 +78,7 @@ f:/WeChatProjects/miniprogram-rabbit/
 | 接口 | Apifox 文档 11 组 44 个接口，dev 域名 `https://pcapi-xiaotuxian-front-devtest.itheima.net` |
 | 请求层 | 自建 `utils/request.js`：Promise 封装 + 统一头 + token 注入 + 401 处理 |
 | 状态 | 页面 `data` 为主 + `storage` 持久化 + `globalData` 兜底；**不引入状态库** |
-| 工程 | `tabBar` 四页在主包，其余进 `packageGoods` 分包；`lazyCodeLoading` 按需注入 |
+| 工程 | 17 页全部在主包（未做分包，`app.json` 无 `subPackages`）；`lazyCodeLoading` 按需注入 |
 | 安全 | 类型用 JSDoc 标注，保留 TS 迁移能力（见 `02-architecture.md` §6） |
 
 ## 6. 明确不纳入（附替代做法）
@@ -119,20 +121,21 @@ f:/WeChatProjects/miniprogram-rabbit/
 | --- | --- | --- | --- | --- |
 | 1 | 首页 | `pages/home/index.jsx` + 6 个子组件 | `pages/index/` | S2 |
 | 2 | 一级分类 | `pages/category/index.jsx` | `pages/category/` | S3 |
-| 3 | 二级分类 | `pages/sub-category/index.jsx` | `packageGoods/pages/sub-category/` | S3 |
-| 4 | 搜索 | 无（React 版搜索框未接接口） | `packageGoods/pages/search/` | S3 |
-| 5 | 商品详情 | `pages/detail/index.jsx` | `packageGoods/pages/detail/` | S4 |
-| 6 | SKU 选择器 | `detail/components/SkuSelector` | `packageGoods/pages/detail/components/sku-panel/` | S4 |
+| 3 | 二级分类 | `pages/sub-category/index.jsx` | `pages/category/sub/` | S3 |
+| 4 | 搜索 | 无（React 版搜索框未接接口） | `pages/search/` | S3 |
+| 5 | 商品详情 | `pages/detail/index.jsx` | `pages/goods/detail/` | S4 |
+| 6 | SKU 选择器 | `detail/components/SkuSelector` | `components/sku-panel/` | S4 |
 | 7 | 购物车 | `pages/cart/index.jsx` | `pages/cart/` | S6 |
-| 8 | 登录 | `pages/login/index.jsx` | `packageGoods/pages/login/` | S5 |
+| 8 | 登录 | `pages/login/index.jsx` | `pages/login/` | S5 |
 | 9 | 我的 | `pages/member/index.jsx` | `pages/member/` | S5 |
-| 10 | 个人资料 | `member/components/UserInfo` | `packageGoods/pages/profile/` | S5 |
-| 11 | 地址列表/编辑 | `member/components/UserAddress` | `packageGoods/pages/address/`、`address-edit/` | S5 |
-| 12 | 结算 | `pages/checkout/index.jsx` | `packageGoods/pages/checkout/` | S7 |
-| 13 | 支付 | `pages/pay/index.jsx` | `packageGoods/pages/pay/` | S7 |
-| 14 | 订单列表 | `member/components/UserOrder` | `packageGoods/pages/order-list/` | S7 |
-| 15 | 订单详情 | `member/components/OrderDetail` | `packageGoods/pages/order-detail/` | S7 |
-| 16 | 收藏（降级） | `member/components/UserCollect` | `packageGoods/pages/collect/` | S5 选做 |
+| 10 | 个人资料 | `member/components/UserInfo` | `pages/profile/` | S5 |
+| 11 | 地址列表/编辑 | `member/components/UserAddress` | `pages/address/list/`、`pages/address/edit/` | S5 |
+| 12 | 结算 | `pages/checkout/index.jsx` | `pages/order/confirm/` | S7 |
+| 13 | 支付 | `pages/pay/index.jsx` | `pages/order/pay/` | S7 |
+| 14 | 订单列表 | `member/components/UserOrder` | `pages/order/list/` | S7 |
+| 15 | 订单详情 | `member/components/OrderDetail` | `pages/order/detail/` | S7 |
+| 16 | 物流 | 无 | `pages/order/logistics/` | S7 |
+| 17 | 收藏（降级） | `member/components/UserCollect` | `pages/collect/` | S5 选做 |
 | 17 | 注册页 | `pages/register`（占位） | 不做 | — |
 | 18 | 404 页 | `pages/not-found` | 不做（小程不会 404） | — |
 
@@ -146,4 +149,4 @@ f:/WeChatProjects/miniprogram-rabbit/
 4. **每阶段结束前过作业闸门**：`assignments.md` 里该阶段必做作业全部完成、答辩 3 问能脱稿回答，才可进入下一阶段。
 5. 每阶段完成后回 `checklist.md` 勾选对应区块。
 
-> 阶段编号统一用 **S0–S8**（与代码提交信息一致），文件名用 `stage-s0`…`stage-s8`；`S0` 对应「阶段 1」。
+> 阶段编号统一用 **S0–S8**（与代码提交信息一致）。当前已建任务书 `stage-s0`…`stage-s7`；S8（分包与性能收尾）尚未开始，所以没有 `stage-s8` 文件。`S0` 对应「阶段 1」。

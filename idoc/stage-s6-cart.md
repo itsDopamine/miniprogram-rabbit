@@ -1,6 +1,6 @@
 # 阶段 S6 · 购物车
 
-> 状态：**主体代码完成**（本地车 + 接口车双数据源）；登录合并待 S5
+> 状态：**主体代码完成**（本地车 + 接口车双数据源）；S5 登录已落地，合并触发点已接上（2026-11-25 盘点）
 > 工时：2 天 · 前置：S4 的加购（`utils/cart.js` 已具备本地暂存能力）
 > 关联：[`api-reference.md`](./api-reference.md) 购物车 5 个接口 + 未收录的 `/member/cart/merge`、[`stage-s4-detail-sku.md`](./stage-s4-detail-sku.md) Step 5
 

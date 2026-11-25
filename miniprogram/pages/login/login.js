@@ -106,7 +106,8 @@ Page({
 
       wx.showModal({
         title: '无法获取手机号',
-        content: '当前小程序主体不支持手机号快速验证（或基础库只返回 code，需后端用 code 换手机号）。可改用测试账号直接登录。',
+        content:
+          '当前小程序主体不支持手机号快速验证（或基础库只返回 code，需后端用 code 换手机号）。可改用测试账号直接登录。',
         // confirmText 上限 4 个字，写全称会被截断
         confirmText: '模拟登录',
         success: (res) => {

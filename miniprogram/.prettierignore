@@ -8,3 +8,6 @@ package-lock.json
 
 # 生成的数据文件：一行一条记录，格式化会把它拆成上万行且看不出差异
 data/areas.js
+
+# 开发者工具生成的骨架屏样式，重新生成会覆盖手工格式化
+pages/index/index.skeleton.scss

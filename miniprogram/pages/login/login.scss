@@ -101,7 +101,9 @@ page {
   letter-spacing: 4rpx;
   line-height: 96rpx;
   text-align: center;
-  transition: transform 0.14s ease-out, opacity 0.14s ease-out;
+  transition:
+    transform 0.14s ease-out,
+    opacity 0.14s ease-out;
 
   // 按下反馈：轻微内缩，不用阴影
   &--press {
